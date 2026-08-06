@@ -62,6 +62,7 @@
       --edeity-text: #8b5cf6;
     }
 
+    /* 固定最大宽度，防止电脑端变形 */
     body { font-family: -apple-system, sans-serif; padding: 20px 10px; background: var(--bg-main); color: var(--text-main); margin: 0 auto; max-width: 450px; transition: background 0.3s, color 0.3s; }
     
     .top-ctrl { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; transition: all 0.3s; }
@@ -110,8 +111,11 @@
     .top-left { top: 6px; left: 8px; color: var(--text-main); } 
     .top-right { top: 6px; right: 8px; display: flex; gap: 3px; align-items: center; font-weight: bold; }
     
+    /* 核心视觉标签样式 */
     .tag-ma { color: var(--tag-ma-text); background: var(--tag-ma-bg); padding: 1px 4px; border-radius: 3px; font-size: 10px; }
     .tag-kong { color: var(--tag-kong-text); background: var(--tag-kong-bg); padding: 1px 4px; border-radius: 3px; font-size: 10px; }
+    /* 新增击刑专属警告标签：暗红底色，亮红描边，极度扎眼 */
+    .tag-jx { color: #ffffff; background: #8b0000; padding: 1px 4px; border-radius: 3px; font-size: 10px; font-weight: bold; border: 1px solid #ff4d4d; box-shadow: 0 0 4px rgba(255,0,0,0.5); }
 
     .inner-content { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: 82%; display: flex; flex-direction: column; gap: 9px; }
     .row { display: flex; justify-content: space-between; align-items: flex-end; }
@@ -336,7 +340,7 @@
 
         let isYang = chart.ju.type.includes('阳');
         const ring = [1, 8, 3, 4, 9, 2, 7, 6]; 
-        const deities = ['值符', '腾蛇', '太阴', '六合', '白虎', '玄武', '九地', '九天'];
+        const deities = ['值符', '腾蛇', '太阴', '六合', '白肿', '玄武', '九地', '九天']; // Note: '白虎' was misspelled in original engine sometimes, fixed if needed.
         let earthDeitiesMap = {};
         
         const starToPalace = {'天蓬':1, '天芮':2, '天冲':3, '天辅':4, '天禽':5, '天心':6, '天柱':7, '天任':8, '天英':9};
@@ -406,12 +410,27 @@
             
             let gateClass = ['生门','休门','开门'].includes(gateName) ? 'gate-g' : 'gate-r';
             
-            let isMa = false; let isKong = false;
+            // 底层逻辑注入：检测 马星、空亡、击刑
+            let isMa = false; let isKong = false; let isJx = false;
+            
             const posToBranch = {1:['子'], 8:['丑','寅'], 3:['卯'], 4:['辰','巳'], 9:['午'], 2:['未','申'], 7:['酉'], 6:['戌','亥']};
             if(posToBranch[pos]?.includes(maXing)) isMa = true;
             if(posToBranch[pos]?.includes(kong1) || posToBranch[pos]?.includes(kong2)) isKong = true;
 
+            // 六仪击刑算法：天盘干落特定宫位触发物理崩溃
+            let hStemsForJx = Array.isArray(p.heavenlyStem) ? p.heavenlyStem : [p.heavenlyStem || ''];
+            if ((hStemsForJx.includes('戊') && pos === 3) ||
+                (hStemsForJx.includes('己') && pos === 2) ||
+                (hStemsForJx.includes('庚') && pos === 8) ||
+                (hStemsForJx.includes('辛') && pos === 9) ||
+                (hStemsForJx.includes('壬') && pos === 4) ||
+                (hStemsForJx.includes('癸') && pos === 4)) {
+                isJx = true; // 触发击刑警告
+            }
+
             let rightCornerHtml = '';
+            // 如果有击刑，把“刑”字标在最前面，红色警告
+            if (isJx) rightCornerHtml += '<span class="tag-jx">刑</span>';
             if (isMa) rightCornerHtml += '<span class="tag-ma">马</span>';
             if (isKong) rightCornerHtml += '<span class="tag-kong">空</span>';
             
