@@ -1,10 +1,3 @@
-// 1. 获取当前时间初始化表单
-const now = new Date();
-const pad = (n) => n.toString().padStart(2, '0');
-const defaultTime = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
-
-// 2. 终极毕业版：满屏巨型太极 + 无痕彩蛋出图 + 元旦盘初始态学习模式
-const html = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -89,7 +82,7 @@ const html = `
     .btn-red { background: #d34e55; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 13px; font-weight: bold; }
     .btn-yellow { background: var(--text-gold); color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 13px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
     
-    .sub-ctrl { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-color); padding-top: 10px; margin-margin-top: 5px; }
+    .sub-ctrl { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-color); padding-top: 10px; margin-top: 5px; }
     .sub-text { color: var(--text-gray); font-size: 12px; }
     .select-group { display: flex; align-items: center; gap: 4px; }
     .select-group select { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-blue); padding: 4px 6px; border-radius: 4px; font-size: 12px; outline: none; }
@@ -142,16 +135,17 @@ const html = `
     .taichi-svg { width: 115px; height: 115px; filter: drop-shadow(0 0 8px rgba(0,0,0,0.4)); }
   </style>
   
-  <script src="./3meta.min.js"></script>
-  <script src="./html2canvas.min.js"></script>
+  <!-- 使用 jsDelivr 的 GitHub CDN 加速节点，读取你的私有代码 -->
+  <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/3meta.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/html2canvas.min.js"></script>
 </head>
 <body>
 
   <div class="top-ctrl">
     <div class="ctrl-row">
       <div class="badge badge-gong">公</div>
-      <input type="datetime-local" class="input-box" id="timeInput" value="${defaultTime}">
-      <button class="btn-red" onclick="document.getElementById('timeInput').value='${defaultTime}'">现在</button>
+      <input type="datetime-local" class="input-box" id="timeInput">
+      <button class="btn-red" onclick="setCurrentTime()">现在</button>
     </div>
     <div class="ctrl-row">
       <div class="badge badge-nong">农</div>
@@ -262,11 +256,19 @@ const html = `
   </div>
 
   <script>
+    // 页面加载时自动获取并填入当前时间
+    function setCurrentTime() {
+        const now = new Date();
+        const pad = (n) => n.toString().padStart(2, '0');
+        const defaultTime = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        document.getElementById('timeInput').value = defaultTime;
+    }
+    window.onload = setCurrentTime;
+
     function toggleTheme() {
         document.body.classList.toggle('light-theme');
     }
 
-    // 引擎检测：只要库加载完成，改变提示文本即可，【不再自动起局】
     let checkEngine = setInterval(function() {
       if (typeof ThreeMeta !== 'undefined') {
         clearInterval(checkEngine);
@@ -288,7 +290,6 @@ const html = `
         }; return terms[m];
     }
 
-    // 用户手动点击“起局”后，调用动态渲染替换掉元旦盘
     function generateChart() {
       try {
         let timeStr = document.getElementById('timeInput').value;
@@ -351,7 +352,6 @@ const html = `
         let jieqi = chart.jieQi || chart.solarTerm || getJieQi(m, d);
         let yuan = chart.yuan || '中元';
         
-        // 渲染顶部的信息版块
         let boardHtml = 
           '<div class="bazi-row">' +
             '<div class="bazi-box"><div class="bazi-title">年柱</div><div class="bazi-value">' + bY + '</div></div>' +
@@ -382,7 +382,6 @@ const html = `
         const displayOrder = [4, 9, 2, 3, 5, 7, 8, 1, 6];
         let gridHtml = '';
         
-        // 动态覆盖九宫格内容
         displayOrder.forEach(pos => {
           const p = chart.palaces.find(x => x.position === pos) || {};
           
@@ -442,7 +441,6 @@ const html = `
       }
     }
     
-    // ======== 无痕彩蛋截图逻辑 ========
     function exportImage() {
         let logo = document.querySelector('.circle-logo');
         if(logo) {
@@ -515,11 +513,6 @@ const html = `
             document.body.appendChild(overlay);
         });
     }
-  <\/script>
+  </script>
 </body>
 </html>
-`;
-
-let wv = new WebView();
-wv.loadHTML(html);
-await wv.present();
