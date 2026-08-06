@@ -1,0 +1,525 @@
+// 1. 获取当前时间初始化表单
+const now = new Date();
+const pad = (n) => n.toString().padStart(2, '0');
+const defaultTime = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+// 2. 终极毕业版：满屏巨型太极 + 无痕彩蛋出图 + 元旦盘初始态学习模式
+const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <style>
+    /* 暗黑主题 (默认) */
+    :root {
+      --bg-main: #131520;       
+      --panel-bg: #1d1e2e;      
+      --border-color: #2b2c40;  
+      --gold-line: #a6833b;     
+      --cell-bg: #13141d;
+      --text-main: #ffffff;
+      
+      --text-gray: #7a7a90;     
+      --text-blue: #5b92d6;     
+      --text-gold: #e2b45f;     
+      
+      --c-deity: #d48b57;       
+      --c-star: #5c92d1;        
+      --c-gate-g: #25b955;      
+      --c-gate-r: #d34e55;      
+      --c-stem-h: #d18a99;      
+      --c-stem-e: #ffffff;      
+      
+      --tag-ma-bg: #d34e55;
+      --tag-ma-text: #ffffff;
+      --tag-kong-bg: #7a7a90;
+      --tag-kong-text: #ffffff;
+      
+      --palace-text: #7a7a90;
+      --edeity-text: #c4b5a2;
+    }
+
+    /* 亮白主题 */
+    body.light-theme {
+      --bg-main: #f0f2f5;       
+      --panel-bg: #ffffff;      
+      --border-color: #d1d5db;  
+      --gold-line: #b8975c;     
+      --cell-bg: #ffffff;
+      --text-main: #111827;
+      
+      --text-gray: #6b7280;     
+      --text-blue: #2563eb;     
+      --text-gold: #d97706;     
+      
+      --c-deity: #d97706;       
+      --c-star: #2563eb;        
+      --c-gate-g: #16a34a;      
+      --c-gate-r: #dc2626;      
+      --c-stem-h: #9d174d;      
+      --c-stem-e: #111827;      
+      
+      --tag-ma-bg: #fee2e2;
+      --tag-ma-text: #dc2626;
+      --tag-kong-bg: #f3f4f6;
+      --tag-kong-text: #4b5563;
+      
+      --palace-text: #9ca3af;
+      --edeity-text: #8b5cf6;
+    }
+
+    body { font-family: -apple-system, sans-serif; padding: 10px; background: var(--bg-main); color: var(--text-main); margin: 0; transition: background 0.3s, color 0.3s; }
+    
+    .top-ctrl { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; transition: all 0.3s; }
+    .ctrl-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    
+    .badge { width: 22px; height: 22px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; }
+    .badge-gong, .badge-nong, .badge-zhen { background: rgba(91, 146, 214, 0.15); color: var(--text-blue); }
+    
+    .input-box { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 6px 8px; border-radius: 4px; font-size: 14px; flex: 1; margin: 0 8px; }
+    .input-box-small { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 6px; border-radius: 4px; font-size: 14px; width: 60px; text-align: center; margin-left: 8px; }
+    
+    .checkbox-wrap { display: flex; align-items: center; margin-left: 10px; flex: 1; }
+    .checkbox-wrap input[type="checkbox"] { accent-color: var(--text-blue); width: 16px; height: 16px; margin: 0; margin-right: 6px; cursor: pointer; }
+    .checkbox-text { color: var(--text-gray); font-size: 12px; }
+
+    .mock-text { flex: 1; margin: 0 8px; color: var(--text-gray); font-size: 13px; display: flex; align-items: center; }
+    
+    .btn-red { background: #d34e55; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 13px; font-weight: bold; }
+    .btn-yellow { background: var(--text-gold); color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 13px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+    
+    .sub-ctrl { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-color); padding-top: 10px; margin-margin-top: 5px; }
+    .sub-text { color: var(--text-gray); font-size: 12px; }
+    .select-group { display: flex; align-items: center; gap: 4px; }
+    .select-group select { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-blue); padding: 4px 6px; border-radius: 4px; font-size: 12px; outline: none; }
+    
+    .btn-theme { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+
+    .info-board { margin-bottom: 15px; }
+    .bazi-row { display: flex; justify-content: space-between; margin-bottom: 12px; }
+    .bazi-box { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; width: 23%; text-align: center; padding: 8px 0; transition: all 0.3s; }
+    .bazi-title { font-size: 11px; color: var(--text-gray); margin-bottom: 6px; }
+    .bazi-value { font-size: 16px; font-weight: bold; color: var(--text-gold); }
+
+    .info-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-gray); margin-bottom: 8px; }
+    .zhifu-row { margin: 12px 0; }
+    .pill-green { background: rgba(37, 185, 85, 0.1); color: var(--c-gate-g); border: 1px solid var(--c-gate-g); padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+    
+    .circle-logo { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--text-gold); background: var(--panel-bg); color: var(--text-main); display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; box-shadow: 0 0 8px rgba(226,180,95,0.2); }
+    .circle-logo:active { transform: scale(0.9); background: var(--text-gold); color: #000; }
+
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--gold-line); border: 1px solid var(--gold-line); border-radius: 4px; padding: 1px; }
+    .cell { background: var(--cell-bg); position: relative; height: 125px; box-sizing: border-box; transition: background 0.3s; }
+    .center-cell { background: var(--cell-bg); display: flex; justify-content: center; align-items: center; position: relative; transition: background 0.3s; }
+
+    .corner { position: absolute; font-size: 11px; }
+    .top-left { top: 6px; left: 8px; color: var(--text-main); } 
+    .top-right { top: 6px; right: 8px; display: flex; gap: 3px; align-items: center; font-weight: bold; }
+    
+    .tag-ma { color: var(--tag-ma-text); background: var(--tag-ma-bg); padding: 1px 4px; border-radius: 3px; font-size: 10px; }
+    .tag-kong { color: var(--tag-kong-text); background: var(--tag-kong-bg); padding: 1px 4px; border-radius: 3px; font-size: 10px; }
+
+    .inner-content { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: 82%; display: flex; flex-direction: column; gap: 9px; }
+    .row { display: flex; justify-content: space-between; align-items: flex-end; }
+    .left-item { text-align: left; font-size: 15px; font-weight: bold; line-height: 1; white-space: nowrap; }
+    .right-item { text-align: right; font-size: 14px; font-weight: bold; line-height: 1; white-space: nowrap; }
+    
+    .small-stem { font-size: 12px !important; letter-spacing: -1px; }
+    
+    .deity-text { font-size: 16px; }
+    .edeity-text { font-size: 13px; color: var(--edeity-text); font-weight: bold; }
+    
+    .palace-row { position: absolute; bottom: 6px; left: 8px; right: 8px; border-top: 1px dashed var(--border-color); padding-top: 4px; display: flex; justify-content: flex-start; color: var(--palace-text); font-size: 11px; }
+
+    .deity { color: var(--c-deity); }
+    .star { color: var(--c-star); }
+    .gate-g { color: var(--c-gate-g); }
+    .gate-r { color: var(--c-gate-r); }
+    .stem-h { color: var(--c-stem-h); }
+    .stem-e { color: var(--c-stem-e); }
+
+    .taichi-svg { width: 115px; height: 115px; filter: drop-shadow(0 0 8px rgba(0,0,0,0.4)); }
+  </style>
+  
+  <script src="./3meta.min.js"></script>
+  <script src="./html2canvas.min.js"></script>
+</head>
+<body>
+
+  <div class="top-ctrl">
+    <div class="ctrl-row">
+      <div class="badge badge-gong">公</div>
+      <input type="datetime-local" class="input-box" id="timeInput" value="${defaultTime}">
+      <button class="btn-red" onclick="document.getElementById('timeInput').value='${defaultTime}'">现在</button>
+    </div>
+    <div class="ctrl-row">
+      <div class="badge badge-nong">农</div>
+      <div class="mock-text" id="nongliText">核心引擎挂载中，准备就绪后点击起局...</div>
+      <div style="font-size:12px; color:var(--text-blue);">命 ◀ ▶</div>
+    </div>
+    <div class="ctrl-row">
+      <div class="badge badge-zhen">真</div>
+      <div class="checkbox-wrap">
+        <input type="checkbox" id="useTrueSolar" checked>
+        <span class="checkbox-text">开启</span>
+        <input type="number" class="input-box-small" id="longitude" value="117.2" step="0.01">
+      </div>
+      <button class="btn-yellow" onclick="generateChart()">起局</button>
+    </div>
+    <div class="sub-ctrl">
+      <div class="sub-text">⏱ 按北京时间起局</div>
+      <div class="select-group">
+        <select><option>拆补法</option><option>置闰法</option></select>
+        <select><option>转盘</option><option>飞盘</option></select>
+        <button class="btn-theme" onclick="toggleTheme()">🌓 主题</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-board" id="infoBoard">
+    <div class="info-row" style="justify-content: center; color: var(--text-gold); font-size: 14px; font-weight: bold; margin-bottom: 8px;">
+       <span>⛩️ 元旦盘（初始物理环境底板） ⛩️</span>
+    </div>
+    <div class="info-row" style="justify-content: center; margin-bottom: 5px;">
+       <span>对照此盘学习：了解星与门的老家位置</span>
+    </div>
+  </div>
+
+  <div class="grid" id="chartGrid">
+    <div class="cell">
+      <div class="inner-content">
+        <div class="row"><div class="left-item deity deity-text"></div><div class="right-item stem-h"></div></div>
+        <div class="row"><div class="left-item star">天辅星</div><div class="right-item stem-e" style="color:var(--text-blue)">木</div></div>
+        <div class="row"><div class="left-item gate-g" style="color:var(--text-gray)">杜门</div><div class="right-item edeity-text"></div></div>
+      </div>
+      <div class="palace-row">巽4宫</div>
+    </div>
+    <div class="cell">
+      <div class="inner-content">
+        <div class="row"><div class="left-item deity deity-text"></div><div class="right-item stem-h"></div></div>
+        <div class="row"><div class="left-item star">天英星</div><div class="right-item stem-e" style="color:var(--c-gate-r)">火</div></div>
+        <div class="row"><div class="left-item gate-r">景门</div><div class="right-item edeity-text"></div></div>
+      </div>
+      <div class="palace-row">离9宫</div>
+    </div>
+    <div class="cell">
+      <div class="inner-content">
+        <div class="row"><div class="left-item deity deity-text"></div><div class="right-item stem-h"></div></div>
+        <div class="row"><div class="left-item star">天芮星</div><div class="right-item stem-e" style="color:var(--text-gold)">土</div></div>
+        <div class="row"><div class="left-item gate-r">死门</div><div class="right-item edeity-text"></div></div>
+      </div>
+      <div class="palace-row">坤2宫</div>
+    </div>
+    <div class="cell">
+      <div class="inner-content">
+        <div class="row"><div class="left-item deity deity-text"></div><div class="right-item stem-h"></div></div>
+        <div class="row"><div class="left-item star">天冲星</div><div class="right-item stem-e" style="color:var(--text-blue)">木</div></div>
+        <div class="row"><div class="left-item gate-r">伤门</div><div class="right-item edeity-text"></div></div>
+      </div>
+      <div class="palace-row">震3宫</div>
+    </div>
+    <div class="cell center-cell">
+      <svg class="taichi-svg" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="48" fill="#fff" stroke="var(--border-color)" stroke-width="1"/>
+        <path d="M50,2 A48,48 0 0,1 50,98 A24,24 0 0,1 50,50 A24,24 0 0,0 50,2" fill="#000"/>
+        <text x="50" y="26" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="20" font-weight="bold" fill="#000" stroke="#000" stroke-width="0.4" text-anchor="middle">天禽</text>
+        <text x="50" y="74" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="20" font-weight="bold" fill="#fff" text-anchor="middle">中土</text>
+      </svg>
+    </div>
+    <div class="cell">
+      <div class="inner-content">
+        <div class="row"><div class="left-item deity deity-text"></div><div class="right-item stem-h"></div></div>
+        <div class="row"><div class="left-item star">天柱星</div><div class="right-item stem-e" style="color:var(--text-gray)">金</div></div>
+        <div class="row"><div class="left-item gate-r">惊门</div><div class="right-item edeity-text"></div></div>
+      </div>
+      <div class="palace-row">兑7宫</div>
+    </div>
+    <div class="cell">
+      <div class="inner-content">
+        <div class="row"><div class="left-item deity deity-text"></div><div class="right-item stem-h"></div></div>
+        <div class="row"><div class="left-item star">天任星</div><div class="right-item stem-e" style="color:var(--text-gold)">土</div></div>
+        <div class="row"><div class="left-item gate-g">生门</div><div class="right-item edeity-text"></div></div>
+      </div>
+      <div class="palace-row">艮8宫</div>
+    </div>
+    <div class="cell">
+      <div class="inner-content">
+        <div class="row"><div class="left-item deity deity-text"></div><div class="right-item stem-h"></div></div>
+        <div class="row"><div class="left-item star">天蓬星</div><div class="right-item stem-e" style="color:var(--text-gray)">水</div></div>
+        <div class="row"><div class="left-item gate-g">休门</div><div class="right-item edeity-text"></div></div>
+      </div>
+      <div class="palace-row">坎1宫</div>
+    </div>
+    <div class="cell">
+      <div class="inner-content">
+        <div class="row"><div class="left-item deity deity-text"></div><div class="right-item stem-h"></div></div>
+        <div class="row"><div class="left-item star">天心星</div><div class="right-item stem-e" style="color:var(--text-gray)">金</div></div>
+        <div class="row"><div class="left-item gate-g">开门</div><div class="right-item edeity-text"></div></div>
+      </div>
+      <div class="palace-row">乾6宫</div>
+    </div>
+  </div>
+
+  <script>
+    function toggleTheme() {
+        document.body.classList.toggle('light-theme');
+    }
+
+    // 引擎检测：只要库加载完成，改变提示文本即可，【不再自动起局】
+    let checkEngine = setInterval(function() {
+      if (typeof ThreeMeta !== 'undefined') {
+        clearInterval(checkEngine);
+        document.getElementById('nongliText').innerText = '核心引擎已就绪，请按【起局】排盘';
+      }
+    }, 200);
+
+    const stems = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+    const branches = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+    
+    function getJieQi(m, d) {
+        const terms = {
+            1: d < 5 ? "冬至" : d < 20 ? "小寒" : "大寒", 2: d < 4 ? "大寒" : d < 19 ? "立春" : "雨水",
+            3: d < 5 ? "雨水" : d < 20 ? "惊蛰" : "春分", 4: d < 5 ? "春分" : d < 20 ? "清明" : "谷雨",
+            5: d < 5 ? "谷雨" : d < 21 ? "立夏" : "小满", 6: d < 6 ? "小满" : d < 21 ? "芒种" : "夏至",
+            7: d < 7 ? "夏至" : d < 23 ? "小暑" : "大暑", 8: d < 7 ? "大暑" : d < 23 ? "立秋" : "处暑",
+            9: d < 7 ? "处暑" : d < 23 ? "白露" : "秋分", 10: d < 8 ? "秋分" : d < 23 ? "寒露" : "霜降",
+            11: d < 7 ? "霜降" : d < 22 ? "立冬" : "小雪", 12: d < 7 ? "小雪" : d < 22 ? "大雪" : "冬至"
+        }; return terms[m];
+    }
+
+    // 用户手动点击“起局”后，调用动态渲染替换掉元旦盘
+    function generateChart() {
+      try {
+        let timeStr = document.getElementById('timeInput').value;
+        if(!timeStr) return;
+        let dDate = new Date(timeStr);
+        let lng = parseFloat(document.getElementById('longitude').value);
+        if (document.getElementById('useTrueSolar').checked && !isNaN(lng)) {
+            dDate.setMinutes(dDate.getMinutes() + (lng - 120) * 4);
+        }
+
+        const y = dDate.getFullYear(), m = dDate.getMonth() + 1, d = dDate.getDate();
+        const h = dDate.getHours(), min = dDate.getMinutes(), s = dDate.getSeconds();
+        const chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, s);
+
+        let bY = chart.fourPillars.year.stem + chart.fourPillars.year.branch;
+        let bM = chart.fourPillars.month.stem + chart.fourPillars.month.branch;
+        let bD = chart.fourPillars.day.stem + chart.fourPillars.day.branch;
+        let bH = chart.fourPillars.hour.stem + chart.fourPillars.hour.branch;
+        document.getElementById('nongliText').innerText = bY + '年 ' + bM + '月 ' + bD + '日 ' + bH + '时';
+
+        let hSIdx = stems.indexOf(chart.fourPillars.hour.stem);
+        let hBIdx = branches.indexOf(chart.fourPillars.hour.branch);
+        let xunOffset = (hBIdx - hSIdx + 12) % 12;
+        let kong1 = branches[(xunOffset + 10) % 12];
+        let kong2 = branches[(xunOffset + 11) % 12];
+        let xunName = stems[0] + branches[xunOffset]; 
+        const xunMap = {"甲子":"戊", "甲戌":"己", "甲申":"庚", "甲午":"辛", "甲辰":"壬", "甲寅":"癸"};
+        let xunDun = xunMap[xunName];
+
+        let dSIdx = stems.indexOf(chart.fourPillars.day.stem);
+        let dBIdx = branches.indexOf(chart.fourPillars.day.branch);
+        let fuOffset = dSIdx % 5;
+        let fuStem = stems[dSIdx - fuOffset];
+        let fuBranch = branches[(dBIdx - fuOffset + 12) % 12];
+        let fuTou = fuStem + fuBranch;
+
+        const maMap = {"申":"寅","子":"寅","辰":"寅", "亥":"巳","卯":"巳","未":"巳", "寅":"申","午":"申","戌":"申", "巳":"亥","酉":"亥","丑":"亥"};
+        let maXing = maMap[chart.fourPillars.hour.branch];
+
+        let zfName = chart.zhiFu.star.replace('星', '');
+        let zsName = chart.zhiShi.gate;
+        let zfPalace = chart.palaces.find(p => p.star === zfName || (Array.isArray(p.star) && p.star.includes(zfName)))?.position || 1;
+        let zsPalace = chart.palaces.find(p => p.gate === zsName)?.position || 1;
+
+        let isYang = chart.ju.type.includes('阳');
+        const ring = [1, 8, 3, 4, 9, 2, 7, 6]; 
+        const deities = ['值符', '腾蛇', '太阴', '六合', '白虎', '玄武', '九地', '九天'];
+        let earthDeitiesMap = {};
+        
+        const starToPalace = {'天蓬':1, '天芮':2, '天冲':3, '天辅':4, '天禽':5, '天心':6, '天柱':7, '天任':8, '天英':9};
+        let xunStart = starToPalace[zfName] || 1;
+        if(xunStart === 5) xunStart = 2; 
+
+        let startIndex = ring.indexOf(xunStart);
+        for (let i = 0; i < 8; i++) {
+            let ringIndex = isYang ? (startIndex + i) % 8 : (startIndex - i + 8) % 8;
+            earthDeitiesMap[ring[ringIndex]] = deities[i];
+        }
+
+        let jieqi = chart.jieQi || chart.solarTerm || getJieQi(m, d);
+        let yuan = chart.yuan || '中元';
+        
+        // 渲染顶部的信息版块
+        let boardHtml = 
+          '<div class="bazi-row">' +
+            '<div class="bazi-box"><div class="bazi-title">年柱</div><div class="bazi-value">' + bY + '</div></div>' +
+            '<div class="bazi-box"><div class="bazi-title">月柱</div><div class="bazi-value">' + bM + '</div></div>' +
+            '<div class="bazi-box"><div class="bazi-title">日柱</div><div class="bazi-value">' + bD + '</div></div>' +
+            '<div class="bazi-box"><div class="bazi-title">时柱</div><div class="bazi-value">' + bH + '</div></div>' +
+          '</div>' +
+          '<div class="info-row">' +
+             '<span>' + jieqi + ' ' + yuan + ' ' + chart.ju.type + chart.ju.number + '局</span>' +
+             '<span>符头: ' + fuTou + '</span>' +
+          '</div>' +
+          '<div class="info-row zhifu-row">' +
+             '<span class="pill-green">值符: ' + zfName + '(' + zfPalace + '宫)</span>' +
+             '<div class="circle-logo" onclick="exportImage()">历</div>' +
+             '<span class="pill-green">值使: ' + zsName + '(' + zsPalace + '宫)</span>' +
+          '</div>' +
+          '<div class="info-row">' +
+             '<span>旬首: ' + xunName + '遁' + xunDun + '</span>' +
+             '<span>马星: ' + maXing + ' &nbsp;空亡: ' + kong1 + ',' + kong2 + '</span>' +
+          '</div>';
+        
+        document.getElementById('infoBoard').innerHTML = boardHtml;
+
+        let centerP = chart.palaces.find(x => x.position === 5) || {};
+        let cH = Array.isArray(centerP.heavenlyStem) ? centerP.heavenlyStem[0] : (centerP.heavenlyStem || '');
+        let cE = Array.isArray(centerP.earthlyStem) ? centerP.earthlyStem[0] : (centerP.earthlyStem || '');
+
+        const displayOrder = [4, 9, 2, 3, 5, 7, 8, 1, 6];
+        let gridHtml = '';
+        
+        // 动态覆盖九宫格内容
+        displayOrder.forEach(pos => {
+          const p = chart.palaces.find(x => x.position === pos) || {};
+          
+          if (pos === 5) {
+            gridHtml += '<div class="cell center-cell">' + 
+              '<svg class="taichi-svg" viewBox="0 0 100 100">' +
+                '<circle cx="50" cy="50" r="48" fill="#fff" stroke="var(--border-color)" stroke-width="1"/>' +
+                '<path d="M50,2 A48,48 0 0,1 50,98 A24,24 0 0,1 50,50 A24,24 0 0,0 50,2" fill="#000"/>' +
+                '<text x="50" y="26" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="25" font-weight="bold" fill="#000" stroke="#000" stroke-width="0.4" text-anchor="middle">' + cH + '</text>' +
+                '<text x="50" y="74" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="25" font-weight="bold" fill="#fff" text-anchor="middle">' + cE + '</text>' +
+              '</svg>' +
+              '</div>';
+          } else {
+            let tDeity = Array.isArray(p.deity) ? p.deity[0] : (p.deity || ''); 
+            let eDeity = earthDeitiesMap[pos] || ''; 
+            let hiddenStem = p.hiddenStem || p.darkStem || ''; 
+            
+            let starName = Array.isArray(p.star) ? p.star.join('/') : (p.star || ''); 
+            let hStem = Array.isArray(p.heavenlyStem) ? p.heavenlyStem.join('/') : (p.heavenlyStem || '');
+            let eStem = Array.isArray(p.earthlyStem) ? p.earthlyStem.join('/') : (p.earthlyStem || '');
+            let gateName = p.gate || '';
+            
+            let gateClass = ['生门','休门','开门'].includes(gateName) ? 'gate-g' : 'gate-r';
+            
+            let isMa = false; let isKong = false;
+            const posToBranch = {1:['子'], 8:['丑','寅'], 3:['卯'], 4:['辰','巳'], 9:['午'], 2:['未','申'], 7:['酉'], 6:['戌','亥']};
+            if(posToBranch[pos]?.includes(maXing)) isMa = true;
+            if(posToBranch[pos]?.includes(kong1) || posToBranch[pos]?.includes(kong2)) isKong = true;
+
+            let rightCornerHtml = '';
+            if (isMa) rightCornerHtml += '<span class="tag-ma">马</span>';
+            if (isKong) rightCornerHtml += '<span class="tag-kong">空</span>';
+            
+            let starClass = starName.includes('/') ? 'left-item star small-stem' : 'left-item star';
+            let hClass = hStem.includes('/') ? 'right-item stem-h small-stem' : 'right-item stem-h';
+            let eClass = eStem.includes('/') ? 'right-item stem-e small-stem' : 'right-item stem-e';
+
+            gridHtml += '<div class="cell">';
+            gridHtml += '<div class="corner top-left">' + hiddenStem + '</div>';
+            gridHtml += '<div class="corner top-right">' + rightCornerHtml + '</div>';
+            
+            gridHtml += '<div class="inner-content">';
+            gridHtml += '<div class="row"><div class="left-item deity deity-text">' + tDeity + '</div><div class="' + hClass + '">' + hStem + '</div></div>';
+            gridHtml += '<div class="row"><div class="' + starClass + '">' + starName + '</div><div class="' + eClass + '">' + eStem + '</div></div>';
+            gridHtml += '<div class="row"><div class="left-item ' + gateClass + '">' + gateName + '</div><div class="right-item edeity-text">' + eDeity + '</div></div>';
+            gridHtml += '</div>';
+            
+            gridHtml += '<div class="palace-row">' + (p.trigram || '') + p.position + '宫</div>';
+            gridHtml += '</div>'; 
+          }
+        });
+
+        document.getElementById('chartGrid').innerHTML = gridHtml;
+
+      } catch (err) {
+        alert("排盘错误：" + err.message);
+      }
+    }
+    
+    // ======== 无痕彩蛋截图逻辑 ========
+    function exportImage() {
+        let logo = document.querySelector('.circle-logo');
+        if(logo) {
+            logo.innerText = '生成..';
+            logo.style.fontSize = '10px';
+        }
+        
+        window.scrollTo(0, 0); 
+        
+        let ctrl = document.querySelector('.top-ctrl');
+        ctrl.style.display = 'none';
+        
+        html2canvas(document.body, {
+            backgroundColor: getComputedStyle(document.body).backgroundColor,
+            scale: 3, 
+            useCORS: true
+        }).then(canvas => {
+            ctrl.style.display = 'block';
+            if(logo) {
+                logo.innerText = '历';
+                logo.style.fontSize = '14px';
+            }
+            
+            let imgData = canvas.toDataURL('image/png');
+            
+            let overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.backgroundColor = 'rgba(0,0,0,0.85)';
+            overlay.style.zIndex = '9999';
+            overlay.style.display = 'flex';
+            overlay.style.flexDirection = 'column';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            
+            let tip = document.createElement('div');
+            tip.innerText = '👇 长按下方图片即可保存相册或发送微信';
+            tip.style.color = '#fff';
+            tip.style.fontSize = '16px';
+            tip.style.fontWeight = 'bold';
+            tip.style.marginBottom = '20px';
+            
+            let img = document.createElement('img');
+            img.src = imgData;
+            img.style.maxWidth = '90%';
+            img.style.maxHeight = '75%';
+            img.style.borderRadius = '10px';
+            img.style.boxShadow = '0 8px 30px rgba(0,0,0,0.6)';
+            
+            let closeBtn = document.createElement('button');
+            closeBtn.innerText = '关闭图片';
+            closeBtn.style.marginTop = '20px';
+            closeBtn.style.padding = '10px 30px';
+            closeBtn.style.border = 'none';
+            closeBtn.style.borderRadius = '20px';
+            closeBtn.style.background = '#d34e55';
+            closeBtn.style.color = '#fff';
+            closeBtn.style.fontSize = '15px';
+            closeBtn.style.fontWeight = 'bold';
+            closeBtn.onclick = function() {
+                document.body.removeChild(overlay);
+            };
+            
+            overlay.appendChild(tip);
+            overlay.appendChild(img);
+            overlay.appendChild(closeBtn);
+            document.body.appendChild(overlay);
+        });
+    }
+  <\/script>
+</body>
+</html>
+`;
+
+let wv = new WebView();
+wv.loadHTML(html);
+await wv.present();
