@@ -19,8 +19,9 @@
       
       --c-deity: #d48b57;       
       --c-star: #5c92d1;        
-      --c-gate-g: #25b955;      
-      --c-gate-r: #d34e55;      
+      --c-gate-g: #25b955;      /* 吉门：休生开 */
+      --c-gate-r: #d34e55;      /* 凶门：死惊伤 */
+      --c-gate-n: #a881d8;      /* 平门：杜景 (新增柔和紫) */
       --c-stem-h: #d18a99;      
       --c-stem-e: #ffffff;      
       
@@ -50,6 +51,7 @@
       --c-star: #2563eb;        
       --c-gate-g: #16a34a;      
       --c-gate-r: #dc2626;      
+      --c-gate-n: #632914;      /* 亮色平门 */
       --c-stem-h: #9d174d;      
       --c-stem-e: #111827;      
       
@@ -62,33 +64,35 @@
       --edeity-text: #8b5cf6;
     }
 
-    /* 固定最大宽度，防止电脑端变形 */
-    body { font-family: -apple-system, sans-serif; padding: 20px 10px; background: var(--bg-main); color: var(--text-main); margin: 0 auto; max-width: 450px; transition: background 0.3s, color 0.3s; }
+    body { font-family: -apple-system, sans-serif; padding: 10px; background: var(--bg-main); color: var(--text-main); margin: 0; transition: background 0.3s, color 0.3s; }
     
+    /* === 顶部控制台全新紧凑 UI === */
     .top-ctrl { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; transition: all 0.3s; }
-    .ctrl-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .ctrl-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
     
-    .badge { width: 22px; height: 22px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; }
+    .badge { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; }
     .badge-gong, .badge-nong, .badge-zhen { background: rgba(91, 146, 214, 0.15); color: var(--text-blue); }
     
-    .input-box { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 6px 8px; border-radius: 4px; font-size: 14px; flex: 1; margin: 0 8px; }
-    .input-box-small { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 6px; border-radius: 4px; font-size: 14px; width: 60px; text-align: center; margin-left: 8px; }
+    .input-box { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px; border-radius: 6px; font-size: 14px; text-align: center; outline: none; box-sizing: border-box; }
+    .ctrl-row > .input-box { flex: 1; }
     
-    .checkbox-wrap { display: flex; align-items: center; margin-left: 10px; flex: 1; }
-    .checkbox-wrap input[type="checkbox"] { accent-color: var(--text-blue); width: 16px; height: 16px; margin: 0; margin-right: 6px; cursor: pointer; }
-    .checkbox-text { color: var(--text-gray); font-size: 12px; }
+    .btn-red { background: #d34e55; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: bold; flex-shrink: 0; }
+    .btn-yellow { background: var(--text-gold); color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.2); flex-shrink: 0; width: 60px; }
+    
+    /* 城市/经度专属容器排版 */
+    .zhen-group { display: flex; flex: 1; gap: 8px; }
+    .zhen-item { background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 0 6px; display: flex; align-items: center; justify-content: center; height: 34px; box-sizing: border-box; }
+    .zhen-item input[type="checkbox"] { margin-right: 4px; accent-color: var(--text-blue); }
+    .zhen-item select, .zhen-item input[type="number"] { background: transparent; border: none; color: var(--text-main); width: 100%; text-align: center; outline: none; font-size: 13px; -webkit-appearance: none; appearance: none; }
+    .zhen-item select { color: var(--text-blue); }
+    /* =========================== */
 
-    .mock-text { flex: 1; margin: 0 8px; color: var(--text-gray); font-size: 13px; display: flex; align-items: center; }
-    
-    .btn-red { background: #d34e55; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 13px; font-weight: bold; }
-    .btn-yellow { background: var(--text-gold); color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 13px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-    
     .sub-ctrl { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-color); padding-top: 10px; margin-top: 5px; }
     .sub-text { color: var(--text-gray); font-size: 12px; }
-    .select-group { display: flex; align-items: center; gap: 4px; }
-    .select-group select { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-blue); padding: 4px 6px; border-radius: 4px; font-size: 12px; outline: none; }
+    .select-group { display: flex; align-items: center; gap: 6px; }
+    .select-group select { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-blue); padding: 5px 8px; border-radius: 4px; font-size: 12px; outline: none; }
     
-    .btn-theme { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+    .btn-theme { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; }
 
     .info-board { margin-bottom: 15px; }
     .bazi-row { display: flex; justify-content: space-between; margin-bottom: 12px; }
@@ -111,11 +115,9 @@
     .top-left { top: 6px; left: 8px; color: var(--text-main); } 
     .top-right { top: 6px; right: 8px; display: flex; gap: 3px; align-items: center; font-weight: bold; }
     
-    /* 核心视觉标签样式 */
     .tag-ma { color: var(--tag-ma-text); background: var(--tag-ma-bg); padding: 1px 4px; border-radius: 3px; font-size: 10px; }
     .tag-kong { color: var(--tag-kong-text); background: var(--tag-kong-bg); padding: 1px 4px; border-radius: 3px; font-size: 10px; }
-    /* 新增击刑专属警告标签：暗红底色，亮红描边，极度扎眼 */
-    .tag-jx { color: #ffffff; background: #8b0000; padding: 1px 4px; border-radius: 3px; font-size: 10px; font-weight: bold; border: 1px solid #ff4d4d; box-shadow: 0 0 4px rgba(255,0,0,0.5); }
+    .tag-jx { color: #ffffff; background: #8b5cf6; padding: 1px 4px; border-radius: 3px; font-size: 10px; }
 
     .inner-content { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: 82%; display: flex; flex-direction: column; gap: 9px; }
     .row { display: flex; justify-content: space-between; align-items: flex-end; }
@@ -133,40 +135,71 @@
     .star { color: var(--c-star); }
     .gate-g { color: var(--c-gate-g); }
     .gate-r { color: var(--c-gate-r); }
+    .gate-n { color: var(--c-gate-n); } /* 新增平门样式 */
     .stem-h { color: var(--c-stem-h); }
     .stem-e { color: var(--c-stem-e); }
 
     .taichi-svg { width: 115px; height: 115px; filter: drop-shadow(0 0 8px rgba(0,0,0,0.4)); }
   </style>
   
-  <!-- 使用 jsDelivr 的 GitHub CDN 加速节点，读取你的私有代码 -->
-  <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/3meta.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/3meta.min.js"><\/script>
+  <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/html2canvas.min.js"><\/script>
 </head>
 <body>
 
   <div class="top-ctrl">
+    <!-- 第一排：输入时间 -->
     <div class="ctrl-row">
       <div class="badge badge-gong">公</div>
       <input type="datetime-local" class="input-box" id="timeInput">
-      <button class="btn-red" onclick="setCurrentTime()">现在</button>
+      <button class="btn-red" onclick="setNowTime()">现在</button>
     </div>
+    
+    <!-- 第二排：农历展示 -->
     <div class="ctrl-row">
       <div class="badge badge-nong">农</div>
-      <div class="mock-text" id="nongliText">核心引擎挂载中，准备就绪后点击起局...</div>
-      <div style="font-size:12px; color:var(--text-blue);">命 ◀ ▶</div>
+      <div class="input-box" id="nongliText" style="color:var(--text-gray); font-size:13px; display:flex; align-items:center; justify-content:center;">
+        等待起局...
+      </div>
+      <div style="font-size:13px; color:var(--text-blue); flex-shrink:0; font-weight:bold;">命 ◀▶</div>
     </div>
+    
+    <!-- 第三排：真太阳时与经纬度（重排版，完全填满空间） -->
     <div class="ctrl-row">
       <div class="badge badge-zhen">真</div>
-      <div class="checkbox-wrap">
-        <input type="checkbox" id="useTrueSolar" checked>
-        <span class="checkbox-text">开启</span>
-        <input type="number" class="input-box-small" id="longitude" value="117.2" step="0.01">
+      <div class="zhen-group">
+        <label class="zhen-item" style="flex: 0.8; cursor: pointer;">
+          <input type="checkbox" id="useTrueSolar" checked>
+          <span style="color:var(--text-gray); font-size:12px;">太阳时</span>
+        </label>
+        
+        <div class="zhen-item" style="flex: 1;">
+          <select id="citySelect" onchange="document.getElementById('longitude').value = this.value">
+            <option value="116.40">北京</option>
+            <option value="117.20" selected>天津</option>
+            <option value="121.47">上海</option>
+            <option value="113.26">广州</option>
+            <option value="114.05">深圳</option>
+            <option value="104.06">成都</option>
+            <option value="106.55">重庆</option>
+            <option value="108.94">西安</option>
+            <option value="114.30">武汉</option>
+            <option value="120.15">杭州</option>
+            <option value="118.79">南京</option>
+            <option value="87.68">乌鲁木齐</option>
+          </select>
+        </div>
+        
+        <div class="zhen-item" style="flex: 0.9;">
+          <input type="number" id="longitude" value="117.20" step="0.01">
+        </div>
       </div>
       <button class="btn-yellow" onclick="generateChart()">起局</button>
     </div>
+    
+    <!-- 第四排：附加设置 -->
     <div class="sub-ctrl">
-      <div class="sub-text">⏱ 按北京时间起局</div>
+      <div class="sub-text">⏱ 按起局地时间计算</div>
       <div class="select-group">
         <select><option>拆补法</option><option>置闰法</option></select>
         <select><option>转盘</option><option>飞盘</option></select>
@@ -189,7 +222,7 @@
       <div class="inner-content">
         <div class="row"><div class="left-item deity deity-text"></div><div class="right-item stem-h"></div></div>
         <div class="row"><div class="left-item star">天辅星</div><div class="right-item stem-e" style="color:var(--text-blue)">木</div></div>
-        <div class="row"><div class="left-item gate-g" style="color:var(--text-gray)">杜门</div><div class="right-item edeity-text"></div></div>
+        <div class="row"><div class="left-item gate-n">杜</div><div class="right-item edeity-text"></div></div>
       </div>
       <div class="palace-row">巽4宫</div>
     </div>
@@ -197,7 +230,7 @@
       <div class="inner-content">
         <div class="row"><div class="left-item deity deity-text"></div><div class="right-item stem-h"></div></div>
         <div class="row"><div class="left-item star">天英星</div><div class="right-item stem-e" style="color:var(--c-gate-r)">火</div></div>
-        <div class="row"><div class="left-item gate-r">景门</div><div class="right-item edeity-text"></div></div>
+        <div class="row"><div class="left-item gate-n">景</div><div class="right-item edeity-text"></div></div>
       </div>
       <div class="palace-row">离9宫</div>
     </div>
@@ -205,7 +238,7 @@
       <div class="inner-content">
         <div class="row"><div class="left-item deity deity-text"></div><div class="right-item stem-h"></div></div>
         <div class="row"><div class="left-item star">天芮星</div><div class="right-item stem-e" style="color:var(--text-gold)">土</div></div>
-        <div class="row"><div class="left-item gate-r">死门</div><div class="right-item edeity-text"></div></div>
+        <div class="row"><div class="left-item gate-r">死</div><div class="right-item edeity-text"></div></div>
       </div>
       <div class="palace-row">坤2宫</div>
     </div>
@@ -213,7 +246,7 @@
       <div class="inner-content">
         <div class="row"><div class="left-item deity deity-text"></div><div class="right-item stem-h"></div></div>
         <div class="row"><div class="left-item star">天冲星</div><div class="right-item stem-e" style="color:var(--text-blue)">木</div></div>
-        <div class="row"><div class="left-item gate-r">伤门</div><div class="right-item edeity-text"></div></div>
+        <div class="row"><div class="left-item gate-r">伤</div><div class="right-item edeity-text"></div></div>
       </div>
       <div class="palace-row">震3宫</div>
     </div>
@@ -229,7 +262,7 @@
       <div class="inner-content">
         <div class="row"><div class="left-item deity deity-text"></div><div class="right-item stem-h"></div></div>
         <div class="row"><div class="left-item star">天柱星</div><div class="right-item stem-e" style="color:var(--text-gray)">金</div></div>
-        <div class="row"><div class="left-item gate-r">惊门</div><div class="right-item edeity-text"></div></div>
+        <div class="row"><div class="left-item gate-r">惊</div><div class="right-item edeity-text"></div></div>
       </div>
       <div class="palace-row">兑7宫</div>
     </div>
@@ -237,7 +270,7 @@
       <div class="inner-content">
         <div class="row"><div class="left-item deity deity-text"></div><div class="right-item stem-h"></div></div>
         <div class="row"><div class="left-item star">天任星</div><div class="right-item stem-e" style="color:var(--text-gold)">土</div></div>
-        <div class="row"><div class="left-item gate-g">生门</div><div class="right-item edeity-text"></div></div>
+        <div class="row"><div class="left-item gate-g">生</div><div class="right-item edeity-text"></div></div>
       </div>
       <div class="palace-row">艮8宫</div>
     </div>
@@ -245,7 +278,7 @@
       <div class="inner-content">
         <div class="row"><div class="left-item deity deity-text"></div><div class="right-item stem-h"></div></div>
         <div class="row"><div class="left-item star">天蓬星</div><div class="right-item stem-e" style="color:var(--text-gray)">水</div></div>
-        <div class="row"><div class="left-item gate-g">休门</div><div class="right-item edeity-text"></div></div>
+        <div class="row"><div class="left-item gate-g">休</div><div class="right-item edeity-text"></div></div>
       </div>
       <div class="palace-row">坎1宫</div>
     </div>
@@ -253,21 +286,20 @@
       <div class="inner-content">
         <div class="row"><div class="left-item deity deity-text"></div><div class="right-item stem-h"></div></div>
         <div class="row"><div class="left-item star">天心星</div><div class="right-item stem-e" style="color:var(--text-gray)">金</div></div>
-        <div class="row"><div class="left-item gate-g">开门</div><div class="right-item edeity-text"></div></div>
+        <div class="row"><div class="left-item gate-g">开</div><div class="right-item edeity-text"></div></div>
       </div>
       <div class="palace-row">乾6宫</div>
     </div>
   </div>
 
   <script>
-    // 页面加载时自动获取并填入当前时间
-    function setCurrentTime() {
+    // 强制 JS 直接加载当前时间填充输入框，杜绝 iOS 渲染失效
+    function setNowTime() {
         const now = new Date();
         const pad = (n) => n.toString().padStart(2, '0');
-        const defaultTime = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
-        document.getElementById('timeInput').value = defaultTime;
+        document.getElementById('timeInput').value = now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + 'T' + pad(now.getHours()) + ':' + pad(now.getMinutes());
     }
-    window.onload = setCurrentTime;
+    setNowTime(); // 启动立刻执行
 
     function toggleTheme() {
         document.body.classList.toggle('light-theme');
@@ -334,13 +366,16 @@
         let maXing = maMap[chart.fourPillars.hour.branch];
 
         let zfName = chart.zhiFu.star.replace('星', '');
-        let zsName = chart.zhiShi.gate;
+        
+        // --- 顺手把信息板上的值使“门”字也去掉了，更利索 ---
+        let zsName = (chart.zhiShi.gate || '').replace('门', '');
+        
         let zfPalace = chart.palaces.find(p => p.star === zfName || (Array.isArray(p.star) && p.star.includes(zfName)))?.position || 1;
-        let zsPalace = chart.palaces.find(p => p.gate === zsName)?.position || 1;
+        let zsPalace = chart.palaces.find(p => p.gate === chart.zhiShi.gate)?.position || 1;
 
         let isYang = chart.ju.type.includes('阳');
         const ring = [1, 8, 3, 4, 9, 2, 7, 6]; 
-        const deities = ['值符', '腾蛇', '太阴', '六合', '白肿', '玄武', '九地', '九天']; // Note: '白虎' was misspelled in original engine sometimes, fixed if needed.
+        const deities = ['值符', '腾蛇', '太阴', '六合', '白虎', '玄武', '九地', '九天'];
         let earthDeitiesMap = {};
         
         const starToPalace = {'天蓬':1, '天芮':2, '天冲':3, '天辅':4, '天禽':5, '天心':6, '天柱':7, '天任':8, '天英':9};
@@ -406,44 +441,38 @@
             let starName = Array.isArray(p.star) ? p.star.join('/') : (p.star || ''); 
             let hStem = Array.isArray(p.heavenlyStem) ? p.heavenlyStem.join('/') : (p.heavenlyStem || '');
             let eStem = Array.isArray(p.earthlyStem) ? p.earthlyStem.join('/') : (p.earthlyStem || '');
-            let gateName = p.gate || '';
             
-            let gateClass = ['生门','休门','开门'].includes(gateName) ? 'gate-g' : 'gate-r';
+            // --- 核心修改：去门字、分三色 ---
+            let origGate = p.gate || '';
+            let gateName = origGate.replace('门', '');
             
-            // --- 暴力底层逻辑注入：检测 马星、空亡、击刑 ---
-let isMa = false; let isKong = false; let isJx = false;
+            let gateClass = 'gate-r'; // 默认凶门(红)
+            if (['生门','休门','开门'].includes(origGate)) {
+                gateClass = 'gate-g'; // 吉门(绿)
+            } else if (['杜门','景门'].includes(origGate)) {
+                gateClass = 'gate-n'; // 平门(紫)
+            }
+            
+            let isMa = false; let isKong = false; let isJx = false;
 
-const posToBranch = {1:['子'], 8:['丑','寅'], 3:['卯'], 4:['辰','巳'], 9:['午'], 2:['未','申'], 7:['酉'], 6:['戌','亥']};
-if(posToBranch[pos]?.includes(maXing)) isMa = true;
-if(posToBranch[pos]?.includes(kong1) || posToBranch[pos]?.includes(kong2)) isKong = true;
+            const posToBranch = {1:['子'], 8:['丑','寅'], 3:['卯'], 4:['辰','巳'], 9:['午'], 2:['未','申'], 7:['酉'], 6:['戌','亥']};
+            if(posToBranch[pos]?.includes(maXing)) isMa = true;
+            if(posToBranch[pos]?.includes(kong1) || posToBranch[pos]?.includes(kong2)) isKong = true;
 
-// 六仪击刑暴力扫描算法：将天盘干强制转换为纯字符串进行包含匹配，无视底层数据结构
-let hStemStr = Array.isArray(p.heavenlyStem) ? p.heavenlyStem.join('') : String(p.heavenlyStem || '');
-if ((hStemStr.includes('戊') && pos === 3) ||
-    (hStemStr.includes('己') && pos === 2) ||
-    (hStemStr.includes('庚') && pos === 8) ||
-    (hStemStr.includes('辛') && pos === 9) ||
-    (hStemStr.includes('壬') && pos === 4) ||
-    (hStemStr.includes('癸') && pos === 4)) {
-    isJx = true; // 强制触发击刑警告
-}
-
-            // 六仪击刑算法：天盘干落特定宫位触发物理崩溃
-            let hStemsForJx = Array.isArray(p.heavenlyStem) ? p.heavenlyStem : [p.heavenlyStem || ''];
-            if ((hStemsForJx.includes('戊') && pos === 3) ||
-                (hStemsForJx.includes('己') && pos === 2) ||
-                (hStemsForJx.includes('庚') && pos === 8) ||
-                (hStemsForJx.includes('辛') && pos === 9) ||
-                (hStemsForJx.includes('壬') && pos === 4) ||
-                (hStemsForJx.includes('癸') && pos === 4)) {
-                isJx = true; // 触发击刑警告
+            let hStemStr = Array.isArray(p.heavenlyStem) ? p.heavenlyStem.join('') : String(p.heavenlyStem || '');
+            if ((hStemStr.includes('戊') && pos === 3) ||
+                (hStemStr.includes('己') && pos === 2) ||
+                (hStemStr.includes('庚') && pos === 8) ||
+                (hStemStr.includes('辛') && pos === 9) ||
+                (hStemStr.includes('壬') && pos === 4) ||
+                (hStemStr.includes('癸') && pos === 4)) {
+                isJx = true; 
             }
 
             let rightCornerHtml = '';
-            // 如果有击刑，把“刑”字标在最前面，红色警告
-            if (isJx) rightCornerHtml += '<span class="tag-jx">刑</span>';
             if (isMa) rightCornerHtml += '<span class="tag-ma">马</span>';
             if (isKong) rightCornerHtml += '<span class="tag-kong">空</span>';
+            if (isJx) rightCornerHtml += '<span class="tag-jx">刑</span>';
             
             let starClass = starName.includes('/') ? 'left-item star small-stem' : 'left-item star';
             let hClass = hStem.includes('/') ? 'right-item stem-h small-stem' : 'right-item stem-h';
@@ -543,6 +572,6 @@ if ((hStemStr.includes('戊') && pos === 3) ||
             document.body.appendChild(overlay);
         });
     }
-  </script>
+  <\/script>
 </body>
 </html>
