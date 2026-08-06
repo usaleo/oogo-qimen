@@ -410,12 +410,23 @@
             
             let gateClass = ['生门','休门','开门'].includes(gateName) ? 'gate-g' : 'gate-r';
             
-            // 底层逻辑注入：检测 马星、空亡、击刑
-            let isMa = false; let isKong = false; let isJx = false;
-            
-            const posToBranch = {1:['子'], 8:['丑','寅'], 3:['卯'], 4:['辰','巳'], 9:['午'], 2:['未','申'], 7:['酉'], 6:['戌','亥']};
-            if(posToBranch[pos]?.includes(maXing)) isMa = true;
-            if(posToBranch[pos]?.includes(kong1) || posToBranch[pos]?.includes(kong2)) isKong = true;
+            // --- 暴力底层逻辑注入：检测 马星、空亡、击刑 ---
+let isMa = false; let isKong = false; let isJx = false;
+
+const posToBranch = {1:['子'], 8:['丑','寅'], 3:['卯'], 4:['辰','巳'], 9:['午'], 2:['未','申'], 7:['酉'], 6:['戌','亥']};
+if(posToBranch[pos]?.includes(maXing)) isMa = true;
+if(posToBranch[pos]?.includes(kong1) || posToBranch[pos]?.includes(kong2)) isKong = true;
+
+// 六仪击刑暴力扫描算法：将天盘干强制转换为纯字符串进行包含匹配，无视底层数据结构
+let hStemStr = Array.isArray(p.heavenlyStem) ? p.heavenlyStem.join('') : String(p.heavenlyStem || '');
+if ((hStemStr.includes('戊') && pos === 3) ||
+    (hStemStr.includes('己') && pos === 2) ||
+    (hStemStr.includes('庚') && pos === 8) ||
+    (hStemStr.includes('辛') && pos === 9) ||
+    (hStemStr.includes('壬') && pos === 4) ||
+    (hStemStr.includes('癸') && pos === 4)) {
+    isJx = true; // 强制触发击刑警告
+}
 
             // 六仪击刑算法：天盘干落特定宫位触发物理崩溃
             let hStemsForJx = Array.isArray(p.heavenlyStem) ? p.heavenlyStem : [p.heavenlyStem || ''];
