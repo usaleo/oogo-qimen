@@ -64,7 +64,7 @@
       --edeity-text: #8b5cf6;
     }
 
-    body { font-family: -apple-system, sans-serif; padding: 10px; background: var(--bg-main); color: var(--text-main); margin: 0; transition: background 0.3s, color 0.3s; }
+    body { font-family: -apple-system, sans-serif; padding: 10px; background: var(--bg-main); color: var(--text-main); margin: 0 auto; max-width: 500px; transition: background 0.3s, color 0.3s; }
     
     /* === 顶部控制台全新紧凑 UI === */
     .top-ctrl { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; transition: all 0.3s; }
@@ -115,9 +115,22 @@
     .top-left { top: 6px; left: 8px; color: var(--text-main); } 
     .top-right { top: 6px; right: 8px; display: flex; gap: 3px; align-items: center; font-weight: bold; }
     
+        /* 核心视觉标签样式 */
     .tag-ma { color: var(--tag-ma-text); background: var(--tag-ma-bg); padding: 1px 4px; border-radius: 3px; font-size: 10px; }
     .tag-kong { color: var(--tag-kong-text); background: var(--tag-kong-bg); padding: 1px 4px; border-radius: 3px; font-size: 10px; }
-    .tag-jx { color: #ffffff; background: #8b5cf6; padding: 1px 4px; border-radius: 3px; font-size: 10px; }
+    
+    /* 新增击刑专属警告标签：暗红底色，亮红描边，极度扎眼 */
+    .tag-jx { 
+        color: #ffffff;             /* 字体颜色：纯白 */
+        background: #8b0000;        /* 击刑背景底色：暗红色 (Dark Red) */
+        padding: 1px 4px; 
+        border-radius: 3px; 
+        font-size: 10px; 
+        font-weight: bold; 
+        border: 1px solid #ff4d4d;  /* 击刑边框颜色：亮红色 */
+        box-shadow: 0 0 4px rgba(255,0,0,0.5); /* 击刑发光效果：纯红色的半透明发光 */
+    }
+
 
     .inner-content { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: 82%; display: flex; flex-direction: column; gap: 9px; }
     .row { display: flex; justify-content: space-between; align-items: flex-end; }
@@ -142,8 +155,8 @@
     .taichi-svg { width: 115px; height: 115px; filter: drop-shadow(0 0 8px rgba(0,0,0,0.4)); }
   </style>
   
-  <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/3meta.min.js"><\/script>
-  <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/html2canvas.min.js"><\/script>
+  <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/3meta.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -293,7 +306,7 @@
   </div>
 
   <script>
-    // 强制 JS 直接加载当前时间填充输入框，杜绝 iOS 渲染失效
+    // 强制 JS 直接加载当前时间填充输入框
     function setNowTime() {
         const now = new Date();
         const pad = (n) => n.toString().padStart(2, '0');
@@ -470,9 +483,9 @@
             }
 
             let rightCornerHtml = '';
+            if (isJx) rightCornerHtml += '<span class="tag-jx">刑</span>';
             if (isMa) rightCornerHtml += '<span class="tag-ma">马</span>';
             if (isKong) rightCornerHtml += '<span class="tag-kong">空</span>';
-            if (isJx) rightCornerHtml += '<span class="tag-jx">刑</span>';
             
             let starClass = starName.includes('/') ? 'left-item star small-stem' : 'left-item star';
             let hClass = hStem.includes('/') ? 'right-item stem-h small-stem' : 'right-item stem-h';
@@ -572,6 +585,6 @@
             document.body.appendChild(overlay);
         });
     }
-  <\/script>
+  </script>
 </body>
 </html>
