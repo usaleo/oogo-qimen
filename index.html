@@ -531,16 +531,69 @@
             
             const fileName = '奇门遁甲_' + new Date().toLocaleString().replace(/[\/:]/g, '-') + '.png';
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            a.style.display = 'none';
-            document.body.appendChild(a);
-            a.click(); 
-            document.body.removeChild(a);
             
-            setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
-            showToast('✅ 图片已开始下载');
+            // 检测是否为移动端或微信环境
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const isWechat = /MicroMessenger/i.test(navigator.userAgent);
+
+            if (isMobile) {
+              // 将 Blob 转换为 File 对象，用于原生分享
+              const file = new File([blob], fileName, { type: 'image/png' });
+              
+              // 1. 优先尝试调用手机原生的 Share API (弹出系统分享面板，内含保存到相册按钮)
+              if (!isWechat && navigator.canShare && navigator.canShare({ files: [file] })) {
+                navigator.share({
+                  files: [file],
+                  title: '奇门排盘',
+                  text: '我的奇门排盘截图'
+                }).then(() => {
+                  showToast('✅ 操作成功');
+                }).catch((error) => {
+                  console.log('用户取消或分享失败', error);
+                  // 如果原生分享失败，不强制弹长按，静默结束即可
+                });
+                return; // 如果支持 Share API，代码到此结束
+              }
+
+              // 2. 如果不支持原生分享（比如在微信里），降级为长按保存方案
+              const overlay = document.createElement('div');
+              overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;';
+
+              const tip = document.createElement('div');
+              tip.innerText = '👉 请长按下方图片保存或分享 👈';
+              tip.style.cssText = 'color:#e2b45f;font-size:16px;margin-bottom:15px;font-weight:bold;letter-spacing:1px;';
+
+              const img = document.createElement('img');
+              img.src = url;
+              img.style.cssText = 'max-width:90%;max-height:80%;border-radius:8px;box-shadow:0 0 15px rgba(226,180,95,0.3);';
+
+              const closeBtn = document.createElement('div');
+              closeBtn.innerText = '✕ 关闭';
+              closeBtn.style.cssText = 'color:#fff;margin-top:20px;padding:8px 24px;border:1px solid #7a7a90;border-radius:20px;font-size:14px;cursor:pointer;';
+              closeBtn.onclick = function() {
+                document.body.removeChild(overlay);
+                setTimeout(function () { URL.revokeObjectURL(url); }, 100);
+              };
+
+              overlay.appendChild(tip);
+              overlay.appendChild(img);
+              overlay.appendChild(closeBtn);
+              document.body.appendChild(overlay);
+              
+              showToast('✅ 图片生成成功，请长按保存');
+            } else {
+              // 3. 电脑端：保持原有的自动下载逻辑
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = fileName;
+              a.style.display = 'none';
+              document.body.appendChild(a);
+              a.click(); 
+              document.body.removeChild(a);
+              
+              setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+              showToast('✅ 图片已开始下载');
+            }
           }, 'image/png', 0.92);
 
         }).catch(function (err) {
