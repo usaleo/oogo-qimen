@@ -9,7 +9,7 @@
   <link rel="icon" type="image/png" href="./apple-touch-icon.png?v=9">
   <link rel="manifest" href="./manifest.json">
   <style>
-    /* 暗黑主题 (默认) */
+    /* 暗黑主题 */
     :root {
       --bg-main: #131520;
       --panel-bg: #1d1e2e;
@@ -441,23 +441,52 @@
         for (let i = 0; i < 8; i++) { earthDeitiesMap[ring[isYang ? (startIndex + i) % 8 : (startIndex - i + 8) % 8]] = deities[i]; }
 
         let isStarFu = true, isStarFan = true, isGateFu = true, isGateFan = true;
-        const origStar = {1:'天蓬', 2:'天芮', 3:'天冲', 4:'天辅', 6:'天心', 7:'天柱', 8:'天任', 9:'天英'};
-        const origGate = {1:'休门', 2:'死门', 3:'伤门', 4:'杜门', 6:'开门', 7:'惊门', 8:'生门', 9:'景门'};
-        const oppoPalace = {1:9, 2:8, 3:7, 4:6, 6:4, 7:3, 8:2, 9:1};
+const origStar = {1:'天蓬', 2:'天芮', 3:'天冲', 4:'天辅', 6:'天心', 7:'天柱', 8:'天任', 9:'天英'};
+const origGate = {1:'休门', 2:'死门', 3:'伤门', 4:'杜门', 6:'开门', 7:'惊门', 8:'生门', 9:'景门'};
+const oppoPalace = {1:9, 2:8, 3:7, 4:6, 6:4, 7:3, 8:2, 9:1};
 
-        [1,2,3,4,6,7,8,9].forEach(pos => {
-          let p = chart.palaces.find(x => x.position === pos) || {};
-          let sName = Array.isArray(p.star) ? p.star.join('') : (p.star || '');
-          let gName = p.gate || '';
-          if (!sName.includes(origStar[pos])) isStarFu = false;
-          if (!sName.includes(origStar[oppoPalace[pos]])) isStarFan = false;
-          if (gName !== origGate[pos]) isGateFu = false;
-          if (gName !== origGate[oppoPalace[pos]]) isGateFan = false;
-        });
+[1,2,3,4,6,7,8,9].forEach(pos => {
+  let p = chart.palaces.find(x => x.position === pos) || {};
+  
+  // 星名兼容处理（去掉“天”“星”，防止库返回格式不一致）
+  let sName = (Array.isArray(p.star) ? p.star.join('') : (p.star || '')).replace(/天|星/g, '');
+  let targetFuStar = origStar[pos].replace(/天|星/g, '');
+  let targetFanStar = origStar[oppoPalace[pos]].replace(/天|星/g, '');
+  
+  if (!sName.includes(targetFuStar)) isStarFu = false;
+  if (!sName.includes(targetFanStar)) isStarFan = false;
+  
+  // 门名兼容处理
+  let gName = (p.gate || '').replace('门', '');
+  let targetFuGate = origGate[pos].replace('门', '');
+  let targetFanGate = origGate[oppoPalace[pos]].replace('门', '');
+  
+  if (gName !== targetFuGate) isGateFu = false;
+  if (gName !== targetFanGate) isGateFan = false;
+});
 
-        let fyText = '';
-        if (isStarFu && isGateFu) { fyText = '<span style="color:#d34e55; font-weight:bold; margin-left:8px; border:1px solid #d34e55; padding:1px 4px; border-radius:4px; font-size:11px;">星门俱伏</span>'; }
-        else if (isStarFan && isGateFan) { fyText = '<span style="color:#d34e55; font-weight:bold; margin-left:8px; border:1px solid #d34e55; padding:1px 4px; border-radius:4px; font-size:11px;">星门俱反</span>'; }
+// 组合显示逻辑
+let starStatus = isStarFu ? '星伏' : (isStarFan ? '星反' : '');
+let gateStatus = isGateFu ? '门伏' : (isGateFan ? '门反' : '');
+
+let fyText = '';
+if (starStatus && gateStatus) {
+  if (starStatus === '星伏' && gateStatus === '门伏') {
+    fyText = '星门俱伏';
+  } else if (starStatus === '星反' && gateStatus === '门反') {
+    fyText = '星门俱反';
+  } else {
+    fyText = starStatus + gateStatus;   // 星伏门反 / 星反门伏
+  }
+} else if (starStatus) {
+  fyText = starStatus;                  // 只有星伏 / 星反
+} else if (gateStatus) {
+  fyText = gateStatus;                  // 只有门伏 / 门反
+}
+
+if (fyText) {
+  fyText = '<span style="color:#d34e55; font-weight:bold; margin-left:8px; border:1px solid #d34e55; padding:1px 4px; border-radius:4px; font-size:11px;">' + fyText + '</span>';
+}
 
         let boardHtml =
           '<div class="bazi-row"><div class="bazi-box"><div class="bazi-title">年柱</div><div class="bazi-value">' + bY + '</div></div><div class="bazi-box"><div class="bazi-title">月柱</div><div class="bazi-value">' + bM + '</div></div><div class="bazi-box"><div class="bazi-title">日柱</div><div class="bazi-value">' + bD + '</div></div><div class="bazi-box"><div class="bazi-title">时柱</div><div class="bazi-value">' + bH + '</div></div></div>' +
