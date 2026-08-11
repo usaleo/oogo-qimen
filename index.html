@@ -435,9 +435,6 @@
     function pad(n) { return n < 10 ? '0' + n : n; }
     initDateSelects();
 
-    // ==========================================
-    // 纯代码大号自适应无边框无眼色太极阵
-    // ==========================================
     function renderDefaultBoard() {
       const grid = document.getElementById('chartGrid');
       grid.style.background = 'transparent';
@@ -450,10 +447,8 @@
       grid.innerHTML = `
         <div style="width: 100%; max-width: 420px; aspect-ratio: 1/1; display: flex; justify-content: center; align-items: center;">
           <svg viewBox="0 0 200 200" style="width: 100%; height: 100%; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.35));">
-            <!-- 无外边框，纯太极图形，撑满全幅 -->
             <path d="M 100 0 A 100 100 0 0 1 100 200 A 50 50 0 0 1 100 100 A 50 50 0 0 0 100 0 Z" fill="#000000"/>
             <path d="M 100 200 A 100 100 0 0 1 100 0 A 50 50 0 0 1 100 100 A 50 50 0 0 0 100 200 Z" fill="#ffffff"/>
-            <!-- 鱼眼（去掉了内部异色小圆点） -->
             <circle cx="100" cy="50" r="16" fill="#000000"/>
             <circle cx="100" cy="150" r="16" fill="#ffffff"/>
           </svg>
@@ -606,11 +601,44 @@
         const ring = [1, 8, 3, 4, 9, 2, 7, 6]; const deities = ['值符', '腾蛇', '太阴', '六合', '白虎', '玄武', '九地', '九天'];
         let earthDeitiesMap = {};
         
+        // --- 修复1：地八神排布逻辑修复 ---
         if (panType === 'zhuan') {
-            let xunStart = {'天蓬':1, '天芮':2, '天冲':3, '天辅':4, '天禽':5, '天心':6, '天柱':7, '天任':8, '天英':9}[logicZfName] || 1;
-            if (xunStart === 5) xunStart = 2;
-            let startIndex = ring.indexOf(xunStart);
-            for (let i = 0; i < 8; i++) { earthDeitiesMap[ring[isYang ? (startIndex + i) % 8 : (startIndex - i + 8) % 8]] = deities[i]; }
+            // 找出旬首在地盘的落宫，作为地八神的起点
+            let earthXunPalace = 5;
+            for (let i = 1; i <= 9; i++) {
+                let p = chart.palaces.find(function(x) { return x.position === i; }) || {};
+                let eStemStr = Array.isArray(p.earthlyStem) ? p.earthlyStem[0] : (p.earthlyStem || '');
+                if (eStemStr === xunDun) {
+                    earthXunPalace = i;
+                    break;
+                }
+            }
+            if (earthXunPalace === 5) earthXunPalace = 2; // 中5宫寄坤2宫
+            
+            // 阳遁顺排，阴遁逆排
+            let eDeityStartIndex = ring.indexOf(earthXunPalace);
+            for (let i = 0; i < 8; i++) { 
+                earthDeitiesMap[ring[isYang ? (eDeityStartIndex + i) % 8 : (eDeityStartIndex - i + 8) % 8]] = deities[i]; 
+            }
+        }
+
+        // --- 修复2：暗干（隐干）排布逻辑修复 ---
+        // 时干入值使宫，阳顺阴逆飞九宫
+        let timeStem = chart.fourPillars.hour.stem;
+        let hiddenStemStart = (timeStem === '甲') ? xunDun : timeStem;
+        const qimenStems = ["戊", "己", "庚", "辛", "壬", "癸", "丁", "丙", "乙"];
+        let startStemIndex = qimenStems.indexOf(hiddenStemStart);
+        let hiddenStemsMap = {};
+        let currPalace = zsPalace; // 起点在值使宫
+        for (let i = 0; i < 9; i++) {
+            hiddenStemsMap[currPalace] = qimenStems[(startStemIndex + i) % 9];
+            if (isYang) {
+                currPalace++; // 阳遁顺飞
+                if (currPalace > 9) currPalace = 1;
+            } else {
+                currPalace--; // 阴遁逆飞
+                if (currPalace < 1) currPalace = 9;
+            }
         }
 
         let isStarFu = true, isStarFan = true, isGateFu = true, isGateFan = true;
@@ -663,14 +691,18 @@
         displayOrder.forEach(function(pos) {
           const p = chart.palaces.find(function(x) { return x.position === pos; }) || {};
           
+          // 左侧天八神（直接使用原装底层排布）
           let tDeity = simplifyDeity(Array.isArray(p.deity) ? p.deity[0] : (p.deity || ''));
-          if (panType === 'zhuan' && pos !== 5) tDeity = simplifyDeity(earthDeitiesMap[pos]);
           
+          // 右侧地八神（使用上方重新计算的精准地八神）
           let eDeity = '';
           if (panType === 'zhuan' && pos !== 5) eDeity = simplifyDeity(earthDeitiesMap[pos]);
           
           let starName = (Array.isArray(p.star) ? p.star.join('/') : (p.star || '')).replace(/天/g, '').replace(/星/g, '');
-          let hiddenStem = p.hiddenStem || p.darkStem || p.hidden || {4:'己', 9:'庚', 2:'辛', 3:'壬', 7:'癸', 8:'丁', 1:'丙', 6:'戊'}[pos] || '';
+          
+          // 右下角暗干（使用上方重新飞盘的精准暗干）
+          let hiddenStem = hiddenStemsMap[pos] || '';
+          
           let hStem = Array.isArray(p.heavenlyStem) ? p.heavenlyStem.join('/') : (p.heavenlyStem || '');
           let eStem = Array.isArray(p.earthlyStem) ? p.earthlyStem.join('/') : (p.earthlyStem || '');
           let origGate = p.gate || ''; let gateName = origGate.replace('门', '');
