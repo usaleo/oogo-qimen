@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>OOGO 真奇门排盘</title>
-  <!-- 就是下面这一行，用来设置苹果桌面图标 -->
   <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=9">
   <link rel="icon" type="image/png" href="./apple-touch-icon.png?v=9">
   <link rel="manifest" href="./manifest.json">
@@ -58,108 +57,41 @@
       --dark-stem-bg: rgba(79, 70, 229, 0.08);
     }
 
-    /* ========== 基础样式 ========== */
-    body {
-      font-family: -apple-system, sans-serif;
-      padding: 10px;
-      background: var(--bg-main);
-      color: var(--text-main);
-      margin: 0 auto;
-      max-width: 100%;
-      transition: background 0.3s, color 0.3s;
-      box-sizing: border-box;
-    }
-
+    body { font-family: -apple-system, sans-serif; padding: 10px; background: var(--bg-main); color: var(--text-main); margin: 0 auto; max-width: 100%; transition: background 0.3s, color 0.3s; box-sizing: border-box; }
     .top-ctrl { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; transition: all 0.3s; }
-    
-    /* 统一的行级容器控制，确保右侧严格对齐 */
     .ctrl-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; width: 100%; box-sizing: border-box; }
-
     .badge { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; }
     .badge-gong, .badge-nong, .badge-zhen { background: rgba(91, 146, 214, 0.15); color: var(--text-blue); }
-
-    /* ========== 日期方块智能缩放防溢出样式 ========== */
     .date-group { display: flex; align-items: center; flex: 1; justify-content: space-between; gap: 2px; min-width: 0; }
     .date-item { display: flex; align-items: center; flex: 1; min-width: 0; }
-    .date-item.year-item { flex: 1.3; } /* 年份留宽一点点 */
-    
-    select.date-input { 
-      background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); 
-      height: 26px; border-radius: 4px; font-size: 13px; font-weight: bold;
-      outline: none; appearance: none; -webkit-appearance: none; padding: 0;
-      text-align: center; text-align-last: center; cursor: pointer;
-      width: 100%; min-width: 0;
-    }
-    
-    .nl-box {
-      background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-gold);
-      height: 26px; line-height: 24px; border-radius: 4px; font-size: 12px; font-weight: bold;
-      text-align: center; box-sizing: border-box; overflow: hidden; white-space: nowrap;
-      width: 100%; min-width: 0;
-    }
-
+    .date-item.year-item { flex: 1.3; } 
+    select.date-input { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); height: 26px; border-radius: 4px; font-size: 13px; font-weight: bold; outline: none; appearance: none; -webkit-appearance: none; padding: 0; text-align: center; text-align-last: center; cursor: pointer; width: 100%; min-width: 0; }
+    .nl-box { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-gold); height: 26px; line-height: 24px; border-radius: 4px; font-size: 12px; font-weight: bold; text-align: center; box-sizing: border-box; overflow: hidden; white-space: nowrap; width: 100%; min-width: 0; }
     .date-text { color: var(--text-gray); font-size: 11px; margin: 0 1px 0 2px; flex-shrink: 0; }
-
-    /* ========== 强迫症右侧垂直对齐组 (同宽52px) ========== */
-    .btn-red { 
-      background: #d34e55; color: #fff; border: none; border-radius: 6px; 
-      font-size: 13px; font-weight: bold; cursor: pointer; 
-      width: 52px; height: 28px; display: flex; align-items: center; justify-content: center; 
-      flex-shrink: 0; padding: 0;
-    }
-    .right-fixed-col { 
-      width: 52px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; 
-      font-size: 13px; font-weight: bold; color: var(--text-blue);
-    }
-    .btn-big-start { 
-      background: var(--text-gold); color: #fff; border: none; border-radius: 8px; 
-      font-size: 15px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.2); 
-      width: 52px; cursor: pointer; display: flex; align-items: center; justify-content: center; 
-      letter-spacing: 2px; transition: 0.2s; flex-shrink: 0; padding: 0;
-    }
+    .btn-red { background: #d34e55; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; width: 52px; height: 28px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; }
+    .right-fixed-col { width: 52px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; color: var(--text-blue); }
+    .btn-big-start { background: var(--text-gold); color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.2); width: 52px; cursor: pointer; display: flex; align-items: center; justify-content: center; letter-spacing: 2px; transition: 0.2s; flex-shrink: 0; padding: 0; }
     .btn-big-start:active { transform: scale(0.95); opacity: 0.9; }
-
-    /* ========== 真太阳时行与起局设置行 ========== */
     .zhen-group { display: flex; flex: 1; gap: 4px; min-width: 0; }
     .zhen-item { background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 0 4px; display: flex; align-items: center; justify-content: center; height: 30px; box-sizing: border-box; min-width: 0; }
     .zhen-item input[type="checkbox"] { margin-right: 4px; accent-color: var(--text-blue); }
-    
-    /* 核心修复：城市选框与经度框彻底防裁切 */
-    .zhen-item select, .zhen-item input[type="number"] { 
-      background: transparent; border: none; color: var(--text-main); width: 100%; height: 30px; line-height: 30px; 
-      text-align: center; outline: none; font-size: 13px; -webkit-appearance: none; appearance: none; padding: 0; margin: 0;
-    }
+    .zhen-item select, .zhen-item input[type="number"] { background: transparent; border: none; color: var(--text-main); width: 100%; height: 30px; line-height: 30px; text-align: center; outline: none; font-size: 13px; -webkit-appearance: none; appearance: none; padding: 0; margin: 0; }
     .zhen-item select { color: var(--text-blue); text-align-last: center; }
-
     .sub-ctrl { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-color); padding-top: 8px; margin-top: 0; gap: 4px; }
     .sub-text { color: var(--text-gray); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; }
     .select-group { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
-    
-    .select-group select { 
-      background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-blue); padding: 0 6px; 
-      height: 26px; line-height: 24px; border-radius: 4px; font-size: 11px; outline: none; 
-      -webkit-appearance: none; appearance: none; text-align: center;
-    }
-    .btn-theme { 
-      background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 0 6px; 
-      height: 26px; line-height: 24px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; 
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    /* ========== 排盘主体 ========== */
+    .select-group select { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-blue); padding: 0 6px; height: 26px; line-height: 24px; border-radius: 4px; font-size: 11px; outline: none; -webkit-appearance: none; appearance: none; text-align: center; }
+    .btn-theme { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 0 6px; height: 26px; line-height: 24px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .info-board { margin-bottom: 15px; }
     .bazi-row { display: flex; justify-content: space-between; margin-bottom: 12px; }
     .bazi-box { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; width: 23%; text-align: center; padding: 8px 0; transition: all 0.3s; }
     .bazi-title { font-size: 11px; color: var(--text-gray); margin-bottom: 6px; }
     .bazi-value { font-size: 16px; font-weight: bold; color: var(--text-gold); }
-
     .info-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-gray); margin-bottom: 8px; }
     .zhifu-row { margin: 12px 0; }
     .pill-green { background: rgba(37, 185, 85, 0.1); color: var(--c-gate-g); border: 1px solid var(--c-gate-g); padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-
     .circle-logo { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--text-gold); background: var(--panel-bg); color: var(--text-main); display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; box-shadow: 0 0 8px rgba(226,180,95,0.2); }
     .circle-logo:active { transform: scale(0.9); background: var(--text-gold); color: #000; }
-
     .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--gold-line); border: 1px solid var(--gold-line); border-radius: 4px; padding: 1px; }
     .cell { background: var(--cell-bg); position: relative; height: 125px; box-sizing: border-box; transition: background 0.3s; }
     .center-cell { background: var(--cell-bg); display: flex; justify-content: center; align-items: center; position: relative; transition: background 0.3s; }
@@ -168,23 +100,19 @@
     .top-right { position: absolute; top: 1px; right: 1px; display: flex; gap: 3px; align-items: center; font-weight: bold; }
     .palace-row { position: absolute; bottom: 6px; left: 14px; right: 14px; border-top: 1px dashed var(--border-color); padding-top: 4px; display: flex; justify-content: space-between; align-items: center; color: var(--palace-text); font-size: 11px; }
     .inner-content { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: calc(100% - 28px); display: flex; flex-direction: column; gap: 9px; }
-
     .deity-text { font-size: 21px; }
     .star-text  { font-size: 18px; }
     .gate-text  { font-size: 18px; }
     .taichi-svg { width: 115px; height: 115px; filter: drop-shadow(0 0 8px rgba(0,0,0,0.4)); }
-
     .tag-ma { color: #ffffff; background: #d34e55; padding: 1px 4px; border-radius: 3px; font-size: 10px; font-weight: bold; border: none; box-shadow: none; }
     .tag-kong { color: #ffffff; background: #7a7a90; padding: 1px 4px; border-radius: 3px; font-size: 10px; font-weight: bold; border: none; box-shadow: none; }
     .tag-jx { color: #ffffff; background: #8b5cf6; padding: 1px 4px; border-radius: 3px; font-size: 10px; font-weight: bold; border: none; box-shadow: none; }
     .tag-mu { color: #ffffff; background: #374151; padding: 1px 4px; border-radius: 3px; font-size: 10px; font-weight: bold; border: none; box-shadow: none; }
     .tag-po { color: #ffffff; background: #d97706; padding: 1px 4px; border-radius: 3px; font-size: 10px; font-weight: bold; border: none; box-shadow: none; }
-
     .row { display: flex; justify-content: space-between; align-items: flex-end; }
     .left-item { text-align: left; font-weight: bold; line-height: 1; white-space: nowrap; letter-spacing: 1px; }
     .right-item { text-align: right; font-size: 14px; font-weight: bold; line-height: 1; white-space: nowrap; }
     .small-stem { font-size: 12px !important; letter-spacing: -1px; }
-
     .edeity-text { font-size: 13px; color: var(--edeity-text); font-weight: bold; }
     .deity { color: var(--c-deity); }
     .star { color: var(--c-star); }
@@ -194,7 +122,6 @@
     .stem-h { color: var(--c-stem-h); }
     .stem-e { color: var(--c-stem-e); }
 
-    /* 电脑大屏优化 */
     @media (min-width: 600px) {
       body { max-width: 520px; padding: 16px; }
       .cell { height: 145px; }
@@ -205,7 +132,6 @@
     }
   </style>
 
-  <!-- 只保留这两个最核心、最稳定的底层库，绝对禁止加入那个缓存的置闰法外部链接 -->
   <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/3meta.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/html2canvas.min.js"></script>
 </head>
@@ -239,11 +165,10 @@
       <div class="right-fixed-col">命 ◀▶</div>
     </div>
 
-    <!-- 行 3 + 行 4：左边参数列，右边起局键 -->
+    <!-- 行 3 + 行 4：起局设置行 -->
     <div class="ctrl-row" style="align-items: stretch; margin-bottom: 0;">
       <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; gap: 8px;">
         
-        <!-- 行3 区域 -->
         <div style="display: flex; gap: 8px; align-items: center; min-width: 0;">
           <div class="badge badge-zhen">真</div>
           <div class="zhen-group">
@@ -269,16 +194,21 @@
           </div>
         </div>
 
-        <!-- 行4 区域 -->
         <div class="sub-ctrl">
           <div class="sub-text">🧭 起局地真太阳时起局</div>
           <div class="select-group">
-            <!-- 【关键点】此处的id与后面的逻辑相连 -->
+            <!-- 【重点】把“置闰法”放在第一个，并且加上 selected，就是永久默认了 -->
             <select id="methodSelect" onchange="generateChart()">
+              <option value="zhirun" selected>置闰法</option>
               <option value="chaibu">拆补法</option>
-              <option value="zhirun">置闰法</option>
             </select>
-            <select><option>转盘</option><option>飞盘</option></select>
+            
+            <!-- 【重点】拦截飞盘选项，弹出开发中提示，然后自动切回转盘 -->
+            <select id="panSelect" onchange="if(this.value==='fei'){showToast('🛠️飞盘引擎开发中，暂默认使用转盘！');this.value='zhuan';}">
+              <option value="zhuan" selected>转盘</option>
+              <option value="fei">飞盘</option>
+            </select>
+            
             <button class="btn-theme" onclick="toggleTheme()">☀️ 主题</button>
           </div>
         </div>
@@ -301,7 +231,7 @@
 
   <script>
     // ==========================================
-    // 1. 真·置闰法核心引擎 (内嵌纯净版，绕过底层封装，永不报错)
+    // 1. 真·置闰法核心引擎 (内嵌纯净版)
     // ==========================================
     const OogoZhiRun = {
       calculate: function(year, month, day, hour, min) {
@@ -505,11 +435,10 @@
 
         const y = dDate.getFullYear(), m = dDate.getMonth() + 1, d = dDate.getDate(), h = dDate.getHours(), min = dDate.getMinutes();
 
-        // 【获取引擎开关的值】
+        // 【读取引擎开关的值】
         let method = document.getElementById('methodSelect').value;
         let chart;
 
-        // 【双核分流判断】
         if (method === 'zhirun') {
           // ====== 置闰法引擎 ======
           let zhirunData = OogoZhiRun.calculate(y, m, d, h, min);
@@ -519,16 +448,14 @@
             juNumber: zhirunData.juNumber,
             isYangdun: zhirunData.isYangdun
           });
-          // 强制覆盖显示，保证界面正确
           chart.solarTerm = zhirunData.debugInfo.targetJieQi;
           chart.yuan = zhirunData.debugInfo.yuanName;
           
         } else {
-          // ====== 拆补法引擎 (3meta自带) ======
+          // ====== 拆补法引擎 ======
           chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0);
         }
 
-        // ---------- 后续 UI 渲染全部保持一致 ----------
         let bY = chart.fourPillars.year.stem + chart.fourPillars.year.branch;
         let bM = chart.fourPillars.month.stem + chart.fourPillars.month.branch;
         let bD = chart.fourPillars.day.stem + chart.fourPillars.day.branch;
