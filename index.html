@@ -204,6 +204,8 @@
       .taichi-svg { width: 130px; height: 130px; }
     }
   </style>
+
+  <!-- 只保留这两个最核心、最稳定的底层库，绝对禁止加入那个缓存的置闰法外部链接 -->
   <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/3meta.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/html2canvas.min.js"></script>
 </head>
@@ -299,7 +301,7 @@
 
   <script>
     // ==========================================
-    // 1. 真·置闰法核心引擎 (内嵌纯净版，绕过底层封装)
+    // 1. 真·置闰法核心引擎 (内嵌纯净版，绕过底层封装，永不报错)
     // ==========================================
     const OogoZhiRun = {
       calculate: function(year, month, day, hour, min) {
