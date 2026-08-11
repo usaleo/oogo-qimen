@@ -194,12 +194,13 @@
         <div class="sub-ctrl">
           <div class="sub-text">🧭 起局地真太阳时起局</div>
           <div class="select-group">
-            <select id="methodSelect" onchange="generateChart()">
+            <!-- 绑定拦截函数，不点起局就不会强制刷屏 -->
+            <select id="methodSelect" onchange="onSelectChange()">
               <option value="zhirun" selected>置闰法</option>
               <option value="chaibu">拆补法</option>
             </select>
             
-            <select id="panSelect" onchange="generateChart()">
+            <select id="panSelect" onchange="onSelectChange()">
               <option value="zhuan" selected>转盘</option>
               <option value="fei">飞盘</option>
             </select>
@@ -213,27 +214,28 @@
     </div>
   </div>
 
-  <div class="info-board" id="infoBoard">
-    <div class="info-row" style="justify-content: center; color: var(--text-gold); font-size: 14px; font-weight: bold; margin-bottom: 8px;">
-       <span>👑 OOGO 矩阵式透视版 👑</span>
-    </div>
-    <div class="info-row" style="justify-content: center; margin-bottom: 5px;">
-       <span>右下角紫色文字即为【暗干/隐干】，透视水下底牌</span>
-    </div>
-  </div>
+  <div class="info-board" id="infoBoard"></div>
 
   <div class="grid" id="chartGrid"></div>
 
   <script>
-    // ==========================================
-    // 0. 全局防弹层 (如果有错误直接弹窗，不再黑屏)
-    // ==========================================
     window.onerror = function(msg, url, line) {
        console.error("系统错误: " + msg + " (行: " + line + ")");
     };
 
     // ==========================================
-    // 1. 真·置闰法核心引擎
+    // 状态锁：只有点了起局后，切换下拉框才会自动刷新
+    // ==========================================
+    let isChartGenerated = false;
+
+    function onSelectChange() {
+        if (isChartGenerated) {
+            generateChart();
+        }
+    }
+
+    // ==========================================
+    // 真·置闰法核心引擎
     // ==========================================
     const OogoZhiRun = {
       calculate: function(year, month, day, hour, min) {
@@ -317,7 +319,7 @@
     };
 
     // ==========================================
-    // 2. 鸣法正宗·九宫飞盘引擎
+    // 鸣法正宗·九宫飞盘引擎
     // ==========================================
     const OogoFeiPan = {
       fly: function(chart) {
@@ -427,7 +429,7 @@
     };
 
     // ==========================================
-    // 3. 界面与基础逻辑
+    // 界面与基础逻辑
     // ==========================================
     function initDateSelects() {
       try {
@@ -444,32 +446,54 @@
       } catch(e) {}
     }
     function pad(n) { return n < 10 ? '0' + n : n; }
-    
-    // 初始化时间控件
     initDateSelects();
 
-    // =============== 最关键的找回部分：渲染默认占位盘 ===============
+    // ==========================================
+    // 终极代码版“元旦盘” (无图片 1:1 复刻)
+    // ==========================================
     function renderDefaultBoard() {
-      const displayOrder = [4, 9, 2, 3, 5, 7, 8, 1, 6];
-      const defaultData = {
-        1: { p: '坎', s: '蓬', g: '休', gc: 'gate-g' }, 2: { p: '坤', s: '芮', g: '死', gc: 'gate-r' },
-        3: { p: '震', s: '冲', g: '伤', gc: 'gate-r' }, 4: { p: '巽', s: '辅', g: '杜', gc: 'gate-n' },
-        5: { p: '中', s: '禽', g: '' }, 6: { p: '乾', s: '心', g: '开', gc: 'gate-g' },
-        7: { p: '兑', s: '柱', g: '惊', gc: 'gate-r' }, 8: { p: '艮', s: '任', g: '生', gc: 'gate-g' },
-        9: { p: '离', s: '英', g: '景', gc: 'gate-n' }
+      const grid = document.getElementById('chartGrid');
+      grid.style.background = 'var(--gold-line)';
+      grid.style.border = '1px solid var(--gold-line)';
+      grid.style.display = 'grid'; 
+
+      const visualOrder = [4, 9, 2, 3, 5, 7, 8, 1, 6];
+      
+      const yuanDanData = {
+        1: { name: '坎', num: '1', element: '水', color: 'var(--c-star)', trigram: '☵', gate: '休门' },
+        2: { name: '坤', num: '2', element: '土', color: 'var(--c-deity)', trigram: '☷', gate: '死门' },
+        3: { name: '震', num: '3', element: '木', color: 'var(--c-gate-g)', trigram: '☳', gate: '伤门' },
+        4: { name: '巽', num: '4', element: '木', color: 'var(--c-gate-g)', trigram: '☴', gate: '杜门' },
+        5: { name: '中', num: '5', element: '土', color: 'var(--c-deity)', trigram: '☯', gate: '中门' },
+        6: { name: '乾', num: '6', element: '金', color: 'var(--text-gold)', trigram: '☰', gate: '开门' },
+        7: { name: '兑', num: '7', element: '金', color: 'var(--text-gold)', trigram: '☱', gate: '惊门' },
+        8: { name: '艮', num: '8', element: '土', color: 'var(--c-deity)', trigram: '☶', gate: '生门' },
+        9: { name: '离', num: '9', element: '火', color: 'var(--c-gate-r)', trigram: '☲', gate: '景门' }
       };
+
       let gridHtml = '';
-      displayOrder.forEach(function(pos) {
+      visualOrder.forEach(function(pos) {
         if (pos === 5) {
           gridHtml += '<div class="cell center-cell"><svg class="taichi-svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#fff" stroke="var(--border-color)" stroke-width="1"/><path d="M50,2 A48,48 0 0,1 50,98 A24,24 0 0,1 50,50 A24,24 0 0,0 50,2" fill="#000"/></svg></div>';
         } else {
-          let d = defaultData[pos];
-          gridHtml += '<div class="cell"><div class="inner-content"><div class="row"><div class="left-item deity deity-text" style="color:var(--text-gray)">--</div></div><div class="row"><div class="left-item star star-text">' + d.s + '</div></div><div class="row"><div class="left-item ' + d.gc + ' gate-text">' + d.g + '</div></div></div><div class="palace-row"><span>' + d.p + pos + '宫</span></div></div>';
+          let d = yuanDanData[pos];
+          gridHtml += '<div class="cell" style="display:flex; flex-direction:column; align-items:center; justify-content:center; opacity:0.85;">' +
+                        '<div style="font-size: 38px; line-height: 1; color: var(--text-main); margin-bottom: 5px;">' + d.trigram + '</div>' +
+                        '<div style="font-size: 18px; font-weight: bold; color: ' + d.color + ';">' + d.element + ' ' + d.num + ' ' + d.name + '</div>' +
+                        '<div style="font-size: 14px; color: var(--text-gray); margin-top: 5px; letter-spacing: 2px;">' + d.gate + '</div>' +
+                      '</div>';
         }
       });
-      document.getElementById('chartGrid').innerHTML = gridHtml;
+      
+      grid.innerHTML = gridHtml;
+
+      document.getElementById('infoBoard').innerHTML = 
+        '<div class="info-row" style="justify-content: center; color: var(--text-gold); font-size: 15px; font-weight: bold; margin-bottom: 8px;"><span>👑 OOGO 洛书元旦盘 👑</span></div>' +
+        '<div class="info-row" style="justify-content: center; margin-bottom: 5px;"><span>先天为体，后天为用，洛书九宫，八卦定局</span></div>' +
+        '<div class="info-row" style="justify-content: center; margin-top: 15px;"><span style="color: var(--text-blue); font-weight: bold;">👆 请设定时间与参数后，点击右上角【起局】</span></div>';
     }
-    // 渲染空盘
+    
+    // 初始化显示纯代码手绘的元旦盘
     renderDefaultBoard();
 
     function setNowTime() {
@@ -484,7 +508,6 @@
 
     function toggleTheme() { document.body.classList.toggle('light-theme'); }
 
-    // 引擎守护线程
     let checkEngine = setInterval(function() {
       if (typeof ThreeMeta !== 'undefined') {
         clearInterval(checkEngine);
@@ -534,10 +557,14 @@
     }
 
     // ==========================================
-    // 4. 起局入口 (双核分流 + 飞盘拦截，完全兼容旧版系统)
+    // 起局入口
     // ==========================================
     function generateChart() {
       try {
+        isChartGenerated = true; // 锁定状态，允许后续联动
+
+        const grid = document.getElementById('chartGrid');
+        
         let yIn = parseInt(document.getElementById('selY').value);
         let mIn = parseInt(document.getElementById('selM').value);
         let dIn = parseInt(document.getElementById('selD').value);
@@ -588,7 +615,6 @@
         let fuTou = stems[dSIdx - fuOffset] + branches[(dBIdx - fuOffset + 12) % 12];
         let maXing = {"申":"寅","子":"寅","辰":"寅", "亥":"巳","卯":"巳","未":"巳", "寅":"申","午":"申","戌":"申", "巳":"亥","酉":"亥","丑":"亥"}[chart.fourPillars.hour.branch];
 
-        // 高度防错处理：防止旧版本引擎找不到星门属性
         let zhiFuObj = chart.zhiFu || {};
         let zhiShiObj = chart.zhiShi || {};
         let logicZfName = (zhiFuObj.star || '').replace('星', ''); 
@@ -680,7 +706,6 @@
           if ((origGate==='休门'&&pos===9)||((origGate==='生门'||origGate==='死门')&&pos===1)||((origGate==='伤门'||origGate==='杜门')&&(pos===2||pos===8))||(origGate==='景门'&&(pos===6||pos===7))||((origGate==='惊门'||origGate==='开门')&&(pos===3||pos===4))) rightCornerHtml += '<span class="tag-po">迫</span>';
           if ((pos===6&&(hStemStr.indexOf('丙')!==-1||hStemStr.indexOf('戊')!==-1||hStemStr.indexOf('乙')!==-1))||(pos===8&&(hStemStr.indexOf('丁')!==-1||hStemStr.indexOf('己')!==-1||hStemStr.indexOf('庚')!==-1))||(pos===4&&(hStemStr.indexOf('辛')!==-1||hStemStr.indexOf('壬')!==-1))||(pos===2&&hStemStr.indexOf('癸')!==-1)) rightCornerHtml += '<span class="tag-mu">墓</span>';
           
-          // 绝对兼容旧版 JS 的马星与空亡查找
           let maDict = {1:['子'], 8:['丑','寅'], 3:['卯'], 4:['辰','巳'], 9:['午'], 2:['未','申'], 7:['酉'], 6:['戌','亥']};
           let maArr = maDict[pos] || [];
           if (maArr.indexOf(maXing) !== -1) rightCornerHtml += '<span class="tag-ma">马</span>';
@@ -706,7 +731,7 @@
     }
 
     // ==========================================
-    // 5. 原生 HTML5 下载逻辑
+    // 原生 HTML5 下载逻辑
     // ==========================================
     function exportImage() {
       const logo = document.querySelector('.circle-logo');
