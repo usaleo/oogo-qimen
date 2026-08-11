@@ -93,13 +93,13 @@
     .circle-logo { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--text-gold); background: var(--panel-bg); color: var(--text-main); display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; box-shadow: 0 0 8px rgba(226,180,95,0.2); }
     .circle-logo:active { transform: scale(0.9); background: var(--text-gold); color: #000; }
     .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--gold-line); border: 1px solid var(--gold-line); border-radius: 4px; padding: 1px; }
-    .cell { background: var(--cell-bg); position: relative; height: 125px; box-sizing: border-box; transition: background 0.3s; }
-    .center-cell { background: var(--cell-bg); display: flex; justify-content: center; align-items: center; position: relative; transition: background 0.3s; }
+    .cell { background: var(--cell-bg); position: relative; height: 125px; box-sizing: border-box; transition: background 0.3s; overflow: hidden; }
+    .center-cell { background: var(--cell-bg); display: flex; justify-content: center; align-items: center; position: relative; transition: background 0.3s; overflow: hidden;}
     .corner { position: absolute; font-size: 11px; }
     .hidden-stem-text { color: var(--dark-stem-color); font-weight: bold; font-size: 13px; }
-    .top-right { position: absolute; top: 1px; right: 1px; display: flex; gap: 3px; align-items: center; font-weight: bold; }
-    .palace-row { position: absolute; bottom: 6px; left: 14px; right: 14px; border-top: 1px dashed var(--border-color); padding-top: 4px; display: flex; justify-content: space-between; align-items: center; color: var(--palace-text); font-size: 11px; }
-    .inner-content { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: calc(100% - 28px); display: flex; flex-direction: column; gap: 9px; }
+    .top-right { position: absolute; top: 1px; right: 1px; display: flex; gap: 3px; align-items: center; font-weight: bold; z-index: 10; }
+    .palace-row { position: absolute; bottom: 6px; left: 14px; right: 14px; border-top: 1px dashed var(--border-color); padding-top: 4px; display: flex; justify-content: space-between; align-items: center; color: var(--palace-text); font-size: 11px; z-index: 10; }
+    .inner-content { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: calc(100% - 28px); display: flex; flex-direction: column; gap: 9px; z-index: 10; }
     .deity-text { font-size: 21px; }
     .star-text  { font-size: 18px; }
     .gate-text  { font-size: 18px; }
@@ -197,16 +197,15 @@
         <div class="sub-ctrl">
           <div class="sub-text">🧭 起局地真太阳时起局</div>
           <div class="select-group">
-            <!-- 【重点】把“置闰法”放在第一个，并且加上 selected，就是永久默认了 -->
             <select id="methodSelect" onchange="generateChart()">
               <option value="zhirun" selected>置闰法</option>
               <option value="chaibu">拆补法</option>
             </select>
             
             <select id="panSelect" onchange="generateChart()">
-    <option value="zhuan" selected>转盘</option>
-    <option value="fei">飞盘</option>
-</select>
+              <option value="zhuan" selected>转盘</option>
+              <option value="fei">飞盘</option>
+            </select>
             
             <button class="btn-theme" onclick="toggleTheme()">☀️ 主题</button>
           </div>
@@ -230,16 +229,14 @@
 
   <script>
     // ==========================================
-    // 1. 真·置闰法核心引擎 (内嵌纯净版)
+    // 1. 真·置闰法核心引擎
     // ==========================================
     const OogoZhiRun = {
       calculate: function(year, month, day, hour, min) {
         const chart = ThreeMeta.QimenChart.fromSolar(year, month, day, hour, min, 0);
         const dayStem = chart.fourPillars.day.stem;
-        
         const stems = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
         const branches = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
-        
         const dayGanIndex = stems.indexOf(dayStem);
         const offset = dayGanIndex % 5; 
         
@@ -316,7 +313,118 @@
     };
 
     // ==========================================
-    // 2. 界面与基础逻辑
+    // 2. 鸣法正宗·九宫飞盘引擎
+    // ==========================================
+    const OogoFeiPan = {
+      fly: function(chart) {
+        const isYang = chart.ju.type.includes('阳');
+        const timeStem = chart.fourPillars.hour.stem;
+        const timeBranch = chart.fourPillars.hour.branch;
+        
+        // 提取旬首干
+        const stemsArr = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+        const branchesArr = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+        const hSIdx = stemsArr.indexOf(timeStem);
+        const hBIdx = branchesArr.indexOf(timeBranch);
+        const xunOffset = (hBIdx - hSIdx + 12) % 12;
+        const xunName = stemsArr[0] + branchesArr[xunOffset];
+        const xunStem = {"甲子":"戊", "甲戌":"己", "甲申":"庚", "甲午":"辛", "甲辰":"壬", "甲寅":"癸"}[xunName];
+
+        const earthStems = {};
+        chart.palaces.forEach(p => {
+            earthStems[p.position] = Array.isArray(p.earthlyStem) ? p.earthlyStem[0] : p.earthlyStem;
+        });
+        if (!earthStems[5]) {
+            let offset = 5 - chart.ju.number;
+            if (offset < 0) offset += 9;
+            earthStems[5] = stemsArr[4 + offset] || stemsArr[(4 + offset) % 10]; // 补全中五宫地盘干
+        }
+
+        const origStars = {1:'天蓬', 2:'天芮', 3:'天冲', 4:'天辅', 5:'天禽', 6:'天心', 7:'天柱', 8:'天任', 9:'天英'};
+        const origGates = {1:'休门', 2:'死门', 3:'伤门', 4:'杜门', 5:'中门', 6:'开门', 7:'惊门', 8:'生门', 9:'景门'};
+
+        let xunPalace = 5;
+        for (let i = 1; i <= 9; i++) {
+            if (earthStems[i] === xunStem) { xunPalace = i; break; }
+        }
+
+        let zfTargetPalace = 5;
+        let searchStem = (timeStem === '甲') ? xunStem : timeStem;
+        for (let i = 1; i <= 9; i++) {
+            if (earthStems[i] === searchStem) { zfTargetPalace = i; break; }
+        }
+        
+        let starOffset = zfTargetPalace - xunPalace;
+        if (starOffset < 0) starOffset += 9;
+
+        const flyStars = {};
+        const flyHeavenStems = {};
+        for (let i = 1; i <= 9; i++) {
+            let landPalace = i + starOffset;
+            if (landPalace > 9) landPalace -= 9;
+            flyStars[landPalace] = origStars[i];
+            flyHeavenStems[landPalace] = earthStems[i];
+        }
+
+        const xunBranch = xunName[1];
+        let branchOffset = branchesArr.indexOf(timeBranch) - branchesArr.indexOf(xunBranch);
+        if (branchOffset < 0) branchOffset += 12;
+
+        let zsTargetPalace = xunPalace;
+        for (let i = 0; i < branchOffset; i++) {
+            if (isYang) {
+                zsTargetPalace++;
+                if (zsTargetPalace > 9) zsTargetPalace = 1;
+            } else {
+                zsTargetPalace--;
+                if (zsTargetPalace < 1) zsTargetPalace = 9;
+            }
+        }
+
+        let gateOffset = zsTargetPalace - xunPalace;
+        if (gateOffset < 0) gateOffset += 9;
+
+        const flyGates = {};
+        for (let i = 1; i <= 9; i++) {
+            let landPalace = i + gateOffset;
+            if (landPalace > 9) landPalace -= 9;
+            flyGates[landPalace] = origGates[i];
+        }
+
+        // 九神 (含太常)
+        const deitiesList = ['值符', '腾蛇', '太阴', '六合', '勾陈', '太常', '朱雀', '九地', '九天'];
+        const flyDeities = {};
+        let currentPalace = zfTargetPalace;
+        for (let i = 0; i < 9; i++) {
+            flyDeities[currentPalace] = deitiesList[i];
+            if (isYang) {
+                currentPalace++;
+                if (currentPalace > 9) currentPalace = 1;
+            } else {
+                currentPalace--;
+                if (currentPalace < 1) currentPalace = 9;
+            }
+        }
+
+        chart.palaces.forEach(p => {
+            const pos = p.position;
+            p.star = flyStars[pos];
+            p.gate = flyGates[pos];
+            p.deity = flyDeities[pos];
+            p.heavenlyStem = flyHeavenStems[pos];
+            p.earthlyStem = earthStems[pos];
+        });
+
+        // 飞盘独有：值符和值使宫位更新用于顶部显示
+        chart.zhiFu.position = zfTargetPalace;
+        chart.zhiShi.position = zsTargetPalace;
+
+        return chart;
+      }
+    };
+
+    // ==========================================
+    // 3. 界面与基础逻辑
     // ==========================================
     function initDateSelects() {
       const y = document.getElementById('selY');
@@ -380,34 +488,12 @@
       } catch (e) { console.error(e); }
     }
 
-    function renderDefaultBoard() {
-      const displayOrder = [4, 9, 2, 3, 5, 7, 8, 1, 6];
-      const defaultData = {
-        1: { p: '坎', s: '蓬', g: '休', gc: 'gate-g' }, 2: { p: '坤', s: '芮', g: '死', gc: 'gate-r' },
-        3: { p: '震', s: '冲', g: '伤', gc: 'gate-r' }, 4: { p: '巽', s: '辅', g: '杜', gc: 'gate-n' },
-        5: { p: '中', s: '禽', g: '' }, 6: { p: '乾', s: '心', g: '开', gc: 'gate-g' },
-        7: { p: '兑', s: '柱', g: '惊', gc: 'gate-r' }, 8: { p: '艮', s: '任', g: '生', gc: 'gate-g' },
-        9: { p: '离', s: '英', g: '景', gc: 'gate-n' }
-      };
-      let gridHtml = '';
-      displayOrder.forEach(pos => {
-        if (pos === 5) {
-          gridHtml += '<div class="cell center-cell"><svg class="taichi-svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#fff" stroke="var(--border-color)" stroke-width="1"/><path d="M50,2 A48,48 0 0,1 50,98 A24,24 0 0,1 50,50 A24,24 0 0,0 50,2" fill="#000"/></svg></div>';
-        } else {
-          let d = defaultData[pos];
-          gridHtml += '<div class="cell"><div class="inner-content"><div class="row"><div class="left-item deity deity-text" style="color:var(--text-gray)">--</div></div><div class="row"><div class="left-item star star-text">' + d.s + '</div></div><div class="row"><div class="left-item ' + d.gc + ' gate-text">' + d.g + '</div></div></div><div class="palace-row"><span>' + d.p + pos + '宫</span></div></div>';
-        }
-      });
-      document.getElementById('chartGrid').innerHTML = gridHtml;
-    }
-    renderDefaultBoard();
-
     const stems = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
     const branches = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
 
     function simplifyDeity(name) {
       if (!name) return '';
-      return name.replace('值符','符').replace('腾蛇','螣').replace('太阴','阴').replace('六合','合').replace('白虎','白').replace('玄武','玄').replace('九地','地').replace('九天','天');
+      return name.replace('值符','符').replace('腾蛇','螣').replace('太阴','阴').replace('六合','合').replace('白虎','白').replace('玄武','玄').replace('九地','地').replace('九天','天').replace('勾陈','勾').replace('太常','常').replace('朱雀','雀');
     }
 
     function getJieQi(m, d) {
@@ -416,7 +502,7 @@
     }
 
     // ==========================================
-    // 3. 起局入口 (真假双引擎完美分流)
+    // 4. 起局入口 (双核分流 + 飞盘拦截)
     // ==========================================
     function generateChart() {
       try {
@@ -434,9 +520,8 @@
 
         const y = dDate.getFullYear(), m = dDate.getMonth() + 1, d = dDate.getDate(), h = dDate.getHours(), min = dDate.getMinutes();
 
-        // 【读取引擎开关的值】
         let method = document.getElementById('methodSelect').value;
-        let panType = document.getElementById('panSelect').value; // 读取是转盘还是飞盘
+        let panType = document.getElementById('panSelect').value;
         let chart;
 
         if (method === 'zhirun') {
@@ -452,16 +537,9 @@
           chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0);
         }
 
-        // =====================================
-        // 核心装载：如果你选了飞盘，直接劫持洗脑！
-        // =====================================
+        // 【如果选了飞盘，强行劫持洗脑】
         if (panType === 'fei') {
-            chart = OogoFeiPan.fly(chart);
-        }
-          
-        } else {
-          // ====== 拆补法引擎 ======
-          chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0);
+          chart = OogoFeiPan.fly(chart);
         }
 
         let bY = chart.fourPillars.year.stem + chart.fourPillars.year.branch;
@@ -479,23 +557,26 @@
         let fuTou = stems[dSIdx - fuOffset] + branches[(dBIdx - fuOffset + 12) % 12];
         let maXing = {"申":"寅","子":"寅","辰":"寅", "亥":"巳","卯":"巳","未":"巳", "寅":"申","午":"申","戌":"申", "巳":"亥","酉":"亥","丑":"亥"}[chart.fourPillars.hour.branch];
 
-        let logicZfName = chart.zhiFu.star.replace('星', ''); let displayZfName = logicZfName.replace(/天/g, '');
+        let logicZfName = (chart.zhiFu.star || '').replace('星', ''); let displayZfName = logicZfName.replace(/天/g, '');
         let zsName = (chart.zhiShi.gate || '').replace('门', '');
-        let zfPalace = chart.palaces.find(p => p.star === logicZfName || (Array.isArray(p.star) && p.star.includes(logicZfName)))?.position || 1;
-        let zsPalace = chart.palaces.find(p => p.gate === chart.zhiShi.gate)?.position || 1;
+        let zfPalace = chart.zhiFu.position || chart.palaces.find(p => p.star === logicZfName || (Array.isArray(p.star) && p.star.includes(logicZfName)))?.position || 1;
+        let zsPalace = chart.zhiShi.position || chart.palaces.find(p => p.gate === chart.zhiShi.gate)?.position || 1;
 
         let isYang = chart.ju.type.includes('阳');
         const ring = [1, 8, 3, 4, 9, 2, 7, 6]; const deities = ['值符', '腾蛇', '太阴', '六合', '白虎', '玄武', '九地', '九天'];
         let earthDeitiesMap = {};
-        let xunStart = {'天蓬':1, '天芮':2, '天冲':3, '天辅':4, '天禽':5, '天心':6, '天柱':7, '天任':8, '天英':9}[logicZfName] || 1;
-        if (xunStart === 5) xunStart = 2;
-        let startIndex = ring.indexOf(xunStart);
-        for (let i = 0; i < 8; i++) { earthDeitiesMap[ring[isYang ? (startIndex + i) % 8 : (startIndex - i + 8) % 8]] = deities[i]; }
+        
+        if (panType === 'zhuan') {
+            let xunStart = {'天蓬':1, '天芮':2, '天冲':3, '天辅':4, '天禽':5, '天心':6, '天柱':7, '天任':8, '天英':9}[logicZfName] || 1;
+            if (xunStart === 5) xunStart = 2;
+            let startIndex = ring.indexOf(xunStart);
+            for (let i = 0; i < 8; i++) { earthDeitiesMap[ring[isYang ? (startIndex + i) % 8 : (startIndex - i + 8) % 8]] = deities[i]; }
+        }
 
         let isStarFu = true, isStarFan = true, isGateFu = true, isGateFan = true;
-        const origStar = {1:'天蓬', 2:'天芮', 3:'天冲', 4:'天辅', 6:'天心', 7:'天柱', 8:'天任', 9:'天英'};
-        const origGate = {1:'休门', 2:'死门', 3:'伤门', 4:'杜门', 6:'开门', 7:'惊门', 8:'生门', 9:'景门'};
-        const oppoPalace = {1:9, 2:8, 3:7, 4:6, 6:4, 7:3, 8:2, 9:1};
+        const origStar = {1:'天蓬', 2:'天芮', 3:'天冲', 4:'天辅', 6:'天心', 7:'天柱', 8:'天任', 9:'天英', 5:'天禽'};
+        const origGate = {1:'休门', 2:'死门', 3:'伤门', 4:'杜门', 6:'开门', 7:'惊门', 8:'生门', 9:'景门', 5:'中门'};
+        const oppoPalace = {1:9, 2:8, 3:7, 4:6, 6:4, 7:3, 8:2, 9:1, 5:5};
 
         [1,2,3,4,6,7,8,9].forEach(pos => {
           let p = chart.palaces.find(x => x.position === pos) || {};
@@ -540,28 +621,42 @@
 
         [4, 9, 2, 3, 5, 7, 8, 1, 6].forEach(pos => {
           const p = chart.palaces.find(x => x.position === pos) || {};
+          
+          let tDeity = simplifyDeity(Array.isArray(p.deity) ? p.deity[0] : (p.deity || ''));
+          if (panType === 'zhuan' && pos !== 5) tDeity = simplifyDeity(earthDeitiesMap[pos]);
+          
+          let eDeity = '';
+          if (panType === 'zhuan' && pos !== 5) eDeity = simplifyDeity(earthDeitiesMap[pos]);
+          
+          let starName = (Array.isArray(p.star) ? p.star.join('/') : (p.star || '')).replace(/天/g, '').replace(/星/g, '');
+          let hiddenStem = p.hiddenStem || p.darkStem || p.hidden || {4:'己', 9:'庚', 2:'辛', 3:'壬', 7:'癸', 8:'丁', 1:'丙', 6:'戊'}[pos] || '';
+          let hStem = Array.isArray(p.heavenlyStem) ? p.heavenlyStem.join('/') : (p.heavenlyStem || '');
+          let eStem = Array.isArray(p.earthlyStem) ? p.earthlyStem.join('/') : (p.earthlyStem || '');
+          let origGate = p.gate || ''; let gateName = origGate.replace('门', '');
+          let gateClass = ['生门','休门','开门'].includes(origGate) ? 'gate-g' : ['杜门','景门'].includes(origGate) ? 'gate-n' : 'gate-r';
+          if (origGate === '中门') gateClass = 'gate-g';
+
+          let rightCornerHtml = '';
+          let hStemStr = String(p.heavenlyStem || '');
+          if ((hStemStr.includes('戊')&&pos===3)||(hStemStr.includes('己')&&pos===2)||(hStemStr.includes('庚')&&pos===8)||(hStemStr.includes('辛')&&pos===9)||(hStemStr.includes('壬')&&pos===4)||(hStemStr.includes('癸')&&pos===4)) rightCornerHtml += '<span class="tag-jx">刑</span>';
+          if ((origGate==='休门'&&pos===9)||((origGate==='生门'||origGate==='死门')&&pos===1)||((origGate==='伤门'||origGate==='杜门')&&(pos===2||pos===8))||(origGate==='景门'&&(pos===6||pos===7))||((origGate==='惊门'||origGate==='开门')&&(pos===3||pos===4))) rightCornerHtml += '<span class="tag-po">迫</span>';
+          if ((pos===6&&(hStemStr.includes('丙')||hStemStr.includes('戊')||hStemStr.includes('乙')))||(pos===8&&(hStemStr.includes('丁')||hStemStr.includes('己')||hStemStr.includes('庚')))||(pos===4&&(hStemStr.includes('辛')||hStemStr.includes('壬')))||(pos===2&&hStemStr.includes('癸'))) rightCornerHtml += '<span class="tag-mu">墓</span>';
+          if ({1:['子'], 8:['丑','寅'], 3:['卯'], 4:['辰','巳'], 9:['午'], 2:['未','申'], 7:['酉'], 6:['戌','亥']}[pos]?.includes(maXing)) rightCornerHtml += '<span class="tag-ma">马</span>';
+          if ({1:['子'], 8:['丑','寅'], 3:['卯'], 4:['辰','巳'], 9:['午'], 2:['未','申'], 7:['酉'], 6:['戌','亥']}[pos]?.includes(kong1) || {1:['子'], 8:['丑','寅'], 3:['卯'], 4:['辰','巳'], 9:['午'], 2:['未','申'], 7:['酉'], 6:['戌','亥']}[pos]?.includes(kong2)) rightCornerHtml += '<span class="tag-kong">空</span>';
+
+          let innerHtml = `<div class="row"><div class="left-item deity deity-text">${tDeity}</div><div class="${hStem.includes('/') ? 'right-item stem-h small-stem' : 'right-item stem-h'}">${hStem}</div></div><div class="row"><div class="left-item star star-text">${starName}</div><div class="${eStem.includes('/') ? 'right-item stem-e small-stem' : 'right-item stem-e'}">${eStem}</div></div><div class="row"><div class="left-item ${gateClass} gate-text">${gateName}</div><div class="right-item edeity-text">${eDeity}</div></div>`;
+
           if (pos === 5) {
-            gridHtml += '<div class="cell center-cell"><svg class="taichi-svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#fff" stroke="var(--border-color)" stroke-width="1"/><path d="M50,2 A48,48 0 0,1 50,98 A24,24 0 0,1 50,50 A24,24 0 0,0 50,2" fill="#000"/><text x="50" y="26" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="25" font-weight="bold" fill="#000" text-anchor="middle">' + cH + '</text><text x="50" y="74" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="25" font-weight="bold" fill="#fff" text-anchor="middle">' + cE + '</text></svg></div>';
+            if (panType === 'fei') {
+              // 飞盘的中5宫显示方式：背景太极，前景文字
+              gridHtml += `<div class="cell"><svg class="taichi-svg" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.06;z-index:0;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#fff" stroke="var(--border-color)" stroke-width="1"/><path d="M50,2 A48,48 0 0,1 50,98 A24,24 0 0,1 50,50 A24,24 0 0,0 50,2" fill="#000"/></svg><div class="corner top-right">${rightCornerHtml}</div><div class="inner-content" style="z-index:1;">${innerHtml}</div><div class="palace-row" style="z-index:1;"><span>中5宫</span><span class="hidden-stem-text">${hiddenStem}</span></div></div>`;
+            } else {
+              // 转盘的中5宫显示方式：纯太极图
+              gridHtml += `<div class="cell center-cell"><svg class="taichi-svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#fff" stroke="var(--border-color)" stroke-width="1"/><path d="M50,2 A48,48 0 0,1 50,98 A24,24 0 0,1 50,50 A24,24 0 0,0 50,2" fill="#000"/><text x="50" y="26" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="25" font-weight="bold" fill="#000" text-anchor="middle">${cH}</text><text x="50" y="74" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="25" font-weight="bold" fill="#fff" text-anchor="middle">${cE}</text></svg></div>`;
+            }
           } else {
-            let tDeity = simplifyDeity(Array.isArray(p.deity) ? p.deity[0] : (p.deity || ''));
-            let eDeity = simplifyDeity(earthDeitiesMap[pos]);
-            let starName = (Array.isArray(p.star) ? p.star.join('/') : (p.star || '')).replace(/天/g, '').replace(/星/g, '');
-            let hiddenStem = p.hiddenStem || p.darkStem || p.hidden || {4:'己', 9:'庚', 2:'辛', 3:'壬', 7:'癸', 8:'丁', 1:'丙', 6:'戊'}[pos] || '';
-            let hStem = Array.isArray(p.heavenlyStem) ? p.heavenlyStem.join('/') : (p.heavenlyStem || '');
-            let eStem = Array.isArray(p.earthlyStem) ? p.earthlyStem.join('/') : (p.earthlyStem || '');
-            let origGate = p.gate || ''; let gateName = origGate.replace('门', '');
-            let gateClass = ['生门','休门','开门'].includes(origGate) ? 'gate-g' : ['杜门','景门'].includes(origGate) ? 'gate-n' : 'gate-r';
-if (origGate === '中门') gateClass = 'gate-g'; // 中宫属土，跟生门一个色系
-
-            let rightCornerHtml = '';
-            let hStemStr = String(p.heavenlyStem || '');
-            if ((hStemStr.includes('戊')&&pos===3)||(hStemStr.includes('己')&&pos===2)||(hStemStr.includes('庚')&&pos===8)||(hStemStr.includes('辛')&&pos===9)||(hStemStr.includes('壬')&&pos===4)||(hStemStr.includes('癸')&&pos===4)) rightCornerHtml += '<span class="tag-jx">刑</span>';
-            if ((origGate==='休门'&&pos===9)||((origGate==='生门'||origGate==='死门')&&pos===1)||((origGate==='伤门'||origGate==='杜门')&&(pos===2||pos===8))||(origGate==='景门'&&(pos===6||pos===7))||((origGate==='惊门'||origGate==='开门')&&(pos===3||pos===4))) rightCornerHtml += '<span class="tag-po">迫</span>';
-            if ((pos===6&&(hStemStr.includes('丙')||hStemStr.includes('戊')||hStemStr.includes('乙')))||(pos===8&&(hStemStr.includes('丁')||hStemStr.includes('己')||hStemStr.includes('庚')))||(pos===4&&(hStemStr.includes('辛')||hStemStr.includes('壬')))||(pos===2&&hStemStr.includes('癸'))) rightCornerHtml += '<span class="tag-mu">墓</span>';
-            if ({1:['子'], 8:['丑','寅'], 3:['卯'], 4:['辰','巳'], 9:['午'], 2:['未','申'], 7:['酉'], 6:['戌','亥']}[pos]?.includes(maXing)) rightCornerHtml += '<span class="tag-ma">马</span>';
-            if ({1:['子'], 8:['丑','寅'], 3:['卯'], 4:['辰','巳'], 9:['午'], 2:['未','申'], 7:['酉'], 6:['戌','亥']}[pos]?.includes(kong1) || {1:['子'], 8:['丑','寅'], 3:['卯'], 4:['辰','巳'], 9:['午'], 2:['未','申'], 7:['酉'], 6:['戌','亥']}[pos]?.includes(kong2)) rightCornerHtml += '<span class="tag-kong">空</span>';
-
-            gridHtml += '<div class="cell"><div class="corner top-right">' + rightCornerHtml + '</div><div class="inner-content"><div class="row"><div class="left-item deity deity-text">' + tDeity + '</div><div class="' + (hStem.includes('/') ? 'right-item stem-h small-stem' : 'right-item stem-h') + '">' + hStem + '</div></div><div class="row"><div class="left-item star star-text">' + starName + '</div><div class="' + (eStem.includes('/') ? 'right-item stem-e small-stem' : 'right-item stem-e') + '">' + eStem + '</div></div><div class="row"><div class="left-item ' + gateClass + ' gate-text">' + gateName + '</div><div class="right-item edeity-text">' + eDeity + '</div></div></div><div class="palace-row"><span>' + (p.trigram || '') + p.position + '宫</span><span class="hidden-stem-text">' + hiddenStem + '</span></div></div>';
+            // 普通宫位
+            gridHtml += `<div class="cell"><div class="corner top-right">${rightCornerHtml}</div><div class="inner-content">${innerHtml}</div><div class="palace-row"><span>${p.trigram || ''}${pos}宫</span><span class="hidden-stem-text">${hiddenStem}</span></div></div>`;
           }
         });
         document.getElementById('chartGrid').innerHTML = gridHtml;
@@ -569,7 +664,7 @@ if (origGate === '中门') gateClass = 'gate-g'; // 中宫属土，跟生门一�
     }
 
     // ==========================================
-    // 4. 原生 HTML5 下载逻辑
+    // 5. 原生 HTML5 下载逻辑
     // ==========================================
     function exportImage() {
       const logo = document.querySelector('.circle-logo');
