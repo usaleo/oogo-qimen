@@ -194,7 +194,6 @@
         <div class="sub-ctrl">
           <div class="sub-text">🧭 起局地真太阳时起局</div>
           <div class="select-group">
-            <!-- 绑定拦截函数，不点起局就不会强制刷屏 -->
             <select id="methodSelect" onchange="onSelectChange()">
               <option value="zhirun" selected>置闰法</option>
               <option value="chaibu">拆补法</option>
@@ -223,9 +222,6 @@
        console.error("系统错误: " + msg + " (行: " + line + ")");
     };
 
-    // ==========================================
-    // 状态锁：只有点了起局后，切换下拉框才会自动刷新
-    // ==========================================
     let isChartGenerated = false;
 
     function onSelectChange() {
@@ -234,9 +230,6 @@
         }
     }
 
-    // ==========================================
-    // 真·置闰法核心引擎
-    // ==========================================
     const OogoZhiRun = {
       calculate: function(year, month, day, hour, min) {
         const chart = ThreeMeta.QimenChart.fromSolar(year, month, day, hour, min, 0);
@@ -318,9 +311,6 @@
       }
     };
 
-    // ==========================================
-    // 鸣法正宗·九宫飞盘引擎
-    // ==========================================
     const OogoFeiPan = {
       fly: function(chart) {
         const isYang = (chart.ju && chart.ju.type) ? chart.ju.type.indexOf('阳') !== -1 : true;
@@ -428,9 +418,6 @@
       }
     };
 
-    // ==========================================
-    // 界面与基础逻辑
-    // ==========================================
     function initDateSelects() {
       try {
           const y = document.getElementById('selY');
@@ -449,51 +436,36 @@
     initDateSelects();
 
     // ==========================================
-    // 终极代码版“元旦盘” (无图片 1:1 复刻)
+    // 纯代码大号自适应无边框无眼色太极阵
     // ==========================================
     function renderDefaultBoard() {
       const grid = document.getElementById('chartGrid');
-      grid.style.background = 'var(--gold-line)';
-      grid.style.border = '1px solid var(--gold-line)';
-      grid.style.display = 'grid'; 
+      grid.style.background = 'transparent';
+      grid.style.border = 'none';
+      grid.style.display = 'flex';
+      grid.style.justifyContent = 'center';
+      grid.style.alignItems = 'center';
+      grid.style.padding = '10px';
 
-      const visualOrder = [4, 9, 2, 3, 5, 7, 8, 1, 6];
-      
-      const yuanDanData = {
-        1: { name: '坎', num: '1', element: '水', color: 'var(--c-star)', trigram: '☵', gate: '休门' },
-        2: { name: '坤', num: '2', element: '土', color: 'var(--c-deity)', trigram: '☷', gate: '死门' },
-        3: { name: '震', num: '3', element: '木', color: 'var(--c-gate-g)', trigram: '☳', gate: '伤门' },
-        4: { name: '巽', num: '4', element: '木', color: 'var(--c-gate-g)', trigram: '☴', gate: '杜门' },
-        5: { name: '中', num: '5', element: '土', color: 'var(--c-deity)', trigram: '☯', gate: '中门' },
-        6: { name: '乾', num: '6', element: '金', color: 'var(--text-gold)', trigram: '☰', gate: '开门' },
-        7: { name: '兑', num: '7', element: '金', color: 'var(--text-gold)', trigram: '☱', gate: '惊门' },
-        8: { name: '艮', num: '8', element: '土', color: 'var(--c-deity)', trigram: '☶', gate: '生门' },
-        9: { name: '离', num: '9', element: '火', color: 'var(--c-gate-r)', trigram: '☲', gate: '景门' }
-      };
-
-      let gridHtml = '';
-      visualOrder.forEach(function(pos) {
-        if (pos === 5) {
-          gridHtml += '<div class="cell center-cell"><svg class="taichi-svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#fff" stroke="var(--border-color)" stroke-width="1"/><path d="M50,2 A48,48 0 0,1 50,98 A24,24 0 0,1 50,50 A24,24 0 0,0 50,2" fill="#000"/></svg></div>';
-        } else {
-          let d = yuanDanData[pos];
-          gridHtml += '<div class="cell" style="display:flex; flex-direction:column; align-items:center; justify-content:center; opacity:0.85;">' +
-                        '<div style="font-size: 38px; line-height: 1; color: var(--text-main); margin-bottom: 5px;">' + d.trigram + '</div>' +
-                        '<div style="font-size: 18px; font-weight: bold; color: ' + d.color + ';">' + d.element + ' ' + d.num + ' ' + d.name + '</div>' +
-                        '<div style="font-size: 14px; color: var(--text-gray); margin-top: 5px; letter-spacing: 2px;">' + d.gate + '</div>' +
-                      '</div>';
-        }
-      });
-      
-      grid.innerHTML = gridHtml;
+      grid.innerHTML = `
+        <div style="width: 100%; max-width: 420px; aspect-ratio: 1/1; display: flex; justify-content: center; align-items: center;">
+          <svg viewBox="0 0 200 200" style="width: 100%; height: 100%; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.35));">
+            <!-- 无外边框，纯太极图形，撑满全幅 -->
+            <path d="M 100 0 A 100 100 0 0 1 100 200 A 50 50 0 0 1 100 100 A 50 50 0 0 0 100 0 Z" fill="#000000"/>
+            <path d="M 100 200 A 100 100 0 0 1 100 0 A 50 50 0 0 1 100 100 A 50 50 0 0 0 100 200 Z" fill="#ffffff"/>
+            <!-- 鱼眼（去掉了内部异色小圆点） -->
+            <circle cx="100" cy="50" r="16" fill="#000000"/>
+            <circle cx="100" cy="150" r="16" fill="#ffffff"/>
+          </svg>
+        </div>
+      `;
 
       document.getElementById('infoBoard').innerHTML = 
-        '<div class="info-row" style="justify-content: center; color: var(--text-gold); font-size: 15px; font-weight: bold; margin-bottom: 8px;"><span>👑 OOGO 洛书元旦盘 👑</span></div>' +
-        '<div class="info-row" style="justify-content: center; margin-bottom: 5px;"><span>先天为体，后天为用，洛书九宫，八卦定局</span></div>' +
+        '<div class="info-row" style="justify-content: center; color: var(--text-gold); font-size: 15px; font-weight: bold; margin-bottom: 8px;"><span>👑 OOGO 太极无极阵 👑</span></div>' +
+        '<div class="info-row" style="justify-content: center; margin-bottom: 5px;"><span>太极生两仪，两仪生四象，四象生八卦</span></div>' +
         '<div class="info-row" style="justify-content: center; margin-top: 15px;"><span style="color: var(--text-blue); font-weight: bold;">👆 请设定时间与参数后，点击右上角【起局】</span></div>';
     }
     
-    // 初始化显示纯代码手绘的元旦盘
     renderDefaultBoard();
 
     function setNowTime() {
@@ -561,9 +533,15 @@
     // ==========================================
     function generateChart() {
       try {
-        isChartGenerated = true; // 锁定状态，允许后续联动
+        isChartGenerated = true; 
 
         const grid = document.getElementById('chartGrid');
+        grid.style.background = 'var(--gold-line)';
+        grid.style.border = '1px solid var(--gold-line)';
+        grid.style.display = 'grid'; 
+        grid.style.justifyContent = '';
+        grid.style.alignItems = '';
+        grid.style.padding = '1px';
         
         let yIn = parseInt(document.getElementById('selY').value);
         let mIn = parseInt(document.getElementById('selM').value);
@@ -730,9 +708,6 @@
       } catch (err) { alert("排盘错误：" + err.message); }
     }
 
-    // ==========================================
-    // 原生 HTML5 下载逻辑
-    // ==========================================
     function exportImage() {
       const logo = document.querySelector('.circle-logo');
       if (logo) { logo.innerText = '生成..'; logo.style.fontSize = '10px'; }
