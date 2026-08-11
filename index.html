@@ -203,11 +203,10 @@
               <option value="chaibu">拆补法</option>
             </select>
             
-            <!-- 【重点】拦截飞盘选项，弹出开发中提示，然后自动切回转盘 -->
-            <select id="panSelect" onchange="if(this.value==='fei'){showToast('🛠️飞盘引擎开发中，暂默认使用转盘！');this.value='zhuan';}">
-              <option value="zhuan" selected>转盘</option>
-              <option value="fei">飞盘</option>
-            </select>
+            <select id="panSelect" onchange="generateChart()">
+    <option value="zhuan" selected>转盘</option>
+    <option value="fei">飞盘</option>
+</select>
             
             <button class="btn-theme" onclick="toggleTheme()">☀️ 主题</button>
           </div>
@@ -437,19 +436,28 @@
 
         // 【读取引擎开关的值】
         let method = document.getElementById('methodSelect').value;
+        let panType = document.getElementById('panSelect').value; // 读取是转盘还是飞盘
         let chart;
 
         if (method === 'zhirun') {
-          // ====== 置闰法引擎 ======
           let zhirunData = OogoZhiRun.calculate(y, m, d, h, min);
           let timeString = `${yIn}-${pad(mIn)}-${pad(dIn)}T${pad(hIn)}:${pad(minIn)}:00`;
-          
           chart = ThreeMeta.QimenChart.byDatetime(timeString, {
             juNumber: zhirunData.juNumber,
             isYangdun: zhirunData.isYangdun
           });
           chart.solarTerm = zhirunData.debugInfo.targetJieQi;
           chart.yuan = zhirunData.debugInfo.yuanName;
+        } else {
+          chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0);
+        }
+
+        // =====================================
+        // 核心装载：如果你选了飞盘，直接劫持洗脑！
+        // =====================================
+        if (panType === 'fei') {
+            chart = OogoFeiPan.fly(chart);
+        }
           
         } else {
           // ====== 拆补法引擎 ======
@@ -543,6 +551,7 @@
             let eStem = Array.isArray(p.earthlyStem) ? p.earthlyStem.join('/') : (p.earthlyStem || '');
             let origGate = p.gate || ''; let gateName = origGate.replace('门', '');
             let gateClass = ['生门','休门','开门'].includes(origGate) ? 'gate-g' : ['杜门','景门'].includes(origGate) ? 'gate-n' : 'gate-r';
+if (origGate === '中门') gateClass = 'gate-g'; // 中宫属土，跟生门一个色系
 
             let rightCornerHtml = '';
             let hStemStr = String(p.heavenlyStem || '');
