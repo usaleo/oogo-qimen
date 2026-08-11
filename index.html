@@ -379,12 +379,28 @@
         let gateOffset = zsTargetPalace - xunPalace;
         if (gateOffset < 0) gateOffset += 9;
 
-        const flyGates = {};
-        for (let i = 1; i <= 9; i++) {
-            let landPalace = i + gateOffset;
-            if (landPalace > 9) landPalace -= 9;
-            flyGates[landPalace] = origGates[i];
-        }
+        // --- 替换掉原来的 let gateOffset = ... 到 flyGates 循环结束 ---
+
+const flyGates = {};
+for (let i = 1; i <= 9; i++) {
+    let diff = i - xunPalace; // 算出该门与旬首（值使门老家）的洛书原始距离
+    let landPalace;
+    
+    if (isYang) {
+        landPalace = zsTargetPalace + diff; // 阳遁：顺着靶心往后加
+    } else {
+        landPalace = zsTargetPalace - diff; // 阴遁：顺着靶心往前减（逆飞）
+    }
+    
+    // 把结果强制修正到 1~9 的洛书宫位内
+    while (landPalace > 9) landPalace -= 9;
+    while (landPalace < 1) landPalace += 9;
+
+    flyGates[landPalace] = origGates[i];
+}
+
+// --- 替换结束。后面的 flyDeities 等代码不用动 ---
+
 
         const deitiesList = ['值符', '腾蛇', '太阴', '六合', '勾陈', '太常', '朱雀', '九地', '九天'];
         const flyDeities = {};
