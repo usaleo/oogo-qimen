@@ -277,7 +277,43 @@
     }
 
     const OogoZhiRun = {
+      // 🏆【核心升级】真·置闰万年历数据库
+      runDatabase: [
+        {
+          // 2023年大雪闰局 (2023年12月21日 - 2024年1月4日 跨度15天)
+          start: new Date(2023, 11, 21).getTime(), 
+          end: new Date(2024, 0, 5).getTime(),
+          name: "大雪", 
+          juTable: [4, 7, 1],
+          isYang: false
+        }
+        // 后续可依此格式无限追加其他置闰年份（如2017大雪等）
+      ],
+
       calculate: function(year, month, day, hour, min) {
+        const targetTime = new Date(year, month - 1, day).getTime();
+
+        // 1. ⚡ 优先触发真置闰拦截
+        for (let i = 0; i < this.runDatabase.length; i++) {
+            let runData = this.runDatabase[i];
+            if (targetTime >= runData.start && targetTime < runData.end) {
+                let daysInRun = Math.floor((targetTime - runData.start) / (1000 * 60 * 60 * 24));
+                let yuan = Math.floor(daysInRun / 5); 
+                if (yuan > 2) yuan = 2; // 防越界
+                
+                return {
+                    juNumber: runData.juTable[yuan],
+                    isYangdun: runData.isYang,
+                    debugInfo: {
+                        yuanName: ["上元", "中元", "下元"][yuan],
+                        targetJieQi: runData.name,
+                        isTrueRun: true // 通知UI挂上真实的(闰)标签
+                    }
+                };
+            }
+        }
+
+        // 2. 无闰局时，正常进行古法超神接气推演
         const chart = ThreeMeta.QimenChart.fromSolar(year, month, day, hour, min, 0);
         const dayStem = chart.fourPillars.day.stem;
         const stems = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
@@ -317,19 +353,8 @@
             }
         }
         
-        let probePrev = new Date(fuTouDate);
-        let daysToPrev = 99;
-        for(let i = 1; i <= 16; i++) {
-            probePrev.setDate(probePrev.getDate() - 1);
-            let c = ThreeMeta.QimenChart.fromSolar(probePrev.getFullYear(), probePrev.getMonth() + 1, probePrev.getDate(), 12, 0, 0);
-            if(c.timeInfo.solarTerm !== baseJQ) {
-                daysToPrev = i;
-                break;
-            }
-        }
-        
         let targetJieQiName = baseJQ;
-        if (daysToNext <= 9 && daysToNext <= daysToPrev) {
+        if (daysToNext <= 9) { // 不再需要比对prev，回归正统9天跨步法
             targetJieQiName = nextJQ;
         }
         
@@ -351,7 +376,8 @@
             isYangdun: isYang,
             debugInfo: {
                 yuanName: ["上元", "中元", "下元"][yuan],
-                targetJieQi: targetJieQiName
+                targetJieQi: targetJieQiName,
+                isTrueRun: false // 正常排盘，禁止UI误报
             }
         };
       }
@@ -605,16 +631,19 @@
           dDate.setMinutes(dDate.getMinutes() + (lng - 120) * 4); 
         }
 
+        // ⚠️【核心修复1】提取真太阳时运算后的 y,m,d,h,min
         const y = dDate.getFullYear(), m = dDate.getMonth() + 1, d = dDate.getDate(), h = dDate.getHours(), min = dDate.getMinutes();
 
         let method = document.getElementById('methodSelect').value;
         let panType = document.getElementById('panSelect').value;
         let chart;
+        let zhirunData = null; // 提权作用域，方便UI层调用
 
         if (method === 'zhirun') {
-          let zhirunData = OogoZhiRun.calculate(y, m, d, h, min);
+          zhirunData = OogoZhiRun.calculate(y, m, d, h, min);
+          // ⚠️【核心修复2】拼接时间串时，彻底摒弃原始In参数，全量采用计算过真太阳时的变量！
           let timeString = y + "-" + pad(m) + "-" + pad(d) + "T" + pad(h) + ":" + pad(min) + ":00";
-
+          
           chart = ThreeMeta.QimenChart.byDatetime(timeString, {
             juNumber: zhirunData.juNumber,
             isYangdun: zhirunData.isYangdun
@@ -660,23 +689,11 @@
         // ==========================================
         let yuanDay = fuOffset + 1; // 符头偏移量 + 1 即为这一元的第几天 (1-5)
         let jqName = chart.jieQi || chart.solarTerm || getJieQi(m, d);
-        let actualJq = getJieQi(m, d); // 真实天文节气
-        
         let runTag = '';
-        if (method === 'zhirun' && (jqName === '芒种' || jqName === '大雪')) {
-            // 取符头日期
-            let ftDate = new Date(y, m - 1, d);
-            ftDate.setDate(ftDate.getDate() - fuOffset);
-            // 查符头那一天的实际天文节气
-            let ftJq = getJieQi(ftDate.getMonth() + 1, ftDate.getDate());
-            
-            // 核心判定：在正常的超神阶段，符头日期会早于芒种/大雪（比如实际节气是小满/小雪）
-            // 但是，一旦进入闰局（即重新排15天），符头日期就会跑到芒种/大雪的后面（此时 ftJq 等于 jqName）
-            // 甚至到了闰局末尾，实际节气已经到了夏至/冬至（actualJq !== jqName）。
-            // 只要满足这两个条件之一，它就是纯正的置闰！
-            if (ftJq === jqName || actualJq !== jqName) {
-                runTag = '<span style="color:var(--c-gate-r); font-weight:bold; margin-left:2px;">(闰)</span>';
-            }
+        
+        // ⚠️【核心修复3】剥离原作者错误的日期对比法，改为完全听从底层数据库指令
+        if (method === 'zhirun' && chart.yuan && zhirunData && zhirunData.debugInfo && zhirunData.debugInfo.isTrueRun) {
+            runTag = '<span style="color:var(--c-gate-r); font-weight:bold; margin-left:2px;">(闰)</span>';
         }
         
         let yuanStr = (chart.yuan || '中元') + '第' + yuanDay + '天';
