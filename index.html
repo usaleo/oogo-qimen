@@ -687,16 +687,17 @@
         // ⚠️【核心修复1】提取真太阳时运算后的 y,m,d,h,min
         const y = dDate.getFullYear(), m = dDate.getMonth() + 1, d = dDate.getDate(), h = dDate.getHours(), min = dDate.getMinutes();
 
-        let method = document.getElementById('methodSelect').value;
+                let method = document.getElementById('methodSelect').value;
         let panType = document.getElementById('panSelect').value;
         let chart;
-        let zhirunData = null; // 提权作用域，方便UI层调用
+        let zhirunData = null;
 
+        // 🏆【开关修复】严格根据用户选择的模式执行不同的底层逻辑
         if (method === 'zhirun') {
+          // 仅在置闰法模式下，才调用我们的置闰引擎和数据库
           zhirunData = OogoZhiRun.calculate(y, m, d, h, min);
-          // ⚠️【核心修复2】拼接时间串时，彻底摒弃原始In参数，全量采用计算过真太阳时的变量！
           let timeString = y + "-" + pad(m) + "-" + pad(d) + "T" + pad(h) + ":" + pad(min) + ":00";
-          
+
           chart = ThreeMeta.QimenChart.byDatetime(timeString, {
             juNumber: zhirunData.juNumber,
             isYangdun: zhirunData.isYangdun
@@ -704,8 +705,10 @@
           chart.solarTerm = zhirunData.debugInfo.targetJieQi;
           chart.yuan = zhirunData.debugInfo.yuanName;
         } else {
+          // 严格走标准拆补法（纯粹由 ThreeMeta 引擎根据天文节气自动切局）
           chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0);
         }
+
 
         if (panType === 'fei') {
           chart = OogoFeiPan.fly(chart);
