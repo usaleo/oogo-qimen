@@ -62,14 +62,13 @@
     .ctrl-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; width: 100%; box-sizing: border-box; }
     .badge { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; }
     .badge-gong, .badge-nong, .badge-zhen { background: rgba(91, 146, 214, 0.15); color: var(--text-blue); }
+    
     .date-group { display: flex; align-items: center; flex: 1; justify-content: space-between; gap: 2px; min-width: 0; }
     .date-item { display: flex; align-items: center; flex: 1; min-width: 0; }
     .date-item.year-item { flex: 1.3; } 
     select.date-input { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); height: 26px; border-radius: 4px; font-size: 13px; font-weight: bold; outline: none; appearance: none; -webkit-appearance: none; padding: 0; text-align: center; text-align-last: center; cursor: pointer; width: 100%; min-width: 0; }
-    .nl-box { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-gold); height: 26px; line-height: 24px; border-radius: 4px; font-size: 12px; font-weight: bold; text-align: center; box-sizing: border-box; overflow: hidden; white-space: nowrap; width: 100%; min-width: 0; }
     .date-text { color: var(--text-gray); font-size: 11px; margin: 0 1px 0 2px; flex-shrink: 0; }
     .btn-red { background: #d34e55; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; width: 52px; height: 28px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; }
-    .right-fixed-col { width: 52px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; color: var(--text-blue); }
     .btn-big-start { background: var(--text-gold); color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.2); width: 52px; cursor: pointer; display: flex; align-items: center; justify-content: center; letter-spacing: 2px; transition: 0.2s; flex-shrink: 0; padding: 0; }
     .btn-big-start:active { transform: scale(0.95); opacity: 0.9; }
     .zhen-group { display: flex; flex: 1; gap: 4px; min-width: 0; }
@@ -139,31 +138,28 @@
 <body class="light-theme">
 
   <div class="top-ctrl">
+    <!-- 1. 公历时间选择，全部加上 onchange 触发动态节气计算 -->
     <div class="ctrl-row">
       <div class="badge badge-gong">公</div>
       <div class="date-group">
-        <!-- 移除自动触发，改由起局控制 -->
-        <div class="date-item year-item"><select id="selY" class="date-input"></select><span class="date-text">年</span></div>
-        <div class="date-item"><select id="selM" class="date-input"></select><span class="date-text">月</span></div>
-        <div class="date-item"><select id="selD" class="date-input"></select><span class="date-text">日</span></div>
-        <div class="date-item"><select id="selH" class="date-input"></select><span class="date-text">时</span></div>
-        <div class="date-item"><select id="selMin" class="date-input"></select><span class="date-text">分</span></div>
+        <div class="date-item year-item"><select id="selY" class="date-input" onchange="updateDynamicInfo()"></select><span class="date-text">年</span></div>
+        <div class="date-item"><select id="selM" class="date-input" onchange="updateDynamicInfo()"></select><span class="date-text">月</span></div>
+        <div class="date-item"><select id="selD" class="date-input" onchange="updateDynamicInfo()"></select><span class="date-text">日</span></div>
+        <div class="date-item"><select id="selH" class="date-input" onchange="updateDynamicInfo()"></select><span class="date-text">时</span></div>
+        <div class="date-item"><select id="selMin" class="date-input" onchange="updateDynamicInfo()"></select><span class="date-text">分</span></div>
       </div>
       <button class="btn-red" onclick="setNowTime()">现在</button>
     </div>
 
+    <!-- 2. 动态联动的节气时间段 (无框纯文本排版) -->
     <div class="ctrl-row">
-      <div class="badge badge-nong">农</div>
-      <div class="date-group">
-        <div class="date-item year-item"><div id="nlY" class="nl-box">-</div><span class="date-text">年</span></div>
-        <div class="date-item"><div id="nlM" class="nl-box">-</div><span class="date-text">月</span></div>
-        <div class="date-item"><div id="nlD" class="nl-box">-</div><span class="date-text">日</span></div>
-        <div class="date-item"><div id="nlH" class="nl-box">-</div><span class="date-text">时</span></div>
-        <div class="date-item"><div id="nlMin" class="nl-box"></div><span class="date-text">分</span></div>
+      <div class="badge badge-nong">节</div>
+      <div id="jieqiRange" style="flex: 1; font-size: 11.5px; color: var(--text-gray); display: flex; align-items: center; white-space: nowrap; overflow: hidden; letter-spacing: 0.5px;">
+        加载节气中...
       </div>
-      <div class="right-fixed-col">命 ◀▶</div>
     </div>
 
+    <!-- 3. 起局参数区域 -->
     <div class="ctrl-row" style="align-items: stretch; margin-bottom: 0;">
       <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; gap: 8px;">
         
@@ -171,6 +167,7 @@
           <div class="badge badge-zhen">真</div>
           <div class="zhen-group">
             <label class="zhen-item" style="flex: 0.8; cursor: pointer;">
+              <!-- 真太阳时切换不影响标准节气时间，但为了严谨依然可以触发更新 -->
               <input type="checkbox" id="useTrueSolar" checked>
               <span style="color:var(--text-gray); font-size:11px; white-space:nowrap;">太阳时</span>
             </label>
@@ -276,8 +273,6 @@
 
     const OogoZhiRun = {
       // 🏆 O(1) 性能极客版：百年置闰绝对时间表 (2000-2100)
-      // 格式：[开始日期(包含), 结束日期(包含), "目标节气", [上元,中元,下元局数], 是否阳遁]
-      // 采用 "YYYY/MM/DD" 字符串格式，彻底免疫 JavaScript JS 时区偏移和闰月陷阱
       RunTable: [
         ["2001/06/25", "2001/07/09", "芒种", [6, 3, 9], true],
         ["2004/01/01", "2004/01/15", "大雪", [4, 7, 1], false],
@@ -322,34 +317,26 @@
       ],
 
       calculate: function(year, month, day, hour, min) {
-        // 归一化用户目标时间为当天 00:00:00，严格对比日子
         const targetDate = new Date(year, month - 1, day, 0, 0, 0).getTime();
 
-        // 1. ⚡ 极速离线查表：判断目标日是否落入已知的闰局区间内
         for (let i = 0; i < this.RunTable.length; i++) {
             let runData = this.RunTable[i];
             let start = new Date(runData[0]).getTime();
-            // 结束日当天的 23:59:59 之前都算作闰局内，这里直接 +1 天的毫秒数判断
             let end = new Date(runData[1]).getTime() + 86400000; 
             
             if (targetDate >= start && targetDate < end) {
                 let daysInRun = Math.floor((targetDate - start) / (1000 * 60 * 60 * 24));
                 let yuan = Math.floor(daysInRun / 5); 
-                if (yuan > 2) yuan = 2; // 防越界
+                if (yuan > 2) yuan = 2;
                 
                 return {
                     juNumber: runData[3][yuan],
                     isYangdun: runData[4],
-                    debugInfo: {
-                        yuanName: ["上元", "中元", "下元"][yuan],
-                        targetJieQi: runData[2],
-                        isTrueRun: true 
-                    }
+                    debugInfo: { yuanName: ["上元", "中元", "下元"][yuan], targetJieQi: runData[2], isTrueRun: true }
                 };
             }
         }
 
-        // 2. 无闰局时，正常进行古法超神接气推演 (原代码逻辑保持不变)
         const chart = ThreeMeta.QimenChart.fromSolar(year, month, day, hour, min, 0);
         const dayStem = chart.fourPillars.day.stem;
         const stems = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
@@ -361,10 +348,7 @@
         fuTouDate.setDate(fuTouDate.getDate() - offset);
         
         const ftChart = ThreeMeta.QimenChart.fromSolar(
-            fuTouDate.getFullYear(), 
-            fuTouDate.getMonth() + 1, 
-            fuTouDate.getDate(), 
-            12, 0, 0
+            fuTouDate.getFullYear(), fuTouDate.getMonth() + 1, fuTouDate.getDate(), 12, 0, 0
         );
         const ftZhi = ftChart.fourPillars.day.branch;
         const ftZhiIndex = branches.indexOf(ftZhi);
@@ -383,38 +367,25 @@
             probeNext.setDate(probeNext.getDate() + 1);
             let c = ThreeMeta.QimenChart.fromSolar(probeNext.getFullYear(), probeNext.getMonth() + 1, probeNext.getDate(), 12, 0, 0);
             if(c.timeInfo.solarTerm !== baseJQ) {
-                nextJQ = c.timeInfo.solarTerm;
-                daysToNext = i;
-                break;
+                nextJQ = c.timeInfo.solarTerm; daysToNext = i; break;
             }
         }
         
         let targetJieQiName = baseJQ;
-        if (daysToNext <= 9) { 
-            targetJieQiName = nextJQ;
-        }
+        if (daysToNext <= 9) { targetJieQiName = nextJQ; }
         
         const isYang = ["冬至","小寒","大寒","立春","雨水","惊蛰","春分","清明","谷雨","立夏","小满","芒种"].indexOf(targetJieQiName) !== -1;
         
         const juTable = {
-            "冬至": [1, 7, 4], "小寒": [2, 8, 5], "大寒": [3, 9, 6],
-            "立春": [8, 5, 2], "雨水": [9, 6, 3], "惊蛰": [1, 7, 4],
-            "春分": [3, 9, 6], "清明": [4, 1, 7], "谷雨": [5, 2, 8],
-            "立夏": [4, 1, 7], "小满": [5, 2, 8], "芒种": [6, 3, 9],
-            "夏至": [9, 3, 6], "小暑": [8, 2, 5], "大暑": [7, 1, 4],
-            "立秋": [2, 5, 8], "处暑": [1, 4, 7], "白露": [9, 3, 6],
-            "秋分": [7, 1, 4], "寒露": [6, 9, 3], "霜降": [5, 8, 2],
-            "立冬": [6, 9, 3], "小雪": [5, 8, 2], "大雪": [4, 7, 1]
+            "冬至": [1, 7, 4], "小寒": [2, 8, 5], "大寒": [3, 9, 6], "立春": [8, 5, 2], "雨水": [9, 6, 3], "惊蛰": [1, 7, 4],
+            "春分": [3, 9, 6], "清明": [4, 1, 7], "谷雨": [5, 2, 8], "立夏": [4, 1, 7], "小满": [5, 2, 8], "芒种": [6, 3, 9],
+            "夏至": [9, 3, 6], "小暑": [8, 2, 5], "大暑": [7, 1, 4], "立秋": [2, 5, 8], "处暑": [1, 4, 7], "白露": [9, 3, 6],
+            "秋分": [7, 1, 4], "寒露": [6, 9, 3], "霜降": [5, 8, 2], "立冬": [6, 9, 3], "小雪": [5, 8, 2], "大雪": [4, 7, 1]
         };
 
         return {
-            juNumber: juTable[targetJieQiName][yuan],
-            isYangdun: isYang,
-            debugInfo: {
-                yuanName: ["上元", "中元", "下元"][yuan],
-                targetJieQi: targetJieQiName,
-                isTrueRun: false 
-            }
+            juNumber: juTable[targetJieQiName][yuan], isYangdun: isYang,
+            debugInfo: { yuanName: ["上元", "中元", "下元"][yuan], targetJieQi: targetJieQiName, isTrueRun: false }
         };
       }
     };
@@ -435,66 +406,44 @@
         const xunStem = {"甲子":"戊", "甲戌":"己", "甲申":"庚", "甲午":"辛", "甲辰":"壬", "甲寅":"癸"}[xunName];
 
         const earthStems = {};
-        chart.palaces.forEach(function(p) {
-            earthStems[p.position] = Array.isArray(p.earthlyStem) ? p.earthlyStem[0] : p.earthlyStem;
-        });
-       // 补全中5宫地盘干（完美兼容阴阳遁与奇门三奇六仪序列）
+        chart.palaces.forEach(function(p) { earthStems[p.position] = Array.isArray(p.earthlyStem) ? p.earthlyStem[0] : p.earthlyStem; });
+        
         if (!earthStems[5]) {
-            // 奇门地盘排布的标准序列
             const qimenStems = ["戊", "己", "庚", "辛", "壬", "癸", "丁", "丙", "乙"];
             const juNumber = chart.ju.number;
-            
-            // 计算从 局数落宫(即“戊”的位置) 到 中5宫 走了多少步
-            // 阳遁顺飞，阴遁逆飞，九宫形成一个闭环
             let steps = isYang ? (5 - juNumber + 9) % 9 : (juNumber - 5 + 9) % 9;
-            
             earthStems[5] = qimenStems[steps];
         }
 
-        // 飞盘原始九星、九门
         const origStars = {1:'天蓬', 2:'天芮', 3:'天冲', 4:'天辅', 5:'天禽', 6:'天心', 7:'天柱', 8:'天任', 9:'天英'};
         const origGates = {1:'休门', 2:'死门', 3:'伤门', 4:'杜门', 5:'中门', 6:'开门', 7:'惊门', 8:'生门', 9:'景门'};
 
-        // 1. 寻旬首落宫 (原本的值符/值使老家)
         let xunPalace = 5;
-        for (let i = 1; i <= 9; i++) {
-            if (earthStems[i] === xunStem) { xunPalace = i; break; }
-        }
+        for (let i = 1; i <= 9; i++) { if (earthStems[i] === xunStem) { xunPalace = i; break; } }
 
-        // 2. 寻时干落宫（天盘值符星的靶心目标）
         let zfTargetPalace = 5;
         let searchStem = (timeStem === '甲') ? xunStem : timeStem;
-        for (let i = 1; i <= 9; i++) {
-            if (earthStems[i] === searchStem) { zfTargetPalace = i; break; }
-        }
+        for (let i = 1; i <= 9; i++) { if (earthStems[i] === searchStem) { zfTargetPalace = i; break; } }
 
-        // 3. 九星飞布 (基于洛书 1-9 的加减偏移)
         let starSteps = isYang ? (zfTargetPalace - xunPalace) : (xunPalace - zfTargetPalace);
         if (starSteps < 0) starSteps += 9;
 
-        const flyStars = {};
-        const flyHeavenStems = {};
+        const flyStars = {}; const flyHeavenStems = {};
         for (let i = 1; i <= 9; i++) {
             let landPalace = isYang ? (i + starSteps) : (i - starSteps);
-            while (landPalace > 9) landPalace -= 9;
-            while (landPalace < 1) landPalace += 9;
-            
-            flyStars[landPalace] = origStars[i];
-            flyHeavenStems[landPalace] = earthStems[i]; // 飞盘天盘奇仪随星走
+            while (landPalace > 9) landPalace -= 9; while (landPalace < 1) landPalace += 9;
+            flyStars[landPalace] = origStars[i]; flyHeavenStems[landPalace] = earthStems[i]; 
         }
 
-        // 4. 值使门飞布
         const xunBranch = xunName[1];
         let branchOffset = branchesArr.indexOf(timeBranch) - branchesArr.indexOf(xunBranch);
         if (branchOffset < 0) branchOffset += 12;
 
         let zsTargetPalace = xunPalace;
         if (isYang) {
-            zsTargetPalace = xunPalace + branchOffset;
-            while (zsTargetPalace > 9) zsTargetPalace -= 9;
+            zsTargetPalace = xunPalace + branchOffset; while (zsTargetPalace > 9) zsTargetPalace -= 9;
         } else {
-            zsTargetPalace = xunPalace - branchOffset;
-            while (zsTargetPalace < 1) zsTargetPalace += 9;
+            zsTargetPalace = xunPalace - branchOffset; while (zsTargetPalace < 1) zsTargetPalace += 9;
         }
 
         let gateSteps = isYang ? (zsTargetPalace - xunPalace) : (xunPalace - zsTargetPalace);
@@ -503,34 +452,25 @@
         const flyGates = {};
         for (let i = 1; i <= 9; i++) {
             let landPalace = isYang ? (i + gateSteps) : (i - gateSteps);
-            while (landPalace > 9) landPalace -= 9;
-            while (landPalace < 1) landPalace += 9;
+            while (landPalace > 9) landPalace -= 9; while (landPalace < 1) landPalace += 9;
             flyGates[landPalace] = origGates[i];
         }
 
-        // 5. 九神飞布 (飞盘有9个神，随值符星顺/逆飞九宫)
         const deitiesList = ['值符', '腾蛇', '太阴', '六合', '勾陈', '太常', '朱雀', '九地', '九天'];
         const flyDeities = {};
         for (let i = 0; i < 9; i++) {
             let landPalace = isYang ? (zfTargetPalace + i) : (zfTargetPalace - i);
-            while (landPalace > 9) landPalace -= 9;
-            while (landPalace < 1) landPalace += 9;
+            while (landPalace > 9) landPalace -= 9; while (landPalace < 1) landPalace += 9;
             flyDeities[landPalace] = deitiesList[i];
         }
 
         chart.palaces.forEach(function(p) {
-            const pos = p.position;
-            p.star = flyStars[pos];
-            p.gate = flyGates[pos];
-            p.deity = flyDeities[pos];
-            p.heavenlyStem = flyHeavenStems[pos];
-            p.earthlyStem = earthStems[pos]; // 地盘保留不动
+            const pos = p.position; p.star = flyStars[pos]; p.gate = flyGates[pos];
+            p.deity = flyDeities[pos]; p.heavenlyStem = flyHeavenStems[pos]; p.earthlyStem = earthStems[pos]; 
         });
 
-        if (!chart.zhiFu) chart.zhiFu = {};
-        if (!chart.zhiShi) chart.zhiShi = {};
-        chart.zhiFu.position = zfTargetPalace;
-        chart.zhiShi.position = zsTargetPalace;
+        if (!chart.zhiFu) chart.zhiFu = {}; if (!chart.zhiShi) chart.zhiShi = {};
+        chart.zhiFu.position = zfTargetPalace; chart.zhiShi.position = zsTargetPalace;
 
         return chart;
       }
@@ -538,16 +478,11 @@
 
     function initDateSelects() {
       try {
-          const y = document.getElementById('selY');
-          for(let i=1900; i<=2100; i++) y.add(new Option(i, i));
-          const m = document.getElementById('selM');
-          for(let i=1; i<=12; i++) m.add(new Option(i, i));
-          const d = document.getElementById('selD');
-          for(let i=1; i<=31; i++) d.add(new Option(i, i));
-          const h = document.getElementById('selH');
-          for(let i=0; i<=23; i++) h.add(new Option(i, i));
-          const min = document.getElementById('selMin');
-          for(let i=0; i<=59; i++) min.add(new Option(pad(i), i));
+          const y = document.getElementById('selY'); for(let i=1900; i<=2100; i++) y.add(new Option(i, i));
+          const m = document.getElementById('selM'); for(let i=1; i<=12; i++) m.add(new Option(i, i));
+          const d = document.getElementById('selD'); for(let i=1; i<=31; i++) d.add(new Option(i, i));
+          const h = document.getElementById('selH'); for(let i=0; i<=23; i++) h.add(new Option(i, i));
+          const min = document.getElementById('selMin'); for(let i=0; i<=59; i++) min.add(new Option(pad(i), i));
       } catch(e) {}
     }
     function pad(n) { return n < 10 ? '0' + n : n; }
@@ -588,7 +523,7 @@
       document.getElementById('selD').value = now.getDate();
       document.getElementById('selH').value = now.getHours();
       document.getElementById('selMin').value = now.getMinutes();
-      updateNongliInfoOnly();
+      updateDynamicInfo(); // 更新节气联动栏
     }
 
     function toggleTheme() { document.body.classList.toggle('light-theme'); }
@@ -600,8 +535,11 @@
       }
     }, 200);
 
-    // 仅用于更新顶部干支显示，不触发盘面重绘
-    function updateNongliInfoOnly() {
+    // ==========================================
+    // 黑科技算法：极速二分法精准探测节气边界 (耗时 < 5ms)
+    // 监听上方表单，一旦改变，下方节气段实时刷新
+    // ==========================================
+    function updateDynamicInfo() {
       if (typeof ThreeMeta === 'undefined') return;
       try {
         let yIn = parseInt(document.getElementById('selY').value);
@@ -609,23 +547,49 @@
         let dIn = parseInt(document.getElementById('selD').value);
         let hIn = parseInt(document.getElementById('selH').value);
         let minIn = parseInt(document.getElementById('selMin').value);
-        
-        let dDate = new Date(yIn, mIn - 1, dIn, hIn, minIn, 0);
-        let lng = parseFloat(document.getElementById('longitude').value);
-        if (document.getElementById('useTrueSolar').checked && !isNaN(lng)) { dDate.setMinutes(dDate.getMinutes() + (lng - 120) * 4); }
 
-        const y = dDate.getFullYear(), m = dDate.getMonth() + 1, d = dDate.getDate(), h = dDate.getHours(), min = dDate.getMinutes();
-        const chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0);
-
-        let bY = chart.fourPillars.year.stem + chart.fourPillars.year.branch;
-        let bM = chart.fourPillars.month.stem + chart.fourPillars.month.branch;
-        let bD = chart.fourPillars.day.stem + chart.fourPillars.day.branch;
-        let bH = chart.fourPillars.hour.stem + chart.fourPillars.hour.branch;
+        // 统一使用标准北京时间进行节气推演（历书标准也是如此）
+        let currentTimestamp = new Date(yIn, mIn - 1, dIn, hIn, minIn, 0).getTime();
         
-        document.getElementById('nlY').innerText = bY;
-        document.getElementById('nlM').innerText = bM;
-        document.getElementById('nlD').innerText = bD;
-        document.getElementById('nlH').innerText = bH;
+        function getJQAt(ts) {
+            let d = new Date(ts);
+            return ThreeMeta.QimenChart.fromSolar(d.getFullYear(), d.getMonth()+1, d.getDate(), d.getHours(), d.getMinutes(), 0).timeInfo.solarTerm;
+        }
+        
+        let currentJQ = getJQAt(currentTimestamp);
+        let step = 24 * 3600 * 1000; // 跨度为 1 天
+        
+        // 1. 寻早交节左边界
+        let startProbe = currentTimestamp;
+        while (getJQAt(startProbe) === currentJQ) { startProbe -= step; }
+        let left = startProbe, right = startProbe + step;
+        while (right - left > 60000) { // 精确到分钟的二分查找
+            let mid = Math.floor((left + right) / 2);
+            if (getJQAt(mid) === currentJQ) { right = mid; } else { left = mid; }
+        }
+        let startTime = new Date(right);
+        
+        // 2. 寻早交节右边界（即下个节气的开端）
+        let endProbe = currentTimestamp;
+        while (getJQAt(endProbe) === currentJQ) { endProbe += step; }
+        let nextJQ = getJQAt(endProbe);
+        left = endProbe - step; right = endProbe;
+        while (right - left > 60000) {
+            let mid = Math.floor((left + right) / 2);
+            if (getJQAt(mid) === nextJQ) { right = mid; } else { left = mid; }
+        }
+        let endTime = new Date(right);
+        
+        function formatD(d) { return d.getFullYear() + '.' + pad(d.getMonth()+1) + '.' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+        
+        // 渲染到前端：精美的无框纯文本排版
+        document.getElementById('jieqiRange').innerHTML = 
+          '<span style="color:var(--text-gold); font-weight:bold; margin-right:2px;">' + currentJQ + '</span> ' + 
+          formatD(startTime) + 
+          '<span style="color:var(--border-color); margin:0 6px;">~</span>' + 
+          '<span style="color:var(--text-gold); font-weight:bold; margin-right:2px;">' + nextJQ + '</span> ' + 
+          formatD(endTime);
+
       } catch (e) { console.error(e); }
     }
 
@@ -643,7 +607,7 @@
     }
 
     // ==========================================
-    // 起局入口（点击起局按钮才会触发）
+    // 起局入口（点击起局按钮才会触发重绘盘面）
     // ==========================================
     function generateChart() {
       try {
@@ -669,7 +633,6 @@
           dDate.setMinutes(dDate.getMinutes() + (lng - 120) * 4); 
         }
 
-        // 提取真太阳时运算后的 y,m,d,h,min
         const y = dDate.getFullYear(), m = dDate.getMonth() + 1, d = dDate.getDate(), h = dDate.getHours(), min = dDate.getMinutes();
 
         let method = document.getElementById('methodSelect').value;
@@ -677,7 +640,6 @@
         let chart;
         let zhirunData = null;
 
-        // 根据用户选择的模式执行不同的底层逻辑
         if (method === 'zhirun') {
           zhirunData = OogoZhiRun.calculate(y, m, d, h, min);
           let timeString = y + "-" + pad(m) + "-" + pad(d) + "T" + pad(h) + ":" + pad(min) + ":00";
@@ -692,20 +654,12 @@
           chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0);
         }
 
-        if (panType === 'fei') {
-          chart = OogoFeiPan.fly(chart);
-        }
+        if (panType === 'fei') { chart = OogoFeiPan.fly(chart); }
 
         let bY = chart.fourPillars.year.stem + chart.fourPillars.year.branch;
         let bM = chart.fourPillars.month.stem + chart.fourPillars.month.branch;
         let bD = chart.fourPillars.day.stem + chart.fourPillars.day.branch;
         let bH = chart.fourPillars.hour.stem + chart.fourPillars.hour.branch;
-
-        // 同步刷新顶部农历干支
-        document.getElementById('nlY').innerText = bY;
-        document.getElementById('nlM').innerText = bM;
-        document.getElementById('nlD').innerText = bD;
-        document.getElementById('nlH').innerText = bH;
 
         let dSIdx = stems.indexOf(chart.fourPillars.day.stem); let dBIdx = branches.indexOf(chart.fourPillars.day.branch);
         let fuOffset = dSIdx % 5;
@@ -727,10 +681,6 @@
         let zsPalace = zhiShiObj.position || (chart.palaces.find(function(p) { return p.gate === zsName + '门' || p.gate === zsName; }) || {}).position || 1;
 
         let isYang = chart.ju.type.indexOf('阳') !== -1;
-        
-        // ==========================================
-        // UI 信息增强：真置闰判定修复版 + 节气精准提取
-        // ==========================================
         let yuanDay = fuOffset + 1; 
         
         let jqName = "";
@@ -738,11 +688,7 @@
             jqName = zhirunData.debugInfo.targetJieQi;
         } else {
             let rawJq = chart.jieQi || chart.solarTerm || (chart.ju && chart.ju.solarTerm) || (chart.timeInfo && chart.timeInfo.solarTerm);
-            if (rawJq && rawJq !== "未知" && rawJq !== "undefined") {
-                jqName = rawJq;
-            } else {
-                jqName = getJieQi(m, d);
-            }
+            if (rawJq && rawJq !== "未知" && rawJq !== "undefined") { jqName = rawJq; } else { jqName = getJieQi(m, d); }
         }
 
         let runTag = '';
@@ -753,7 +699,6 @@
         let yuanStr = (chart.yuan || '中元') + '第' + yuanDay + '天';
         let dunStr = chart.ju.type + chart.ju.number + '局';
 
-        // 地八神排布逻辑
         const ring = [1, 8, 3, 4, 9, 2, 7, 6]; const deities = ['值符', '腾蛇', '太阴', '六合', '白虎', '玄武', '九地', '九天'];
         let earthDeitiesMap = {};
         
@@ -762,20 +707,14 @@
             for (let i = 1; i <= 9; i++) {
                 let p = chart.palaces.find(function(x) { return x.position === i; }) || {};
                 let eStemStr = Array.isArray(p.earthlyStem) ? p.earthlyStem[0] : (p.earthlyStem || '');
-                if (eStemStr === xunDun) {
-                    earthXunPalace = i;
-                    break;
-                }
+                if (eStemStr === xunDun) { earthXunPalace = i; break; }
             }
             if (earthXunPalace === 5) earthXunPalace = 2; 
             
             let eDeityStartIndex = ring.indexOf(earthXunPalace);
-            for (let i = 0; i < 8; i++) { 
-                earthDeitiesMap[ring[isYang ? (eDeityStartIndex + i) % 8 : (eDeityStartIndex - i + 8) % 8]] = deities[i]; 
-            }
+            for (let i = 0; i < 8; i++) { earthDeitiesMap[ring[isYang ? (eDeityStartIndex + i) % 8 : (eDeityStartIndex - i + 8) % 8]] = deities[i]; }
         }
 
-        // 暗干排布逻辑
         let timeStem = chart.fourPillars.hour.stem;
         let hiddenStemStart = (timeStem === '甲') ? xunDun : timeStem;
         const qimenStems = ["戊", "己", "庚", "辛", "壬", "癸", "丁", "丙", "乙"];
@@ -784,16 +723,9 @@
         let currPalace = zsPalace; 
         for (let i = 0; i < 9; i++) {
             hiddenStemsMap[currPalace] = qimenStems[(startStemIndex + i) % 9];
-            if (isYang) {
-                currPalace++; 
-                if (currPalace > 9) currPalace = 1;
-            } else {
-                currPalace--; 
-                if (currPalace < 1) currPalace = 9;
-            }
+            if (isYang) { currPalace++; if (currPalace > 9) currPalace = 1; } else { currPalace--; if (currPalace < 1) currPalace = 9; }
         }
 
-        // 星门伏吟反吟识别
         let isStarFu = true, isStarFan = true, isGateFu = true, isGateFan = true;
         const origStar = {1:'天蓬', 2:'天芮', 3:'天冲', 4:'天辅', 6:'天心', 7:'天柱', 8:'天任', 9:'天英', 5:'天禽'};
         const origGate = {1:'休门', 2:'死门', 3:'伤门', 4:'杜门', 6:'开门', 7:'惊门', 8:'生门', 9:'景门', 5:'中门'};
@@ -828,7 +760,6 @@
           fyText = '<span style="color:#d34e55; font-weight:bold; margin-left:8px; border:1px solid #d34e55; padding:1px 4px; border-radius:4px; font-size:11px;">' + fyText + '</span>';
         }
 
-        // 最终拼接输出 HTML 面板
         let boardHtml =
           '<div class="bazi-row"><div class="bazi-box"><div class="bazi-title">年柱</div><div class="bazi-value">' + bY + '</div></div><div class="bazi-box"><div class="bazi-title">月柱</div><div class="bazi-value">' + bM + '</div></div><div class="bazi-box"><div class="bazi-title">日柱</div><div class="bazi-value">' + bD + '</div></div><div class="bazi-box"><div class="bazi-title">时柱</div><div class="bazi-value">' + bH + '</div></div></div>' +
           '<div class="info-row"><span style="display:flex; align-items:center;">' + jqName + runTag + ' &nbsp;' + yuanStr + ' &nbsp;' + dunStr + '</span><span>符头: ' + fuTou + '</span></div>' +
