@@ -276,21 +276,73 @@
         }
     }
 
-    const OogoZhiRun = {
-            // 🏆【核心升级】真·置闰万年历数据库
-      runDatabase: [
-        {
-          // 2024年真实大雪闰局 (2024年12月11日 - 2024年12月25日)
-          start: new Date(2024, 11, 11).getTime(), 
-          end: new Date(2024, 11, 26).getTime(), 
-          name: "大雪", 
-          juTable: [4, 7, 1], // 大雪阴遁 4、7、1 局
-          isYang: false
-        }
-      ],
+        const OogoZhiRun = {
+      // 🏆 内存数据库（初始为空，由下方引擎自动运算生成）
+      runDatabase: [],
 
+      // ⚙️ 核心黑科技：全自动星历置闰推演引擎 (100% 杜绝人工算错)
+      initDatabase: function() {
+        if (this.runDatabase.length > 0) return; // 避免重复生成
+        
+        const stems = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+        
+        // 自动扫描 2000年 到 2100年 这百年间所有的闰局
+        for (let y = 2000; y <= 2100; y++) {
+            let targets = [
+                { m: 6, d: 6, name: "芒种", ju: [6, 3, 9], isY: true },
+                { m: 12, d: 7, name: "大雪", ju: [4, 7, 1], isY: false }
+            ];
+            
+            for (let i = 0; i < targets.length; i++) {
+                let target = targets[i];
+                let exactDate = null;
+                
+                // 1. 精准探测该年的真实天文交节日（找当天 23:59 已经进入该节气的日子）
+                for (let day = target.d - 3; day <= target.d + 3; day++) {
+                    let chart = ThreeMeta.QimenChart.fromSolar(y, target.m, day, 23, 59, 0);
+                    if (chart.timeInfo && chart.timeInfo.solarTerm === target.name) {
+                        exactDate = new Date(y, target.m - 1, day); 
+                        break;
+                    }
+                }
+                
+                if (exactDate) {
+                    // 2. 提取交节日的日干，推算奇门符头
+                    let chart = ThreeMeta.QimenChart.fromSolar(exactDate.getFullYear(), exactDate.getMonth()+1, exactDate.getDate(), 12, 0, 0);
+                    let dayStem = chart.fourPillars.day.stem;
+                    let offset = stems.indexOf(dayStem) % 5;
+                    
+                    let fuTouDate = new Date(exactDate);
+                    fuTouDate.setDate(fuTouDate.getDate() - offset);
+                    
+                    // 3. 计算超神天数
+                    let diffDays = Math.round((exactDate.getTime() - fuTouDate.getTime()) / (1000 * 3600 * 24));
+                    
+                    // 4. 触发置闰红线（严格大于 9 天）
+                    if (diffDays > 9) {
+                        let runStart = new Date(fuTouDate);
+                        runStart.setDate(runStart.getDate() + 15); // 常规15天后，开启闰局
+                        let runEnd = new Date(runStart);
+                        runEnd.setDate(runEnd.getDate() + 15);     // 闰局持续15天
+                        
+                        this.runDatabase.push({
+                            start: runStart.getTime(),
+                            end: runEnd.getTime(),
+                            name: target.name,
+                            juTable: target.ju,
+                            isYang: target.isY
+                        });
+                    }
+                }
+            }
+        }
+        console.log("✅ 自动化置闰数据库生成完毕，百年内共拦截闰局：", this.runDatabase.length, "次");
+      },
 
       calculate: function(year, month, day, hour, min) {
+        // 起局前，确保自动化百年历库已经生成
+        this.initDatabase();
+
         const targetTime = new Date(year, month - 1, day).getTime();
 
         // 1. ⚡ 优先触发真置闰拦截
@@ -307,7 +359,7 @@
                     debugInfo: {
                         yuanName: ["上元", "中元", "下元"][yuan],
                         targetJieQi: runData.name,
-                        isTrueRun: true // 通知UI挂上真实的(闰)标签
+                        isTrueRun: true 
                     }
                 };
             }
@@ -354,7 +406,7 @@
         }
         
         let targetJieQiName = baseJQ;
-        if (daysToNext <= 9) { // 不再需要比对prev，回归正统9天跨步法
+        if (daysToNext <= 9) { 
             targetJieQiName = nextJQ;
         }
         
@@ -377,11 +429,12 @@
             debugInfo: {
                 yuanName: ["上元", "中元", "下元"][yuan],
                 targetJieQi: targetJieQiName,
-                isTrueRun: false // 正常排盘，禁止UI误报
+                isTrueRun: false 
             }
         };
       }
     };
+
 
     const OogoFeiPan = {
       fly: function(chart) {
