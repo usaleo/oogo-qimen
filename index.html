@@ -151,24 +151,16 @@
       <button class="btn-red" onclick="setNowTime()">现在</button>
     </div>
 
-        <!-- 2. 动态联动的节气时间段 -->
+    <!-- 2. 动态联动的节气时间段：高度 26px，同款圆角边框，无右侧阻挡拉满对齐 -->
     <div class="ctrl-row">
       <div class="badge badge-nong">节</div>
-      
-      <!-- 带有和上下同款边框的框子 -->
+      <!-- 这里的框子直接拉满右侧，自动对齐上方按钮的右边缘 -->
       <div style="flex: 1; background: var(--bg-main); border: 1px solid var(--border-color); height: 26px; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 0 4px; box-sizing: border-box;">
-        
-        <!-- 内部文字自适应缩放：使用 clamp 弹性字号，最小 9px，最大 12.5px，随屏幕宽度自动调节 -->
-        <div id="jieqiRange" style="white-space: nowrap; font-size: clamp(9px, 2.8vw, 12.5px); color: var(--text-main); width: 100%; text-align: center; letter-spacing: -0.2px;">
+        <div id="jieqiRange" style="white-space: nowrap; font-size: clamp(10px, 3.2vw, 13px); font-weight: bold; color: var(--text-main); width: 100%; text-align: center;">
           加载节气中...
         </div>
-        
       </div>
-      
-      <!-- 核心神来之笔：一个 52px 的透明占位块，完美顶住右侧，和上下按钮严格对齐 -->
-      <div style="width: 52px; flex-shrink: 0;"></div>
     </div>
-
 
     <!-- 3. 起局参数区域 -->
     <div class="ctrl-row" style="align-items: stretch; margin-bottom: 0;">
@@ -544,7 +536,6 @@
 
     // ==========================================
     // 黑科技算法：极速二分法精准探测节气边界
-    // 采用 var(--text-main) 确保颜色完全适配黑白主题
     // ==========================================
     function updateDynamicInfo() {
       if (typeof ThreeMeta === 'undefined') return;
@@ -565,7 +556,6 @@
         let currentJQ = getJQAt(currentTimestamp);
         let step = 24 * 3600 * 1000; 
         
-        // 1. 寻早交节左边界
         let startProbe = currentTimestamp;
         while (getJQAt(startProbe) === currentJQ) { startProbe -= step; }
         let left = startProbe, right = startProbe + step;
@@ -575,7 +565,6 @@
         }
         let startTime = new Date(right);
         
-        // 2. 寻早交节右边界
         let endProbe = currentTimestamp;
         while (getJQAt(endProbe) === currentJQ) { endProbe += step; }
         let nextJQ = getJQAt(endProbe);
@@ -586,14 +575,15 @@
         }
         let endTime = new Date(right);
         
+        // 恢复带有完整年份的时间格式
         function formatD(d) { return d.getFullYear() + '.' + pad(d.getMonth()+1) + '.' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
         
-        // 渲染到前端：完全统一颜色，调大文字为 13px
+        // 渲染到前端
         document.getElementById('jieqiRange').innerHTML = 
-          '<span>' + currentJQ + '</span> ' + 
+          '<span style="color:var(--text-gold);">' + currentJQ + '</span> ' + 
           formatD(startTime) + 
           '<span style="color:var(--text-gray); margin:0 6px;">~</span>' + 
-          '<span>' + nextJQ + '</span> ' + 
+          '<span style="color:var(--text-gold);">' + nextJQ + '</span> ' + 
           formatD(endTime);
 
       } catch (e) { console.error(e); }
