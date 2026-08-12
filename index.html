@@ -151,13 +151,24 @@
       <button class="btn-red" onclick="setNowTime()">现在</button>
     </div>
 
-    <!-- 2. 动态联动的节气时间段 (字号调大为13px，颜色完全使用主题自适应主色) -->
+        <!-- 2. 动态联动的节气时间段 -->
     <div class="ctrl-row">
       <div class="badge badge-nong">节</div>
-      <div id="jieqiRange" style="flex: 1; font-size: 13px; font-weight: bold; color: var(--text-main); display: flex; align-items: center; white-space: nowrap; overflow: hidden; letter-spacing: 0.5px;">
-        加载节气中...
+      
+      <!-- 带有和上下同款边框的框子 -->
+      <div style="flex: 1; background: var(--bg-main); border: 1px solid var(--border-color); height: 26px; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 0 4px; box-sizing: border-box;">
+        
+        <!-- 内部文字自适应缩放：使用 clamp 弹性字号，最小 9px，最大 12.5px，随屏幕宽度自动调节 -->
+        <div id="jieqiRange" style="white-space: nowrap; font-size: clamp(9px, 2.8vw, 12.5px); color: var(--text-main); width: 100%; text-align: center; letter-spacing: -0.2px;">
+          加载节气中...
+        </div>
+        
       </div>
+      
+      <!-- 核心神来之笔：一个 52px 的透明占位块，完美顶住右侧，和上下按钮严格对齐 -->
+      <div style="width: 52px; flex-shrink: 0;"></div>
     </div>
+
 
     <!-- 3. 起局参数区域 -->
     <div class="ctrl-row" style="align-items: stretch; margin-bottom: 0;">
