@@ -684,12 +684,31 @@
 
         let isYang = chart.ju.type.indexOf('阳') !== -1;
         
+                // ==========================================
+        // UI 信息增强：真置闰判定修复版 + 节气精准提取
         // ==========================================
-        // UI 信息增强：计算元内天数与真正的置闰判定
-        // ==========================================
-        let yuanDay = fuOffset + 1; // 符头偏移量 + 1 即为这一元的第几天 (1-5)
-        let jqName = chart.jieQi || chart.solarTerm || getJieQi(m, d);
+        let yuanDay = fuOffset + 1; 
+        
+        // 🏆【终极防御版】节气提取逻辑
+        let jqName = "";
+        // 第一重防御：如果是置闰法，直接用咱们数据库里绝对精准的名字，根本不理会底层引擎！
+        if (method === 'zhirun' && zhirunData && zhirunData.debugInfo) {
+            jqName = zhirunData.debugInfo.targetJieQi;
+        } else {
+            // 第二重防御：如果是拆补法，穷举底层引擎所有可能藏匿节气名字的角落
+            let rawJq = chart.jieQi || chart.solarTerm || (chart.ju && chart.ju.solarTerm) || (chart.timeInfo && chart.timeInfo.solarTerm);
+            
+            // 第三重防御：过滤掉底层引擎可能吐出的“垃圾数据”
+            if (rawJq && rawJq !== "未知" && rawJq !== "undefined") {
+                jqName = rawJq;
+            } else {
+                // 第四重防御：如果真的什么都读不到，再用自带的 getJieQi 函数托底
+                jqName = getJieQi(m, d);
+            }
+        }
+
         let runTag = '';
+
         
         // ⚠️【核心修复3】剥离原作者错误的日期对比法，改为完全听从底层数据库指令
         if (method === 'zhirun' && chart.yuan && zhirunData && zhirunData.debugInfo && zhirunData.debugInfo.isTrueRun) {
