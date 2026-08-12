@@ -840,7 +840,7 @@
       const originalOverflow = body.style.overflow;
       body.style.overflow = 'visible';
       
-      const scale = 3;
+      const scale = 4;
       const bg = getComputedStyle(body).backgroundColor || '#131520';
 
       setTimeout(function () {
@@ -929,7 +929,7 @@
           if (logo) { logo.innerText = '历'; logo.style.fontSize = '14px'; }
           alert('生成图片失败：' + (err && err.message ? err.message : '未知错误'));
         });
-      }, 100);
+      }, 150);
     }
 
     function showToast(msg) {
