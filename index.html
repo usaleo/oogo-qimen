@@ -315,7 +315,6 @@
       ],
 
       calculate: function(year, month, day, hour, min) {
-        // 【核心修复】：无论何时，都以当前传入的真实参数 year, month, day, hour, min 去查库和计算
         const targetDate = new Date(year, month - 1, day, 0, 0, 0).getTime();
 
         for (let i = 0; i < this.RunTable.length; i++) {
@@ -336,7 +335,9 @@
             }
         }
 
-        // 正常超神接气推演：严格使用当前传入的参数
+        // ==========================================
+        // 关键修复：当普通日子时，动态传入当前的 year, month, day, hour, min
+        // ==========================================
         const chart = ThreeMeta.QimenChart.fromSolar(year, month, day, hour, min, 0);
         const dayStem = chart.fourPillars.day.stem;
         const stems = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
@@ -596,6 +597,9 @@
       return terms[m];
     }
 
+    // ==========================================
+    // 起局入口（严格接收面板中用户选定的年月日时分）
+    // ==========================================
     function generateChart() {
       try {
         isChartGenerated = true; 
