@@ -613,7 +613,8 @@
 
         if (method === 'zhirun') {
           let zhirunData = OogoZhiRun.calculate(y, m, d, h, min);
-          let timeString = yIn + "-" + pad(mIn) + "-" + pad(dIn) + "T" + pad(hIn) + ":" + pad(minIn) + ":00";
+          let timeString = y + "-" + pad(m) + "-" + pad(d) + "T" + pad(h) + ":" + pad(min) + ":00";
+
           chart = ThreeMeta.QimenChart.byDatetime(timeString, {
             juNumber: zhirunData.juNumber,
             isYangdun: zhirunData.isYangdun
