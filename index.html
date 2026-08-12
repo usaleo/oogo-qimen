@@ -277,18 +277,18 @@
     }
 
     const OogoZhiRun = {
-      // 🏆【核心升级】真·置闰万年历数据库
+            // 🏆【核心升级】真·置闰万年历数据库
       runDatabase: [
         {
-          // 2023年大雪闰局 (2023年12月21日 - 2024年1月4日 跨度15天)
-          start: new Date(2023, 11, 21).getTime(), 
-          end: new Date(2024, 0, 5).getTime(),
+          // 2024年真实大雪闰局 (2024年12月11日 - 2024年12月25日)
+          start: new Date(2024, 11, 11).getTime(), 
+          end: new Date(2024, 11, 26).getTime(), 
           name: "大雪", 
-          juTable: [4, 7, 1],
+          juTable: [4, 7, 1], // 大雪阴遁 4、7、1 局
           isYang: false
         }
-        // 后续可依此格式无限追加其他置闰年份（如2017大雪等）
       ],
+
 
       calculate: function(year, month, day, hour, min) {
         const targetTime = new Date(year, month - 1, day).getTime();
