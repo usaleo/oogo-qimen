@@ -155,7 +155,6 @@
     <div class="ctrl-row">
       <div class="badge badge-nong">节</div>
       <div style="flex: 1; background: var(--bg-main); border: 1px solid var(--border-color); height: 26px; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 0 2px; box-sizing: border-box;">
-        <!-- 极致自适应缩放机制，移除死板设置，确保全字符无损显示 -->
         <div id="jieqiRange" style="white-space: nowrap; font-size: min(11.5px, 2.9vw); font-weight: bold; color: var(--text-main); letter-spacing: -0.2px;">
           加载节气中...
         </div>
@@ -316,6 +315,7 @@
       ],
 
       calculate: function(year, month, day, hour, min) {
+        // 【核心修复】：无论何时，都以当前传入的真实参数 year, month, day, hour, min 去查库和计算
         const targetDate = new Date(year, month - 1, day, 0, 0, 0).getTime();
 
         for (let i = 0; i < this.RunTable.length; i++) {
@@ -336,6 +336,7 @@
             }
         }
 
+        // 正常超神接气推演：严格使用当前传入的参数
         const chart = ThreeMeta.QimenChart.fromSolar(year, month, day, hour, min, 0);
         const dayStem = chart.fourPillars.day.stem;
         const stems = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
@@ -522,7 +523,7 @@
       document.getElementById('selD').value = now.getDate();
       document.getElementById('selH').value = now.getHours();
       document.getElementById('selMin').value = now.getMinutes();
-      updateDynamicInfo(); // 更新节气联动栏
+      updateDynamicInfo(); 
     }
 
     function toggleTheme() { document.body.classList.toggle('light-theme'); }
@@ -534,10 +535,6 @@
       }
     }, 200);
 
-    // ==========================================
-    // 黑科技算法：极速二分法精准探测节气边界
-    // 采用纯净字符串，不写入独立颜色，确保主题完美跟随
-    // ==========================================
     function updateDynamicInfo() {
       if (typeof ThreeMeta === 'undefined') return;
       try {
@@ -578,7 +575,6 @@
         
         function formatD(d) { return d.getFullYear() + '.' + pad(d.getMonth()+1) + '.' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
         
-        // 【核心修改处】去除了强制赋予金色的标签，仅用间距微调，颜色完全继承外部父级的 var(--text-main)
         document.getElementById('jieqiRange').innerHTML = 
           currentJQ + ' ' + formatD(startTime) + 
           '<span style="color:var(--text-gray); margin:0 3px;">~</span>' + 
@@ -600,9 +596,6 @@
       return terms[m];
     }
 
-    // ==========================================
-    // 起局入口
-    // ==========================================
     function generateChart() {
       try {
         isChartGenerated = true; 
