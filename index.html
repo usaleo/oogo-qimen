@@ -138,7 +138,7 @@
 <body class="light-theme">
 
   <div class="top-ctrl">
-    <!-- 1. 公历时间选择，全部加上 onchange 触发动态节气计算 -->
+    <!-- 1. 公历时间选择 -->
     <div class="ctrl-row">
       <div class="badge badge-gong">公</div>
       <div class="date-group">
@@ -151,10 +151,10 @@
       <button class="btn-red" onclick="setNowTime()">现在</button>
     </div>
 
-    <!-- 2. 动态联动的节气时间段 (无框纯文本排版) -->
+    <!-- 2. 动态联动的节气时间段 (字号调大为13px，颜色完全使用主题自适应主色) -->
     <div class="ctrl-row">
       <div class="badge badge-nong">节</div>
-      <div id="jieqiRange" style="flex: 1; font-size: 11.5px; color: var(--text-gray); display: flex; align-items: center; white-space: nowrap; overflow: hidden; letter-spacing: 0.5px;">
+      <div id="jieqiRange" style="flex: 1; font-size: 13px; font-weight: bold; color: var(--text-main); display: flex; align-items: center; white-space: nowrap; overflow: hidden; letter-spacing: 0.5px;">
         加载节气中...
       </div>
     </div>
@@ -167,7 +167,6 @@
           <div class="badge badge-zhen">真</div>
           <div class="zhen-group">
             <label class="zhen-item" style="flex: 0.8; cursor: pointer;">
-              <!-- 真太阳时切换不影响标准节气时间，但为了严谨依然可以触发更新 -->
               <input type="checkbox" id="useTrueSolar" checked>
               <span style="color:var(--text-gray); font-size:11px; white-space:nowrap;">太阳时</span>
             </label>
@@ -267,12 +266,9 @@
     };
 
     let isChartGenerated = false;
-
-    // 保留空函数，防止其他地方调用报错
     function onSelectChange() {}
 
     const OogoZhiRun = {
-      // 🏆 O(1) 性能极客版：百年置闰绝对时间表 (2000-2100)
       RunTable: [
         ["2001/06/25", "2001/07/09", "芒种", [6, 3, 9], true],
         ["2004/01/01", "2004/01/15", "大雪", [4, 7, 1], false],
@@ -536,8 +532,8 @@
     }, 200);
 
     // ==========================================
-    // 黑科技算法：极速二分法精准探测节气边界 (耗时 < 5ms)
-    // 监听上方表单，一旦改变，下方节气段实时刷新
+    // 黑科技算法：极速二分法精准探测节气边界
+    // 采用 var(--text-main) 确保颜色完全适配黑白主题
     // ==========================================
     function updateDynamicInfo() {
       if (typeof ThreeMeta === 'undefined') return;
@@ -548,7 +544,6 @@
         let hIn = parseInt(document.getElementById('selH').value);
         let minIn = parseInt(document.getElementById('selMin').value);
 
-        // 统一使用标准北京时间进行节气推演（历书标准也是如此）
         let currentTimestamp = new Date(yIn, mIn - 1, dIn, hIn, minIn, 0).getTime();
         
         function getJQAt(ts) {
@@ -557,19 +552,19 @@
         }
         
         let currentJQ = getJQAt(currentTimestamp);
-        let step = 24 * 3600 * 1000; // 跨度为 1 天
+        let step = 24 * 3600 * 1000; 
         
         // 1. 寻早交节左边界
         let startProbe = currentTimestamp;
         while (getJQAt(startProbe) === currentJQ) { startProbe -= step; }
         let left = startProbe, right = startProbe + step;
-        while (right - left > 60000) { // 精确到分钟的二分查找
+        while (right - left > 60000) { 
             let mid = Math.floor((left + right) / 2);
             if (getJQAt(mid) === currentJQ) { right = mid; } else { left = mid; }
         }
         let startTime = new Date(right);
         
-        // 2. 寻早交节右边界（即下个节气的开端）
+        // 2. 寻早交节右边界
         let endProbe = currentTimestamp;
         while (getJQAt(endProbe) === currentJQ) { endProbe += step; }
         let nextJQ = getJQAt(endProbe);
@@ -582,12 +577,12 @@
         
         function formatD(d) { return d.getFullYear() + '.' + pad(d.getMonth()+1) + '.' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
         
-        // 渲染到前端：精美的无框纯文本排版
+        // 渲染到前端：完全统一颜色，调大文字为 13px
         document.getElementById('jieqiRange').innerHTML = 
-          '<span style="color:var(--text-gold); font-weight:bold; margin-right:2px;">' + currentJQ + '</span> ' + 
+          '<span>' + currentJQ + '</span> ' + 
           formatD(startTime) + 
-          '<span style="color:var(--border-color); margin:0 6px;">~</span>' + 
-          '<span style="color:var(--text-gold); font-weight:bold; margin-right:2px;">' + nextJQ + '</span> ' + 
+          '<span style="color:var(--text-gray); margin:0 6px;">~</span>' + 
+          '<span>' + nextJQ + '</span> ' + 
           formatD(endTime);
 
       } catch (e) { console.error(e); }
@@ -607,7 +602,7 @@
     }
 
     // ==========================================
-    // 起局入口（点击起局按钮才会触发重绘盘面）
+    // 起局入口
     // ==========================================
     function generateChart() {
       try {
@@ -830,7 +825,7 @@
       const originalOverflow = body.style.overflow;
       body.style.overflow = 'visible';
       
-      const scale = 4;
+      const scale = window.devicePixelRatio > 1 ? 3 : 4; 
       const bg = getComputedStyle(body).backgroundColor || '#131520';
 
       setTimeout(function () {
@@ -842,7 +837,7 @@
         }
 
         html2canvas(body, {
-          backgroundColor: bg, scale: scale, useCORS: true, allowTaint: true, logging: false, scrollX: 0, scrollY: -window.scrollY, width: body.scrollWidth, height: body.scrollHeight, windowWidth: body.scrollWidth, windowHeight: body.scrollHeight, x: 0, y: 0
+          backgroundColor: bg, scale: scale, useCORS: true, allowTaint: true, logging: false, scrollX: 0, scrollY: -window.scrollY, width: body.scrollWidth, height: body.scrollHeight
         }).then(function (canvas) {
           body.style.overflow = originalOverflow;
           if (logo) { logo.innerText = '历'; logo.style.fontSize = '14px'; }
@@ -859,22 +854,7 @@
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             const isWechat = /MicroMessenger/i.test(navigator.userAgent);
 
-            if (isMobile) {
-              const file = new File([blob], fileName, { type: 'image/png' });
-              
-              if (!isWechat && navigator.canShare && navigator.canShare({ files: [file] })) {
-                navigator.share({
-                  files: [file],
-                  title: '奇门排盘',
-                  text: '我的奇门排盘截图'
-                }).then(() => {
-                  showToast('✅ 操作成功');
-                }).catch((error) => {
-                  console.log('用户取消或分享失败', error);
-                });
-                return; 
-              }
-
+            const showFallbackOverlay = () => {
               const overlay = document.createElement('div');
               overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;';
 
@@ -898,8 +878,26 @@
               overlay.appendChild(img);
               overlay.appendChild(closeBtn);
               document.body.appendChild(overlay);
+              showToast('✅ 图片已生成，请长按保存');
+            };
+
+            if (isMobile) {
+              const file = new File([blob], fileName, { type: 'image/png' });
               
-              showToast('✅ 图片生成成功，请长按保存');
+              if (!isWechat && navigator.canShare && navigator.canShare({ files: [file] })) {
+                navigator.share({
+                  files: [file],
+                  title: '奇门排盘'
+                }).then(() => {
+                }).catch((error) => {
+                  console.log('拦截或取消：', error);
+                  if (error.name !== 'AbortError') {
+                    showFallbackOverlay();
+                  }
+                });
+              } else {
+                showFallbackOverlay();
+              }
             } else {
               const a = document.createElement('a');
               a.href = url;
