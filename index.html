@@ -151,12 +151,12 @@
       <button class="btn-red" onclick="setNowTime()">现在</button>
     </div>
 
-    <!-- 2. 动态联动的节气时间段：高度 26px，同款圆角边框，无右侧阻挡拉满对齐 -->
+    <!-- 2. 动态联动的节气时间段 -->
     <div class="ctrl-row">
       <div class="badge badge-nong">节</div>
-      <!-- 这里的框子直接拉满右侧，自动对齐上方按钮的右边缘 -->
-      <div style="flex: 1; background: var(--bg-main); border: 1px solid var(--border-color); height: 26px; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 0 4px; box-sizing: border-box;">
-        <div id="jieqiRange" style="white-space: nowrap; font-size: clamp(10px, 3.2vw, 13px); font-weight: bold; color: var(--text-main); width: 100%; text-align: center;">
+      <div style="flex: 1; background: var(--bg-main); border: 1px solid var(--border-color); height: 26px; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 0 2px; box-sizing: border-box;">
+        <!-- 极致自适应缩放机制，移除死板设置，确保全字符无损显示 -->
+        <div id="jieqiRange" style="white-space: nowrap; font-size: min(11.5px, 2.9vw); font-weight: bold; color: var(--text-main); letter-spacing: -0.2px;">
           加载节气中...
         </div>
       </div>
@@ -536,6 +536,7 @@
 
     // ==========================================
     // 黑科技算法：极速二分法精准探测节气边界
+    // 采用纯净字符串，不写入独立颜色，确保主题完美跟随
     // ==========================================
     function updateDynamicInfo() {
       if (typeof ThreeMeta === 'undefined') return;
@@ -575,16 +576,13 @@
         }
         let endTime = new Date(right);
         
-        // 恢复带有完整年份的时间格式
         function formatD(d) { return d.getFullYear() + '.' + pad(d.getMonth()+1) + '.' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
         
-        // 渲染到前端
+        // 【核心修改处】去除了强制赋予金色的标签，仅用间距微调，颜色完全继承外部父级的 var(--text-main)
         document.getElementById('jieqiRange').innerHTML = 
-          '<span style="color:var(--text-gold);">' + currentJQ + '</span> ' + 
-          formatD(startTime) + 
-          '<span style="color:var(--text-gray); margin:0 6px;">~</span>' + 
-          '<span style="color:var(--text-gold);">' + nextJQ + '</span> ' + 
-          formatD(endTime);
+          currentJQ + ' ' + formatD(startTime) + 
+          '<span style="color:var(--text-gray); margin:0 3px;">~</span>' + 
+          nextJQ + ' ' + formatD(endTime);
 
       } catch (e) { console.error(e); }
     }
