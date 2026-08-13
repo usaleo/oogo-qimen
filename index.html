@@ -131,7 +131,7 @@
     }
   </style>
 
-  <!-- 这里使用的是你改名并上传到 GitHub 的文件 oogo-nyr.js！ -->
+  <!-- 🌟🌟🌟 这里已经改为相对路径引用你的 oogo-nyr.js，绝不使用有缓存的CDN 🌟🌟🌟 -->
   <script src="./oogo-nyr.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/html2canvas.min.js"></script>
   <script src="./oogo-zhirun.js"></script>
@@ -287,10 +287,13 @@
       } catch(e) {}
     }
     function pad(n) { return n < 10 ? '0' + n : n; }
-    initDateSelects();
+    
+    // 确保网页完全加载后再初始化下拉框
+    document.addEventListener('DOMContentLoaded', initDateSelects);
 
     function renderDefaultBoard() {
       const grid = document.getElementById('chartGrid');
+      if (!grid) return;
       grid.style.background = 'transparent';
       grid.style.border = 'none';
       grid.style.display = 'flex';
@@ -315,15 +318,15 @@
         '<div class="info-row" style="justify-content: center; margin-top: 15px;"><span style="color: var(--text-blue); font-weight: bold;">👆 请设定时间与参数后，点击右上角【起局】</span></div>';
     }
     
-    renderDefaultBoard();
+    document.addEventListener('DOMContentLoaded', renderDefaultBoard);
 
     function setNowTime() {
       const now = new Date();
-      document.getElementById('selY').value = now.getFullYear();
-      document.getElementById('selM').value = now.getMonth() + 1;
-      document.getElementById('selD').value = now.getDate();
-      document.getElementById('selH').value = now.getHours();
-      document.getElementById('selMin').value = now.getMinutes();
+      if(document.getElementById('selY')) document.getElementById('selY').value = now.getFullYear();
+      if(document.getElementById('selM')) document.getElementById('selM').value = now.getMonth() + 1;
+      if(document.getElementById('selD')) document.getElementById('selD').value = now.getDate();
+      if(document.getElementById('selH')) document.getElementById('selH').value = now.getHours();
+      if(document.getElementById('selMin')) document.getElementById('selMin').value = now.getMinutes();
       updateDynamicInfo(); 
     }
 
@@ -344,6 +347,8 @@
         let dIn = parseInt(document.getElementById('selD').value);
         let hIn = parseInt(document.getElementById('selH').value);
         let minIn = parseInt(document.getElementById('selMin').value);
+
+        if (isNaN(yIn)) return; // 等待输入框加载
 
         let currentTimestamp = new Date(yIn, mIn - 1, dIn, hIn, minIn, 0).getTime();
         
@@ -444,12 +449,12 @@
           chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0);
         }
 
-        // 🌟 纯原生拦截修复（修复了导致八门反置的BUG）
+        // 🌟 纯原生拦截修复（不依赖外部函数）
         if (panType === 'fei') {
           chart = OogoFeiPan.fly(chart);
         } else if (panType === 'zhuan') {
           try {
-            // 1. 强制将中5宫干支并入坤2宫，符合传统排盘
+            // 1. 强制将中5宫干支并入坤2宫
             let p5 = chart.palaces.find(function(p) { return p.position === 5; });
             let p2 = chart.palaces.find(function(p) { return p.position === 2; });
             if (p5 && p2) {
@@ -460,14 +465,13 @@
               }
             }
 
-            // 2. 核心：修正底层库阳遁排5宫错误强制跳8宫引发的八门逆转BUG
+            // 2. 修正底层库阳遁排5宫错误强制跳8宫引发的八门逆转BUG
             let isYang = chart.ju.type.indexOf('阳') !== -1;
             let hBIdx = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"].indexOf(chart.fourPillars.hour.branch);
             let hSIdx = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"].indexOf(chart.fourPillars.hour.stem);
             let xunOffset = (hBIdx - hSIdx + 12) % 12;
             let zfPalace = chart.zhiFu ? chart.zhiFu.position : 1; 
 
-            // 根据值符和时辰，推算真实的值使门原始落宫
             let step = (hBIdx - xunOffset + 12) % 12;
             let zsRaw = zfPalace;
             if (isYang) {
@@ -476,7 +480,6 @@
                 for(let i=0; i<step; i++) { zsRaw--; if(zsRaw < 1) zsRaw = 9; }
             }
             
-            // 如果算出确实该落5宫，且为阳遁，则底层库排错了，我们在前端强制对调翻转回来
             if (zsRaw === 5 && isYang) {
                 let oppo = {1:9, 8:2, 3:7, 4:6, 9:1, 2:8, 7:3, 6:4}; 
                 let tempGates = {};
