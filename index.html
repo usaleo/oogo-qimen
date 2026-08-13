@@ -131,7 +131,6 @@
     }
   </style>
 
-  <!-- 依赖库与外部算法引擎 -->
   <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/3meta.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/html2canvas.min.js"></script>
   <script src="./oogo-zhirun.js"></script>
@@ -277,6 +276,29 @@
         }
     }
 
+    // ==========================================
+    // 传统流派转盘对齐适配器
+    // ==========================================
+    const OogoAlignAdapter = {
+      alignZhuanPan: function(chart) {
+        if (!chart || !chart.palaces) return chart;
+        let palace5 = chart.palaces.find(p => p.position === 5);
+        let palace2 = chart.palaces.find(p => p.position === 2);
+        if (palace5 && palace2) {
+          let extraStem = palace5.earthlyStem || palace5.heavenlyStem;
+          if (extraStem && palace2) {
+            if (!Array.isArray(palace2.earthlyStem)) {
+              palace2.earthlyStem = [palace2.earthlyStem];
+            }
+            if (!palace2.earthlyStem.includes(extraStem)) {
+              palace2.earthlyStem.push(extraStem);
+            }
+          }
+        }
+        return chart;
+      }
+    };
+
     function initDateSelects() {
       try {
           const y = document.getElementById('selY'); for(let i=1900; i<=2100; i++) y.add(new Option(i, i));
@@ -398,7 +420,7 @@
     }
 
     // ==========================================
-    // 起局入口
+    // 起局入口（已集成转盘对齐适配器）
     // ==========================================
     function generateChart() {
       try {
@@ -444,8 +466,13 @@
           chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0);
         }
 
+        // 🌟 核心分流：飞盘走自定义飞盘，转盘走流派对齐适配器
         if (panType === 'fei') {
           chart = OogoFeiPan.fly(chart);
+        } else if (panType === 'zhuan') {
+          if (typeof OogoAlignAdapter !== 'undefined') {
+            chart = OogoAlignAdapter.alignZhuanPan(chart);
+          }
         }
 
         let bY = chart.fourPillars.year.stem + chart.fourPillars.year.branch;
