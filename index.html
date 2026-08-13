@@ -302,43 +302,59 @@
 
     function pad(n) { return n < 10 ? '0' + n : n; }
 
-    // 修复后的可靠下拉框初始化方法
     function initDateSelects() {
       const y = document.getElementById('selY'); 
-      for(let i=1900; i<=2100; i++) {
-        let opt = document.createElement('option');
-        opt.value = i; opt.text = i;
-        y.appendChild(opt);
+      if (y) {
+        for(let i=1900; i<=2100; i++) {
+          let opt = document.createElement('option');
+          opt.value = i; opt.text = i;
+          y.appendChild(opt);
+        }
       }
       const m = document.getElementById('selM'); 
-      for(let i=1; i<=12; i++) {
-        let opt = document.createElement('option');
-        opt.value = i; opt.text = i;
-        m.appendChild(opt);
+      if (m) {
+        for(let i=1; i<=12; i++) {
+          let opt = document.createElement('option');
+          opt.value = i; opt.text = i;
+          m.appendChild(opt);
+        }
       }
       const d = document.getElementById('selD'); 
-      for(let i=1; i<=31; i++) {
-        let opt = document.createElement('option');
-        opt.value = i; opt.text = i;
-        d.appendChild(opt);
+      if (d) {
+        for(let i=1; i<=31; i++) {
+          let opt = document.createElement('option');
+          opt.value = i; opt.text = i;
+          d.appendChild(opt);
+        }
       }
       const h = document.getElementById('selH'); 
-      for(let i=0; i<=23; i++) {
-        let opt = document.createElement('option');
-        opt.value = i; opt.text = i;
-        h.appendChild(opt);
+      if (h) {
+        for(let i=0; i<=23; i++) {
+          let opt = document.createElement('option');
+          opt.value = i; opt.text = i;
+          h.appendChild(opt);
+        }
       }
       const min = document.getElementById('selMin'); 
-      for(let i=0; i<=59; i++) {
-        let opt = document.createElement('option');
-        opt.value = i; opt.text = pad(i);
-        min.appendChild(opt);
+      if (min) {
+        for(let i=0; i<=59; i++) {
+          let opt = document.createElement('option');
+          opt.value = i; opt.text = pad(i);
+          min.appendChild(opt);
+        }
       }
     }
-    initDateSelects();
+    
+    // 确保DOM加载完成后再执行初始化
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initDateSelects);
+    } else {
+      initDateSelects();
+    }
 
     function renderDefaultBoard() {
       const grid = document.getElementById('chartGrid');
+      if (!grid) return;
       grid.style.background = 'transparent';
       grid.style.border = 'none';
       grid.style.display = 'flex';
@@ -363,15 +379,25 @@
         '<div class="info-row" style="justify-content: center; margin-top: 15px;"><span style="color: var(--text-blue); font-weight: bold;">👆 请设定时间与参数后，点击右上角【起局】</span></div>';
     }
     
-    renderDefaultBoard();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', renderDefaultBoard);
+    } else {
+      renderDefaultBoard();
+    }
 
     function setNowTime() {
       const now = new Date();
-      document.getElementById('selY').value = now.getFullYear();
-      document.getElementById('selM').value = now.getMonth() + 1;
-      document.getElementById('selD').value = now.getDate();
-      document.getElementById('selH').value = now.getHours();
-      document.getElementById('selMin').value = now.getMinutes();
+      const yElem = document.getElementById('selY');
+      const mElem = document.getElementById('selM');
+      const dElem = document.getElementById('selD');
+      const hElem = document.getElementById('selH');
+      const minElem = document.getElementById('selMin');
+      
+      if (yElem) yElem.value = now.getFullYear();
+      if (mElem) mElem.value = now.getMonth() + 1;
+      if (dElem) dElem.value = now.getDate();
+      if (hElem) hElem.value = now.getHours();
+      if (minElem) minElem.value = now.getMinutes();
       updateDynamicInfo(); 
     }
 
@@ -387,7 +413,9 @@
     function updateDynamicInfo() {
       if (typeof ThreeMeta === 'undefined') return;
       try {
-        let yIn = parseInt(document.getElementById('selY').value);
+        let yElem = document.getElementById('selY');
+        if (!yElem || !yElem.value) return;
+        let yIn = parseInt(yElem.value);
         let mIn = parseInt(document.getElementById('selM').value);
         let dIn = parseInt(document.getElementById('selD').value);
         let hIn = parseInt(document.getElementById('selH').value);
