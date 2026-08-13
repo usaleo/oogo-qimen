@@ -33,7 +33,7 @@
       --dark-stem-color: #818cf8;
       --dark-stem-bg: rgba(129, 140, 248, 0.1);
       
-      /* 五行颜色 (暗黑主题下更亮眼清晰)[cite: 1] */
+      /* 五行颜色 (暗黑主题下更亮眼清晰) */
       --wx-wood: #22c55e;   /* 木：绿色 */
       --wx-fire: #ef4444;   /* 火：红色 */
       --wx-earth: #d97706;  /* 土：泥土棕黄色 */
@@ -63,7 +63,7 @@
       --dark-stem-color: #4f46e5;
       --dark-stem-bg: rgba(79, 70, 229, 0.08);
 
-      /* 五行颜色 (亮色主题下适当加深以保证对比度)[cite: 1] */
+      /* 五行颜色 (亮色主题下适当加深以保证对比度) */
       --wx-wood: #16a34a;   /* 木：绿色 */
       --wx-fire: #dc2626;   /* 火：红色 */
       --wx-earth: #b45309;  /* 土：深泥土棕色 */
@@ -77,7 +77,7 @@
     .badge { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; }
     .badge-gong, .badge-nong, .badge-zhen { background: rgba(91, 146, 214, 0.15); color: var(--text-blue); }
     
-    .date-group { display: flex; align-items: center; flex: 1; justify-content: space-between; gap: 2px; min-width: 0; }
+    .date-group { display: flex; align-items: center; flex: 1; justify-content: space-between; gap: 2px; min-width: 0; cursor: pointer; }
     .date-item { display: flex; align-items: center; flex: 1; min-width: 0; }
     .date-item.year-item { flex: 1.3; } 
     select.date-input { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); height: 26px; border-radius: 4px; font-size: 13px; font-weight: bold; outline: none; appearance: none; -webkit-appearance: none; padding: 0; text-align: center; text-align-last: center; cursor: pointer; width: 100%; min-width: 0; }
@@ -135,6 +135,107 @@
     .stem-h { color: var(--c-stem-h); }
     .stem-e { color: var(--c-stem-e); }
 
+    /* 手机端大视窗滚轮选择器样式 */
+    .wheel-modal {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 99999;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+    .wheel-modal.show {
+      display: flex;
+      opacity: 1;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .wheel-mask {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(3px);
+    }
+    .wheel-panel {
+      position: relative;
+      background: var(--panel-bg);
+      border-top: 1px solid var(--border-color);
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      padding: 12px 12px 24px;
+      box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.5);
+      transform: translateY(100%);
+      transition: transform 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+    }
+    .wheel-modal.show .wheel-panel {
+      transform: translateY(0);
+    }
+    .wheel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 8px;
+    }
+    .wheel-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: var(--text-gold);
+    }
+    .wheel-btn {
+      background: none;
+      border: none;
+      font-size: 14px;
+      font-weight: bold;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+    .wheel-btn.cancel { color: var(--text-gray); }
+    .wheel-btn.confirm { color: var(--text-blue); }
+
+    .wheel-body {
+      position: relative;
+      height: 240px; /* 大视窗展示，容纳 6-7 行数字 */
+      display: flex;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .wheel-col {
+      flex: 1;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+      touch-action: none;
+    }
+    .wheel-list {
+      margin: 0; padding: 0; list-style: none;
+      position: absolute; width: 100%; top: 100px; left: 0;
+      transition: transform 0.15s cubic-bezier(0.1, 0.85, 0.25, 1);
+    }
+    .wheel-item {
+      height: 40px;
+      line-height: 40px;
+      text-align: center;
+      font-size: 15px;
+      color: var(--text-gray);
+      transition: color 0.1s, font-size 0.1s;
+      white-space: nowrap;
+    }
+    .wheel-item.active {
+      color: var(--text-gold);
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .wheel-highlight {
+      position: absolute;
+      top: 100px; left: 0; width: 100%; height: 40px;
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      pointer-events: none;
+      background: rgba(226, 180, 95, 0.08);
+    }
+
     @media (min-width: 600px) {
       body { max-width: 520px; padding: 16px; }
       .cell { height: 145px; }
@@ -154,10 +255,10 @@
 <body class="light-theme">
 
   <div class="top-ctrl">
-    <!-- 1. 公历时间选择 -->
+    <!-- 1. 公历时间选择 (点击唤起大滚轮) -->
     <div class="ctrl-row">
       <div class="badge badge-gong">公</div>
-      <div class="date-group">
+      <div class="date-group" onclick="openWheelPicker()" title="点击打开大视窗滚轮选择器">
         <div class="date-item year-item"><select id="selY" class="date-input" onchange="updateDynamicInfo()"></select><span class="date-text">年</span></div>
         <div class="date-item"><select id="selM" class="date-input" onchange="updateDynamicInfo()"></select><span class="date-text">月</span></div>
         <div class="date-item"><select id="selD" class="date-input" onchange="updateDynamicInfo()"></select><span class="date-text">日</span></div>
@@ -278,6 +379,26 @@
 
   <div class="grid" id="chartGrid"></div>
 
+  <!-- 大视窗无限循环滚轮选择器弹窗 -->
+  <div id="wheelPickerModal" class="wheel-modal">
+    <div class="wheel-mask" onclick="closeWheelPicker()"></div>
+    <div class="wheel-panel">
+      <div class="wheel-header">
+        <button class="wheel-btn cancel" onclick="closeWheelPicker()">取消</button>
+        <div class="wheel-title">⏱️ 循环滚轮选择时间</div>
+        <button class="wheel-btn confirm" onclick="confirmWheelPicker()">确定</button>
+      </div>
+      <div class="wheel-body">
+        <div class="wheel-col" id="wheelY"></div>
+        <div class="wheel-col" id="wheelM"></div>
+        <div class="wheel-col" id="wheelD"></div>
+        <div class="wheel-col" id="wheelH"></div>
+        <div class="wheel-col" id="wheelMin"></div>
+        <div class="wheel-highlight"></div>
+      </div>
+    </div>
+  </div>
+
   <script>
     window.onerror = function(msg, url, line) {
        console.error("系统错误: " + msg + " (行: " + line + ")");
@@ -303,7 +424,23 @@
     function pad(n) { return n < 10 ? '0' + n : n; }
     initDateSelects();
 
-    // 五行颜色匹配函数（已按要求：金=金黄、土=泥土深黄/棕色、木=绿、火=红、水=蓝）[cite: 1]
+    // 统一获取当前选择的生效时间对象（自动判断并加上真太阳时差）
+    function getEffectiveDate() {
+      let yIn = parseInt(document.getElementById('selY').value);
+      let mIn = parseInt(document.getElementById('selM').value);
+      let dIn = parseInt(document.getElementById('selD').value);
+      let hIn = parseInt(document.getElementById('selH').value);
+      let minIn = parseInt(document.getElementById('selMin').value);
+
+      let dDate = new Date(yIn, mIn - 1, dIn, hIn, minIn, 0);
+      let lng = parseFloat(document.getElementById('longitude').value);
+      if (document.getElementById('useTrueSolar').checked && !isNaN(lng)) { 
+        dDate.setMinutes(dDate.getMinutes() + (lng - 120) * 4); 
+      }
+      return dDate;
+    }
+
+    // 五行颜色匹配函数（金=金黄、土=泥土深黄/棕色、木=绿、火=红、水=蓝）
     function getWuxingColor(char) {
       if (['甲', '乙', '寅', '卯'].includes(char)) return 'var(--wx-wood)';   // 木：绿
       if (['丙', '丁', '巳', '午'].includes(char)) return 'var(--wx-fire)';   // 火：红
@@ -313,7 +450,7 @@
       return 'inherit';
     }
 
-    // 格式化四柱（天干地支按五行上色，支持黑白主题动态自适应）[cite: 1]
+    // 格式化四柱（天干地支按五行上色，支持黑白主题动态自适应）
     function formatPillar(pillarStr) {
       if (!pillarStr) return '';
       let stem = pillarStr[0] || '';
@@ -371,13 +508,8 @@
     function updateDynamicInfo() {
       if (typeof ThreeMeta === 'undefined') return;
       try {
-        let yIn = parseInt(document.getElementById('selY').value);
-        let mIn = parseInt(document.getElementById('selM').value);
-        let dIn = parseInt(document.getElementById('selD').value);
-        let hIn = parseInt(document.getElementById('selH').value);
-        let minIn = parseInt(document.getElementById('selMin').value);
-
-        let currentTimestamp = new Date(yIn, mIn - 1, dIn, hIn, minIn, 0).getTime();
+        let dDate = getEffectiveDate();
+        let currentTimestamp = dDate.getTime();
         
         function getJQAt(ts) {
             let d = new Date(ts);
@@ -444,18 +576,7 @@
         grid.style.alignItems = '';
         grid.style.padding = '1px';
         
-        let yIn = parseInt(document.getElementById('selY').value);
-        let mIn = parseInt(document.getElementById('selM').value);
-        let dIn = parseInt(document.getElementById('selD').value);
-        let hIn = parseInt(document.getElementById('selH').value);
-        let minIn = parseInt(document.getElementById('selMin').value);
-
-        let dDate = new Date(yIn, mIn - 1, dIn, hIn, minIn, 0);
-        let lng = parseFloat(document.getElementById('longitude').value);
-        if (document.getElementById('useTrueSolar').checked && !isNaN(lng)) { 
-          dDate.setMinutes(dDate.getMinutes() + (lng - 120) * 4); 
-        }
-
+        let dDate = getEffectiveDate();
         const y = dDate.getFullYear(), m = dDate.getMonth() + 1, d = dDate.getDate(), h = dDate.getHours(), min = dDate.getMinutes();
 
         let method = document.getElementById('methodSelect').value;
@@ -465,7 +586,7 @@
 
         if (method === 'zhirun') {
           zhirunData = OogoZhiRun.calculate(y, m, d, h, min);
-          let timeString = yIn + "-" + pad(mIn) + "-" + pad(dIn) + "T" + pad(hIn) + ":" + pad(minIn) + ":00";
+          let timeString = y + "-" + pad(m) + "-" + pad(d) + "T" + pad(h) + ":" + pad(min) + ":00";
           chart = ThreeMeta.QimenChart.byDatetime(timeString, {
             juNumber: zhirunData.juNumber,
             isYangdun: zhirunData.isYangdun
@@ -760,6 +881,178 @@
       toast.style.cssText = 'position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:10px 18px;border-radius:20px;font-size:14px;z-index:100000;pointer-events:none;white-space:nowrap;box-shadow:0 4px 6px rgba(0,0,0,0.3);';
       document.body.appendChild(toast);
       setTimeout(function () { toast.remove(); }, 2500);
+    }
+
+    // ==========================================
+    // 大视窗无限循环滚轮逻辑实现
+    // ==========================================
+    let wheels = {};
+
+    class WheelColumn {
+      constructor(containerId, options, initialVal, isLoop = true, unit = '') {
+        this.container = document.getElementById(containerId);
+        this.options = options;
+        this.isLoop = isLoop;
+        this.unit = unit;
+        this.itemHeight = 40;
+        
+        this.initDOM();
+        this.setValue(initialVal);
+        this.bindEvents();
+      }
+
+      initDOM() {
+        this.container.innerHTML = '';
+        this.listEl = document.createElement('ul');
+        this.listEl.className = 'wheel-list';
+        
+        // 开启循环时，复制 3 组数据打造无限循环滚轮
+        this.renderData = this.isLoop ? [...this.options, ...this.options, ...this.options] : this.options;
+        
+        let html = '';
+        this.renderData.forEach(val => {
+          let display = (typeof val === 'number' && val < 10 ? '0' + val : val) + this.unit;
+          html += `<li class="wheel-item">${display}</li>`;
+        });
+        this.listEl.innerHTML = html;
+        this.container.appendChild(this.listEl);
+        this.items = this.listEl.querySelectorAll('.wheel-item');
+      }
+
+      setValue(val) {
+        let valNum = parseInt(val);
+        let rawIdx = this.options.indexOf(valNum);
+        if (rawIdx === -1) rawIdx = 0;
+        // 循环模式下定位到中间这一组
+        this.currentIndex = this.isLoop ? rawIdx + this.options.length : rawIdx;
+        this.updatePos(false);
+      }
+
+      getValue() {
+        let idx = this.currentIndex % this.options.length;
+        if (idx < 0) idx += this.options.length;
+        return this.options[idx];
+      }
+
+      updatePos(animate = true) {
+        let translateY = -this.currentIndex * this.itemHeight;
+        this.listEl.style.transition = animate ? 'transform 0.18s cubic-bezier(0.1, 0.85, 0.25, 1)' : 'none';
+        this.listEl.style.transform = `translate3d(0, ${translateY}px, 0)`;
+        
+        this.items.forEach((item, i) => {
+          if (i === this.currentIndex) {
+            item.classList.add('active');
+          } else {
+            item.classList.remove('active');
+          }
+        });
+      }
+
+      checkLoop() {
+        if (!this.isLoop) {
+          if (this.currentIndex < 0) this.currentIndex = 0;
+          if (this.currentIndex >= this.options.length) this.currentIndex = this.options.length - 1;
+          this.updatePos(false);
+          return;
+        }
+        let len = this.options.length;
+        // 滚动接近两端时，无缝弹回中间组，形成首尾连贯无限滚动
+        if (this.currentIndex < len * 0.5) {
+          this.currentIndex += len;
+          this.updatePos(false);
+        } else if (this.currentIndex >= len * 2.5) {
+          this.currentIndex -= len;
+          this.updatePos(false);
+        }
+      }
+
+      bindEvents() {
+        let startY = 0, initialIdx = 0, isDragging = false;
+
+        const onStart = (e) => {
+          isDragging = true;
+          startY = e.touches ? e.touches[0].clientY : e.clientY;
+          initialIdx = this.currentIndex;
+          this.listEl.style.transition = 'none';
+        };
+
+        const onMove = (e) => {
+          if (!isDragging) return;
+          let currentY = e.touches ? e.touches[0].clientY : e.clientY;
+          let deltaY = currentY - startY;
+          let deltaIdx = -deltaY / this.itemHeight;
+          this.currentIndex = Math.round(initialIdx + deltaIdx);
+          
+          let translateY = -initialIdx * this.itemHeight + deltaY;
+          this.listEl.style.transform = `translate3d(0, ${translateY}px, 0)`;
+        };
+
+        const onEnd = () => {
+          if (!isDragging) return;
+          isDragging = false;
+          this.updatePos(true);
+          setTimeout(() => this.checkLoop(), 200);
+        };
+
+        this.container.addEventListener('touchstart', onStart, { passive: true });
+        this.container.addEventListener('touchmove', onMove, { passive: true });
+        this.container.addEventListener('touchend', onEnd, { passive: true });
+
+        this.container.addEventListener('mousedown', onStart);
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onEnd);
+
+        this.container.addEventListener('wheel', (e) => {
+          e.preventDefault();
+          if (e.deltaY > 0) this.currentIndex++;
+          else this.currentIndex--;
+          this.updatePos(true);
+          this.checkLoop();
+        }, { passive: false });
+      }
+    }
+
+    function openWheelPicker() {
+      const modal = document.getElementById('wheelPickerModal');
+      
+      let curY = parseInt(document.getElementById('selY').value) || new Date().getFullYear();
+      let curM = parseInt(document.getElementById('selM').value) || 1;
+      let curD = parseInt(document.getElementById('selD').value) || 1;
+      let curH = parseInt(document.getElementById('selH').value) || 0;
+      let curMin = parseInt(document.getElementById('selMin').value) || 0;
+
+      let years = []; for(let i=1900; i<=2100; i++) years.push(i);
+      let months = []; for(let i=1; i<=12; i++) months.push(i);
+      let days = []; for(let i=1; i<=31; i++) days.push(i);
+      let hours = []; for(let i=0; i<=23; i++) hours.push(i);
+      let mins = []; for(let i=0; i<=59; i++) mins.push(i);
+
+      wheels.Y = new WheelColumn('wheelY', years, curY, false, '年');
+      wheels.M = new WheelColumn('wheelM', months, curM, true, '月');
+      wheels.D = new WheelColumn('wheelD', days, curD, true, '日');
+      wheels.H = new WheelColumn('wheelH', hours, curH, true, '时');
+      wheels.Min = new WheelColumn('wheelMin', mins, curMin, true, '分');
+
+      modal.style.display = 'flex';
+      setTimeout(() => modal.classList.add('show'), 10);
+    }
+
+    function closeWheelPicker() {
+      const modal = document.getElementById('wheelPickerModal');
+      modal.classList.remove('show');
+      setTimeout(() => modal.style.display = 'none', 250);
+    }
+
+    function confirmWheelPicker() {
+      if (wheels.Y) document.getElementById('selY').value = wheels.Y.getValue();
+      if (wheels.M) document.getElementById('selM').value = wheels.M.getValue();
+      if (wheels.D) document.getElementById('selD').value = wheels.D.getValue();
+      if (wheels.H) document.getElementById('selH').value = wheels.H.getValue();
+      if (wheels.Min) document.getElementById('selMin').value = wheels.Min.getValue();
+
+      updateDynamicInfo();
+      if (isChartGenerated) { generateChart(); }
+      closeWheelPicker();
     }
   </script>
 </body>
