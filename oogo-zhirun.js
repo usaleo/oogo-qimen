@@ -183,3 +183,40 @@ const OogoFeiPan = {
     return chart;
   }
 };
+
+// ==========================================
+// OOGO 专属转盘排盘流派对齐适配器（对齐主流传统软件）
+// ==========================================
+const OogoAlignAdapter = {
+  alignZhuanPan: function(chart) {
+    if (!chart || !chart.palaces) return chart;
+
+    // 核心流派修正：将现代库默认的“阳遁寄艮8宫”统一修正为传统古法主流的“寄坤2宫”
+    let palace5 = chart.palaces.find(p => p.position === 5);
+    let palace2 = chart.palaces.find(p => p.position === 2);
+    let palace8 = chart.palaces.find(p => p.position === 8);
+
+    if (palace5 && palace2) {
+      // 如果传统软件将中宫5的干支/星门统一归入或协同2宫（坤宫）
+      // 我们在这里对 2 宫和 5 宫的数据进行桥接或重映射
+      
+      // 示例：确保 2 宫能够正确承载中宫寄宫的天干与星
+      let extraStem = palace5.earthlyStem || palace5.heavenlyStem;
+      if (extraStem && palace2) {
+        if (!Array.isArray(palace2.earthlyStem)) {
+          palace2.earthlyStem = [palace2.earthlyStem];
+        }
+        // 如果 2 宫还没有包含中宫干，则将中宫干补充进去
+        if (!palace2.earthlyStem.includes(extraStem)) {
+          palace2.earthlyStem.push(extraStem);
+        }
+      }
+    }
+
+    // 如果市面主流软件对某些特定时辰的转盘门位有强制顺逆对齐要求
+    // 你可以在这里直接对 chart.palaces 中各宫的 gate（门）进行微调交换
+    // 例如：强制修正特定宫位的八门名称以匹配传统古法
+    
+    return chart;
+  }
+};
