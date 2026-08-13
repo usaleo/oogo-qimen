@@ -132,7 +132,7 @@
   </style>
 
   <!-- 依赖库与外部算法引擎 -->
-  <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/3meta.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/oogo-nyr.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/html2canvas.min.js"></script>
   <script src="./oogo-zhirun.js"></script>
 </head>
@@ -387,6 +387,7 @@
     const stems = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
     const branches = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
 
+  
     function simplifyDeity(name) {
       if (!name) return '';
       return name.replace('值符','符').replace('腾蛇','螣').replace('太阴','阴').replace('六合','合').replace('白虎','白').replace('玄武','玄').replace('九地','地').replace('九天','天').replace('勾陈','勾').replace('太常','常').replace('朱雀','雀');
@@ -444,43 +445,8 @@
           chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0);
         }
 
-        // 🌟【核心修复】：彻底解决“阳遁中五宫寄宫导致八门全反”的BUG
         if (panType === 'fei') {
           chart = OogoFeiPan.fly(chart);
-        } else if (panType === 'zhuan') {
-          let isY = chart.ju.type.indexOf('阳') !== -1;
-          let zfP = chart.zhiFu ? chart.zhiFu.position : 1;
-          let bPos = (zfP === 5) ? 2 : zfP;
-          let hB = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"].indexOf(chart.fourPillars.hour.branch);
-          let hS = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"].indexOf(chart.fourPillars.hour.stem);
-          let xO = (hB - hS + 12) % 12;
-          let st = (hB - xO + 12) % 12;
-          let rawP = bPos;
-          for (let i = 0; i < st; i++) {
-            if (isY) { rawP++; if (rawP > 9) rawP = 1; }
-            else { rawP--; if (rawP < 1) rawP = 9; }
-          }
-          // 如果底层库本该落5宫，且是阳遁，它强制放到了8宫，我们必须把门对调回来
-          if (rawP === 5 && isY) {
-            let oppo = {1:9, 8:2, 3:7, 4:6, 9:1, 2:8, 7:3, 6:4};
-            let tGates = {};
-            chart.palaces.forEach(p => { tGates[p.position] = p.gate; });
-            chart.palaces.forEach(p => {
-              if (p.position !== 5) p.gate = tGates[oppo[p.position]];
-            });
-            if (chart.zhiShi) chart.zhiShi.position = 2; // 强制值使门为坤2宫
-          }
-
-          // 补充天禽星/中宫干支寄坤二宫的显示
-          let p5 = chart.palaces.find(p => p.position === 5);
-          let p2 = chart.palaces.find(p => p.position === 2);
-          if (p5 && p2) {
-            let eStem = p5.earthlyStem || p5.heavenlyStem;
-            if (eStem) {
-              if (!Array.isArray(p2.earthlyStem)) p2.earthlyStem = [p2.earthlyStem];
-              if (!p2.earthlyStem.includes(eStem)) p2.earthlyStem.push(eStem);
-            }
-          }
         }
 
         let bY = chart.fourPillars.year.stem + chart.fourPillars.year.branch;
