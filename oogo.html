@@ -131,8 +131,10 @@
     }
   </style>
 
+  <!-- 依赖库与外部算法引擎 -->
   <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/3meta.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/html2canvas.min.js"></script>
+  <script src="./oogo-zhirun.js"></script>
 </head>
   
 <body class="light-theme">
@@ -169,11 +171,11 @@
           <div class="badge badge-zhen">真</div>
           <div class="zhen-group">
             <label class="zhen-item" style="flex: 0.8; cursor: pointer;">
-              <input type="checkbox" id="useTrueSolar" checked>
+              <input type="checkbox" id="useTrueSolar" checked onchange="updateDynamicInfo()">
               <span style="color:var(--text-gray); font-size:11px; white-space:nowrap;">太阳时</span>
             </label>
             <div class="zhen-item" style="flex: 1;">
-              <select id="citySelect" onchange="document.getElementById('longitude').value = this.value;">
+              <select id="citySelect" onchange="document.getElementById('longitude').value = this.value; updateDynamicInfo()">
                 <optgroup label="华北地区">
                   <option value="116.40">北京</option>
                   <option value="117.20" selected>天津</option>
@@ -231,7 +233,7 @@
               </select>
             </div>
             <div class="zhen-item" style="flex: 0.9;">
-              <input type="number" id="longitude" value="117.20" step="0.01">
+              <input type="number" id="longitude" value="117.20" step="0.01" onchange="updateDynamicInfo()">
             </div>
           </div>
         </div>
@@ -239,12 +241,12 @@
         <div class="sub-ctrl">
           <div class="sub-text">🧭 起局地真太阳时起局</div>
           <div class="select-group">
-            <select id="methodSelect">
+            <select id="methodSelect" onchange="onSelectChange()">
               <option value="zhirun" selected>置闰法</option>
               <option value="chaibu">拆补法</option>
             </select>
             
-            <select id="panSelect">
+            <select id="panSelect" onchange="onSelectChange()">
               <option value="zhuan" selected>转盘</option>
               <option value="fei">飞盘</option>
             </select>
@@ -268,211 +270,12 @@
     };
 
     let isChartGenerated = false;
-    function onSelectChange() {}
 
-    const OogoZhiRun = {
-      RunTable: [
-        ["2001/06/25", "2001/07/09", "芒种", [6, 3, 9], true],
-        ["2004/01/01", "2004/01/15", "大雪", [4, 7, 1], false],
-        ["2006/07/20", "2006/08/03", "芒种", [6, 3, 9], true],
-        ["2009/01/24", "2009/02/07", "大雪", [4, 7, 1], false],
-        ["2011/08/13", "2011/08/27", "芒种", [6, 3, 9], true],
-        ["2014/02/16", "2014/03/02", "大雪", [4, 7, 1], false],
-        ["2016/09/05", "2016/09/19", "芒种", [6, 3, 9], true],
-        ["2019/03/11", "2019/03/25", "大雪", [4, 7, 1], false],
-        ["2021/09/28", "2021/10/12", "芒种", [6, 3, 9], true],
-        ["2024/04/03", "2024/04/17", "大雪", [4, 7, 1], false],
-        ["2026/10/22", "2026/11/05", "芒种", [6, 3, 9], true],
-        ["2029/04/26", "2029/05/10", "大雪", [4, 7, 1], false],
-        ["2031/11/14", "2031/11/28", "芒种", [6, 3, 9], true],
-        ["2034/05/19", "2034/06/02", "大雪", [4, 7, 1], false],
-        ["2036/12/07", "2036/12/21", "芒种", [6, 3, 9], true],
-        ["2039/06/12", "2039/06/26", "大雪", [4, 7, 1], false],
-        ["2042/01/01", "2042/01/15", "芒种", [6, 3, 9], true],
-        ["2044/07/04", "2044/07/18", "大雪", [4, 7, 1], false],
-        ["2047/01/24", "2047/02/07", "芒种", [6, 3, 9], true],
-        ["2049/07/28", "2049/08/11", "大雪", [4, 7, 1], false],
-        ["2052/02/16", "2052/03/02", "芒种", [6, 3, 9], true],
-        ["2054/08/20", "2054/09/03", "大雪", [4, 7, 1], false],
-        ["2057/03/11", "2057/03/25", "芒种", [6, 3, 9], true],
-        ["2059/09/13", "2059/09/27", "大雪", [4, 7, 1], false],
-        ["2062/04/04", "2062/04/18", "芒种", [6, 3, 9], true],
-        ["2064/10/06", "2064/10/20", "大雪", [4, 7, 1], false],
-        ["2067/04/27", "2067/05/11", "芒种", [6, 3, 9], true],
-        ["2069/10/30", "2069/11/13", "大雪", [4, 7, 1], false],
-        ["2072/05/20", "2072/06/03", "芒种", [6, 3, 9], true],
-        ["2074/11/22", "2074/12/06", "大雪", [4, 7, 1], false],
-        ["2077/06/13", "2077/06/27", "芒种", [6, 3, 9], true],
-        ["2079/12/16", "2079/12/30", "大雪", [4, 7, 1], false],
-        ["2082/07/06", "2082/07/20", "芒种", [6, 3, 9], true],
-        ["2085/01/08", "2085/01/22", "大雪", [4, 7, 1], false],
-        ["2087/07/29", "2087/08/12", "芒种", [6, 3, 9], true],
-        ["2090/02/01", "2090/02/15", "大雪", [4, 7, 1], false],
-        ["2092/08/22", "2092/09/05", "芒种", [6, 3, 9], true],
-        ["2095/02/24", "2095/03/10", "大雪", [4, 7, 1], false],
-        ["2097/09/14", "2097/09/28", "芒种", [6, 3, 9], true],
-        ["2100/03/19", "2100/04/02", "大雪", [4, 7, 1], false]
-      ],
-
-      calculate: function(year, month, day, hour, min) {
-        const targetDate = new Date(year, month - 1, day, 0, 0, 0).getTime();
-
-        for (let i = 0; i < this.RunTable.length; i++) {
-            let runData = this.RunTable[i];
-            let start = new Date(runData[0]).getTime();
-            let end = new Date(runData[1]).getTime() + 86400000; 
-            
-            if (targetDate >= start && targetDate < end) {
-                let daysInRun = Math.floor((targetDate - start) / (1000 * 60 * 60 * 24));
-                let yuan = Math.floor(daysInRun / 5); 
-                if (yuan > 2) yuan = 2;
-                
-                return {
-                    juNumber: runData[3][yuan],
-                    isYangdun: runData[4],
-                    debugInfo: { yuanName: ["上元", "中元", "下元"][yuan], targetJieQi: runData[2], isTrueRun: true }
-                };
-            }
+    function onSelectChange() {
+        if (isChartGenerated) {
+            generateChart();
         }
-
-        const chart = ThreeMeta.QimenChart.fromSolar(year, month, day, hour, min, 0);
-        const dayStem = chart.fourPillars.day.stem;
-        const stems = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
-        const branches = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
-        const dayGanIndex = stems.indexOf(dayStem);
-        const offset = dayGanIndex % 5; 
-        
-        const fuTouDate = new Date(year, month - 1, day);
-        fuTouDate.setDate(fuTouDate.getDate() - offset);
-        
-        const ftChart = ThreeMeta.QimenChart.fromSolar(
-            fuTouDate.getFullYear(), fuTouDate.getMonth() + 1, fuTouDate.getDate(), 12, 0, 0
-        );
-        const ftZhi = ftChart.fourPillars.day.branch;
-        const ftZhiIndex = branches.indexOf(ftZhi);
-        
-        let yuan = 0;
-        if ([0, 3, 6, 9].indexOf(ftZhiIndex) !== -1) yuan = 0;      
-        else if ([2, 5, 8, 11].indexOf(ftZhiIndex) !== -1) yuan = 1; 
-        else yuan = 2;                                         
-        
-        const baseJQ = ftChart.timeInfo.solarTerm;
-        let daysToNext = 99;
-        let nextJQ = baseJQ;
-        
-        let probeNext = new Date(fuTouDate);
-        for(let i = 1; i <= 16; i++) {
-            probeNext.setDate(probeNext.getDate() + 1);
-            let c = ThreeMeta.QimenChart.fromSolar(probeNext.getFullYear(), probeNext.getMonth() + 1, probeNext.getDate(), 12, 0, 0);
-            if(c.timeInfo.solarTerm !== baseJQ) {
-                nextJQ = c.timeInfo.solarTerm; daysToNext = i; break;
-            }
-        }
-        
-        let targetJieQiName = baseJQ;
-        if (daysToNext <= 9) { targetJieQiName = nextJQ; }
-        
-        const isYang = ["冬至","小寒","大寒","立春","雨水","惊蛰","春分","清明","谷雨","立夏","小满","芒种"].indexOf(targetJieQiName) !== -1;
-        
-        const juTable = {
-            "冬至": [1, 7, 4], "小寒": [2, 8, 5], "大寒": [3, 9, 6], "立春": [8, 5, 2], "雨水": [9, 6, 3], "惊蛰": [1, 7, 4],
-            "春分": [3, 9, 6], "清明": [4, 1, 7], "谷雨": [5, 2, 8], "立夏": [4, 1, 7], "小满": [5, 2, 8], "芒种": [6, 3, 9],
-            "夏至": [9, 3, 6], "小暑": [8, 2, 5], "大暑": [7, 1, 4], "立秋": [2, 5, 8], "处暑": [1, 4, 7], "白露": [9, 3, 6],
-            "秋分": [7, 1, 4], "寒露": [6, 9, 3], "霜降": [5, 8, 2], "立冬": [6, 9, 3], "小雪": [5, 8, 2], "大雪": [4, 7, 1]
-        };
-
-        return {
-            juNumber: juTable[targetJieQiName][yuan], isYangdun: isYang,
-            debugInfo: { yuanName: ["上元", "中元", "下元"][yuan], targetJieQi: targetJieQiName, isTrueRun: false }
-        };
-      }
-    };
-
-
-    const OogoFeiPan = {
-      fly: function(chart) {
-        const isYang = (chart.ju && chart.ju.type) ? chart.ju.type.indexOf('阳') !== -1 : true;
-        const timeStem = chart.fourPillars.hour.stem;
-        const timeBranch = chart.fourPillars.hour.branch;
-        
-        const stemsArr = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
-        const branchesArr = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
-        const hSIdx = stemsArr.indexOf(timeStem);
-        const hBIdx = branchesArr.indexOf(timeBranch);
-        const xunOffset = (hBIdx - hSIdx + 12) % 12;
-        const xunName = stemsArr[0] + branchesArr[xunOffset];
-        const xunStem = {"甲子":"戊", "甲戌":"己", "甲申":"庚", "甲午":"辛", "甲辰":"壬", "甲寅":"癸"}[xunName];
-
-        const earthStems = {};
-        chart.palaces.forEach(function(p) { earthStems[p.position] = Array.isArray(p.earthlyStem) ? p.earthlyStem[0] : p.earthlyStem; });
-        
-        if (!earthStems[5]) {
-            const qimenStems = ["戊", "己", "庚", "辛", "壬", "癸", "丁", "丙", "乙"];
-            const juNumber = chart.ju.number;
-            let steps = isYang ? (5 - juNumber + 9) % 9 : (juNumber - 5 + 9) % 9;
-            earthStems[5] = qimenStems[steps];
-        }
-
-        const origStars = {1:'天蓬', 2:'天芮', 3:'天冲', 4:'天辅', 5:'天禽', 6:'天心', 7:'天柱', 8:'天任', 9:'天英'};
-        const origGates = {1:'休门', 2:'死门', 3:'伤门', 4:'杜门', 5:'中门', 6:'开门', 7:'惊门', 8:'生门', 9:'景门'};
-
-        let xunPalace = 5;
-        for (let i = 1; i <= 9; i++) { if (earthStems[i] === xunStem) { xunPalace = i; break; } }
-
-        let zfTargetPalace = 5;
-        let searchStem = (timeStem === '甲') ? xunStem : timeStem;
-        for (let i = 1; i <= 9; i++) { if (earthStems[i] === searchStem) { zfTargetPalace = i; break; } }
-
-        let starSteps = isYang ? (zfTargetPalace - xunPalace) : (xunPalace - zfTargetPalace);
-        if (starSteps < 0) starSteps += 9;
-
-        const flyStars = {}; const flyHeavenStems = {};
-        for (let i = 1; i <= 9; i++) {
-            let landPalace = isYang ? (i + starSteps) : (i - starSteps);
-            while (landPalace > 9) landPalace -= 9; while (landPalace < 1) landPalace += 9;
-            flyStars[landPalace] = origStars[i]; flyHeavenStems[landPalace] = earthStems[i]; 
-        }
-
-        const xunBranch = xunName[1];
-        let branchOffset = branchesArr.indexOf(timeBranch) - branchesArr.indexOf(xunBranch);
-        if (branchOffset < 0) branchOffset += 12;
-
-        let zsTargetPalace = xunPalace;
-        if (isYang) {
-            zsTargetPalace = xunPalace + branchOffset; while (zsTargetPalace > 9) zsTargetPalace -= 9;
-        } else {
-            zsTargetPalace = xunPalace - branchOffset; while (zsTargetPalace < 1) zsTargetPalace += 9;
-        }
-
-        let gateSteps = isYang ? (zsTargetPalace - xunPalace) : (xunPalace - zsTargetPalace);
-        if (gateSteps < 0) gateSteps += 9;
-
-        const flyGates = {};
-        for (let i = 1; i <= 9; i++) {
-            let landPalace = isYang ? (i + gateSteps) : (i - gateSteps);
-            while (landPalace > 9) landPalace -= 9; while (landPalace < 1) landPalace += 9;
-            flyGates[landPalace] = origGates[i];
-        }
-
-        const deitiesList = ['值符', '腾蛇', '太阴', '六合', '勾陈', '太常', '朱雀', '九地', '九天'];
-        const flyDeities = {};
-        for (let i = 0; i < 9; i++) {
-            let landPalace = isYang ? (zfTargetPalace + i) : (zfTargetPalace - i);
-            while (landPalace > 9) landPalace -= 9; while (landPalace < 1) landPalace += 9;
-            flyDeities[landPalace] = deitiesList[i];
-        }
-
-        chart.palaces.forEach(function(p) {
-            const pos = p.position; p.star = flyStars[pos]; p.gate = flyGates[pos];
-            p.deity = flyDeities[pos]; p.heavenlyStem = flyHeavenStems[pos]; p.earthlyStem = earthStems[pos]; 
-        });
-
-        if (!chart.zhiFu) chart.zhiFu = {}; if (!chart.zhiShi) chart.zhiShi = {};
-        chart.zhiFu.position = zfTargetPalace; chart.zhiShi.position = zsTargetPalace;
-
-        return chart;
-      }
-    };
+    }
 
     function initDateSelects() {
       try {
@@ -595,7 +398,7 @@
     }
 
     // ==========================================
-    // 核心修复：彻底根治置闰法和拆补法切换时因引擎缓存导致的盘面不刷新问题
+    // 起局入口
     // ==========================================
     function generateChart() {
       try {
@@ -628,12 +431,9 @@
         let chart;
         let zhirunData = null;
 
-        // 【关键修复点】：根据用户选择的方法，强制创建全新实例，防止缓存残留
         if (method === 'zhirun') {
           zhirunData = OogoZhiRun.calculate(y, m, d, h, min);
-          let timeString = y + "-" + pad(m) + "-" + pad(d) + "T" + pad(h) + ":" + pad(min) + ":00";
-
-          // 强制通过指定局数和阴阳遁构建置闰盘
+          let timeString = yIn + "-" + pad(mIn) + "-" + pad(dIn) + "T" + pad(hIn) + ":" + pad(minIn) + ":00";
           chart = ThreeMeta.QimenChart.byDatetime(timeString, {
             juNumber: zhirunData.juNumber,
             isYangdun: zhirunData.isYangdun
@@ -641,12 +441,11 @@
           chart.solarTerm = zhirunData.debugInfo.targetJieQi;
           chart.yuan = zhirunData.debugInfo.yuanName;
         } else {
-          // 强制重新从天文历法获取拆补盘实例
           chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0);
         }
 
-        if (panType === 'fei') { 
-          chart = OogoFeiPan.fly(chart); 
+        if (panType === 'fei') {
+          chart = OogoFeiPan.fly(chart);
         }
 
         let bY = chart.fourPillars.year.stem + chart.fourPillars.year.branch;
@@ -823,7 +622,7 @@
       const originalOverflow = body.style.overflow;
       body.style.overflow = 'visible';
       
-      const scale = window.devicePixelRatio > 1 ? 3 : 4; 
+      const scale = 4;
       const bg = getComputedStyle(body).backgroundColor || '#131520';
 
       setTimeout(function () {
@@ -835,7 +634,7 @@
         }
 
         html2canvas(body, {
-          backgroundColor: bg, scale: scale, useCORS: true, allowTaint: true, logging: false, scrollX: 0, scrollY: -window.scrollY, width: body.scrollWidth, height: body.scrollHeight
+          backgroundColor: bg, scale: scale, useCORS: true, allowTaint: true, logging: false, scrollX: 0, scrollY: -window.scrollY, width: body.scrollWidth, height: body.scrollHeight, windowWidth: body.scrollWidth, windowHeight: body.scrollHeight, x: 0, y: 0
         }).then(function (canvas) {
           body.style.overflow = originalOverflow;
           if (logo) { logo.innerText = '历'; logo.style.fontSize = '14px'; }
@@ -852,7 +651,22 @@
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             const isWechat = /MicroMessenger/i.test(navigator.userAgent);
 
-            const showFallbackOverlay = () => {
+            if (isMobile) {
+              const file = new File([blob], fileName, { type: 'image/png' });
+              
+              if (!isWechat && navigator.canShare && navigator.canShare({ files: [file] })) {
+                navigator.share({
+                  files: [file],
+                  title: '奇门排盘',
+                  text: '我的奇门排盘截图'
+                }).then(() => {
+                  showToast('✅ 操作成功');
+                }).catch((error) => {
+                  console.log('用户取消或分享失败', error);
+                });
+                return; 
+              }
+
               const overlay = document.createElement('div');
               overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;';
 
@@ -876,26 +690,8 @@
               overlay.appendChild(img);
               overlay.appendChild(closeBtn);
               document.body.appendChild(overlay);
-              showToast('✅ 图片已生成，请长按保存');
-            };
-
-            if (isMobile) {
-              const file = new File([blob], fileName, { type: 'image/png' });
               
-              if (!isWechat && navigator.canShare && navigator.canShare({ files: [file] })) {
-                navigator.share({
-                  files: [file],
-                  title: '奇门排盘'
-                }).then(() => {
-                }).catch((error) => {
-                  console.log('拦截或取消：', error);
-                  if (error.name !== 'AbortError') {
-                    showFallbackOverlay();
-                  }
-                });
-              } else {
-                showFallbackOverlay();
-              }
+              showToast('✅ 图片生成成功，请长按保存');
             } else {
               const a = document.createElement('a');
               a.href = url;
