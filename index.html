@@ -292,14 +292,15 @@
     }
 
     function initDateSelects() {
-      try {
-          const y = document.getElementById('selY'); for(let i=1900; i<=2100; i++) y.add(new Option(i, i));
-          const m = document.getElementById('selM'); for(let i=1; i<=12; i++) m.add(new Option(i, i));
-          const d = document.getElementById('selD'); for(let i=1; i<=31; i++) d.add(new Option(i, i));
-          const h = document.getElementById('selH'); for(let i=0; i<=23; i++) h.add(new Option(i, i));
-          const min = document.getElementById('selMin'); for(let i=0; i<=59; i++) min.add(new Option(pad(i), i));
-      } catch(e) {}
-    }
+  try {
+      const y = document.getElementById('selY'); for(let i=1900; i<=2100; i++) y.add(new Option(i, i));
+      const m = document.getElementById('selM'); for(let i=1; i<=12; i++) m.add(new Option(pad(i), i));   // 月：01 - 12
+      const d = document.getElementById('selD'); for(let i=1; i<=31; i++) d.add(new Option(pad(i), i));   // 日：01 - 31
+      const h = document.getElementById('selH'); for(let i=0; i<=23; i++) h.add(new Option(pad(i), i));   // 时：00 - 23
+      const min = document.getElementById('selMin'); for(let i=0; i<=59; i++) min.add(new Option(pad(i), i)); // 分：00 - 59
+  } catch(e) {}
+}
+
     function pad(n) { return n < 10 ? '0' + n : n; }
     initDateSelects();
 
@@ -650,7 +651,7 @@
       } catch (err) { alert("排盘错误：" + err.message); }
     }
 
-    function exportImage() {
+        function exportImage() {
       const logo = document.querySelector('.circle-logo');
       if (logo) { logo.innerText = '生成..'; logo.style.fontSize = '12px'; }
       window.scrollTo(0, 0);
@@ -671,7 +672,15 @@
         }
 
         html2canvas(body, {
-          backgroundColor: bg, scale: scale, useCORS: true, allowTaint: true, logging: false, scrollX: 0, scrollY: -window.scrollY, width: body.scrollWidth, height: body.scrollHeight, windowWidth: body.scrollWidth, windowHeight: body.scrollHeight, x: 0, y: 0
+          backgroundColor: bg, scale: scale, useCORS: true, allowTaint: true, logging: false, scrollX: 0, scrollY: -window.scrollY, width: body.scrollWidth, height: body.scrollHeight, windowWidth: body.scrollWidth, windowHeight: body.scrollHeight, x: 0, y: 0,
+          // 💡 关键修改：在导出的图片画面中，把图标文字强制改回“历”
+          onclone: function(clonedDoc) {
+            const clonedLogo = clonedDoc.querySelector('.circle-logo');
+            if (clonedLogo) {
+              clonedLogo.innerText = '历';
+              clonedLogo.style.fontSize = '14px';
+            }
+          }
         }).then(function (canvas) {
           body.style.overflow = originalOverflow;
           if (logo) { logo.innerText = '历'; logo.style.fontSize = '14px'; }
@@ -750,6 +759,7 @@
         });
       }, 150);
     }
+
 
     function showToast(msg) {
       const old = document.getElementById('qimenToast');
