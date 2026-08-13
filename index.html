@@ -300,16 +300,41 @@
       }
     };
 
-    function initDateSelects() {
-      try {
-          const y = document.getElementById('selY'); for(let i=1900; i<=2100; i++) y.add(new Option(i, i));
-          const m = document.getElementById('selM'); for(let i=1; i<=12; i++) m.add(new Option(i, i));
-          const d = document.getElementById('selD'); for(let i=1; i<=31; i++) d.add(new Option(i, i));
-          const h = document.getElementById('selH'); for(let i=0; i<=23; i++) h.add(new Option(i, i));
-          const min = document.getElementById('selMin'); for(let i=0; i<=59; i++) min.add(new Option(pad(i), i));
-      } catch(e) {}
-    }
     function pad(n) { return n < 10 ? '0' + n : n; }
+
+    // 修复后的可靠下拉框初始化方法
+    function initDateSelects() {
+      const y = document.getElementById('selY'); 
+      for(let i=1900; i<=2100; i++) {
+        let opt = document.createElement('option');
+        opt.value = i; opt.text = i;
+        y.appendChild(opt);
+      }
+      const m = document.getElementById('selM'); 
+      for(let i=1; i<=12; i++) {
+        let opt = document.createElement('option');
+        opt.value = i; opt.text = i;
+        m.appendChild(opt);
+      }
+      const d = document.getElementById('selD'); 
+      for(let i=1; i<=31; i++) {
+        let opt = document.createElement('option');
+        opt.value = i; opt.text = i;
+        d.appendChild(opt);
+      }
+      const h = document.getElementById('selH'); 
+      for(let i=0; i<=23; i++) {
+        let opt = document.createElement('option');
+        opt.value = i; opt.text = i;
+        h.appendChild(opt);
+      }
+      const min = document.getElementById('selMin'); 
+      for(let i=0; i<=59; i++) {
+        let opt = document.createElement('option');
+        opt.value = i; opt.text = pad(i);
+        min.appendChild(opt);
+      }
+    }
     initDateSelects();
 
     function renderDefaultBoard() {
