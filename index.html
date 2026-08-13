@@ -16,7 +16,7 @@
       --gold-line: #a6833b;
       --cell-bg: #13141d;
       --text-main: #ffffff;
-      --text-gray: #7a7a90;
+      --text-gray: #9ca3af;
       --text-blue: #5b92d6;
       --text-gold: #e2b45f;
       --c-deity: #d48b57;
@@ -57,7 +57,7 @@
       --dark-stem-bg: rgba(79, 70, 229, 0.08);
     }
 
-    body { font-family: -apple-system, sans-serif; padding: 10px; background: var(--bg-main); color: var(--text-main); margin: 0 auto; max-width: 100%; transition: background 0.3s, color 0.3s; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; padding: 10px; background: var(--bg-main); color: var(--text-main); margin: 0 auto; max-width: 100%; transition: background 0.3s, color 0.3s; box-sizing: border-box; }
     .top-ctrl { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; transition: all 0.3s; }
     .ctrl-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; width: 100%; box-sizing: border-box; }
     .badge { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; }
@@ -67,7 +67,7 @@
     .date-item { display: flex; align-items: center; flex: 1; min-width: 0; }
     .date-item.year-item { flex: 1.3; } 
     select.date-input { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); height: 26px; border-radius: 4px; font-size: 13px; font-weight: bold; outline: none; appearance: none; -webkit-appearance: none; padding: 0; text-align: center; text-align-last: center; cursor: pointer; width: 100%; min-width: 0; }
-    .date-text { color: var(--text-gray); font-size: 11px; margin: 0 1px 0 2px; flex-shrink: 0; }
+    .date-text { color: var(--text-gray); font-size: 13px; margin: 0 1px 0 2px; flex-shrink: 0; }
     .btn-red { background: #d34e55; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; width: 52px; height: 28px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; }
     .btn-big-start { background: var(--text-gold); color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.2); width: 52px; cursor: pointer; display: flex; align-items: center; justify-content: center; letter-spacing: 2px; transition: 0.2s; flex-shrink: 0; padding: 0; }
     .btn-big-start:active { transform: scale(0.95); opacity: 0.9; }
@@ -77,14 +77,14 @@
     .zhen-item select, .zhen-item input[type="number"] { background: transparent; border: none; color: var(--text-main); width: 100%; height: 30px; line-height: 30px; text-align: center; outline: none; font-size: 13px; -webkit-appearance: none; appearance: none; padding: 0; margin: 0; }
     .zhen-item select { color: var(--text-blue); text-align-last: center; }
     .sub-ctrl { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-color); padding-top: 8px; margin-top: 0; gap: 4px; }
-    .sub-text { color: var(--text-gray); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; }
+    .sub-text { color: var(--text-gray); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; }
     .select-group { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
-    .select-group select { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-blue); padding: 0 6px; height: 26px; line-height: 24px; border-radius: 4px; font-size: 11px; outline: none; -webkit-appearance: none; appearance: none; text-align: center; }
-    .btn-theme { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 0 6px; height: 26px; line-height: 24px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .select-group select { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-blue); padding: 0 6px; height: 26px; line-height: 24px; border-radius: 4px; font-size: 13px; outline: none; -webkit-appearance: none; appearance: none; text-align: center; }
+    .btn-theme { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 0 6px; height: 26px; line-height: 24px; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .info-board { margin-bottom: 15px; }
     .bazi-row { display: flex; justify-content: space-between; margin-bottom: 12px; }
     .bazi-box { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; width: 23%; text-align: center; padding: 8px 0; transition: all 0.3s; }
-    .bazi-title { font-size: 11px; color: var(--text-gray); margin-bottom: 6px; }
+    .bazi-title { font-size: 13px; color: var(--text-gray); margin-bottom: 6px; }
     .bazi-value { font-size: 16px; font-weight: bold; color: var(--text-gold); }
     .info-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-gray); margin-bottom: 8px; }
     .zhifu-row { margin: 12px 0; }
@@ -92,22 +92,22 @@
     .circle-logo { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--text-gold); background: var(--panel-bg); color: var(--text-main); display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; box-shadow: 0 0 8px rgba(226,180,95,0.2); }
     .circle-logo:active { transform: scale(0.9); background: var(--text-gold); color: #000; }
     .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--gold-line); border: 1px solid var(--gold-line); border-radius: 4px; padding: 1px; }
-    .cell { background: var(--cell-bg); position: relative; height: 125px; box-sizing: border-box; transition: background 0.3s; overflow: hidden; }
-    .center-cell { background: var(--cell-bg); display: flex; justify-content: center; align-items: center; position: relative; transition: background 0.3s; overflow: hidden;}
-    .corner { position: absolute; font-size: 11px; }
+    .cell { background: var(--cell-bg); position: relative; height: 125px; box-sizing: border-box; transition: background 0.3s; overflow: hidden; transform: translateZ(0); backface-visibility: hidden; }
+    .center-cell { background: var(--cell-bg); display: flex; justify-content: center; align-items: center; position: relative; transition: background 0.3s; overflow: hidden; transform: translateZ(0); backface-visibility: hidden; }
+    .corner { position: absolute; font-size: 13px; }
     .hidden-stem-text { color: var(--dark-stem-color); font-weight: bold; font-size: 13px; }
     .top-right { position: absolute; top: 1px; right: 1px; display: flex; gap: 3px; align-items: center; font-weight: bold; z-index: 10; }
-    .palace-row { position: absolute; bottom: 6px; left: 14px; right: 14px; border-top: 1px dashed var(--border-color); padding-top: 4px; display: flex; justify-content: space-between; align-items: center; color: var(--palace-text); font-size: 11px; z-index: 10; }
+    .palace-row { position: absolute; bottom: 6px; left: 14px; right: 14px; border-top: 1px dashed var(--border-color); padding-top: 4px; display: flex; justify-content: space-between; align-items: center; color: var(--palace-text); font-size: 13px; z-index: 10; }
     .inner-content { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: calc(100% - 28px); display: flex; flex-direction: column; gap: 9px; z-index: 10; }
     .deity-text { font-size: 21px; }
     .star-text  { font-size: 18px; }
     .gate-text  { font-size: 18px; }
     .taichi-svg { width: 115px; height: 115px; filter: drop-shadow(0 0 8px rgba(0,0,0,0.4)); }
-    .tag-ma { color: #ffffff; background: #d34e55; padding: 1px 4px; border-radius: 3px; font-size: 10px; font-weight: bold; border: none; box-shadow: none; }
-    .tag-kong { color: #ffffff; background: #7a7a90; padding: 1px 4px; border-radius: 3px; font-size: 10px; font-weight: bold; border: none; box-shadow: none; }
-    .tag-jx { color: #ffffff; background: #8b5cf6; padding: 1px 4px; border-radius: 3px; font-size: 10px; font-weight: bold; border: none; box-shadow: none; }
-    .tag-mu { color: #ffffff; background: #374151; padding: 1px 4px; border-radius: 3px; font-size: 10px; font-weight: bold; border: none; box-shadow: none; }
-    .tag-po { color: #ffffff; background: #d97706; padding: 1px 4px; border-radius: 3px; font-size: 10px; font-weight: bold; border: none; box-shadow: none; }
+    .tag-ma { color: #ffffff; background: #d34e55; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; box-shadow: none; }
+    .tag-kong { color: #ffffff; background: #7a7a90; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; box-shadow: none; }
+    .tag-jx { color: #ffffff; background: #8b5cf6; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; box-shadow: none; }
+    .tag-mu { color: #ffffff; background: #374151; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; box-shadow: none; }
+    .tag-po { color: #ffffff; background: #d97706; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; box-shadow: none; }
     .row { display: flex; justify-content: space-between; align-items: flex-end; }
     .left-item { text-align: left; font-weight: bold; line-height: 1; white-space: nowrap; letter-spacing: 1px; }
     .right-item { text-align: right; font-size: 14px; font-weight: bold; line-height: 1; white-space: nowrap; }
@@ -172,7 +172,7 @@
           <div class="zhen-group">
             <label class="zhen-item" style="flex: 0.8; cursor: pointer;">
               <input type="checkbox" id="useTrueSolar" checked onchange="updateDynamicInfo()">
-              <span style="color:var(--text-gray); font-size:11px; white-space:nowrap;">太阳时</span>
+              <span style="color:var(--text-gray); font-size:13px; white-space:nowrap;">太阳时</span>
             </label>
             <div class="zhen-item" style="flex: 1;">
               <select id="citySelect" onchange="document.getElementById('longitude').value = this.value; updateDynamicInfo()">
@@ -239,7 +239,7 @@
         </div>
 
         <div class="sub-ctrl">
-          <div class="sub-text">🧭 起局地真太阳时起局</div>
+          <div class="sub-text">☯️ OOGO 奇门遁甲盘</div>
           <div class="select-group">
             <select id="methodSelect" onchange="onSelectChange()">
               <option value="zhirun" selected>置闰法</option>
@@ -303,14 +303,14 @@
           <svg viewBox="0 0 200 200" style="width: 100%; height: 100%; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.35));">
             <path d="M 100 0 A 100 100 0 0 1 100 200 A 50 50 0 0 1 100 100 A 50 50 0 0 0 100 0 Z" fill="#000000"/>
             <path d="M 100 200 A 100 100 0 0 1 100 0 A 50 50 0 0 1 100 100 A 50 50 0 0 0 100 200 Z" fill="#ffffff"/>
-            <circle cx="100" cy="50" r="28" fill="#000000"/>
-            <circle cx="100" cy="150" r="28" fill="#ffffff"/>
+            <circle cx="120" cy="50" r="28" fill="#000000"/>
+            <circle cx="120" cy="150" r="28" fill="#ffffff"/>
           </svg>
         </div>
       `;
 
       document.getElementById('infoBoard').innerHTML = 
-        '<div class="info-row" style="justify-content: center; color: var(--text-gold); font-size: 15px; font-weight: bold; margin-bottom: 8px;"><span>👑 OOGO 太极无极阵 👑</span></div>' +
+        '<div class="info-row" style="justify-content: center; color: var(--text-gold); font-size: 15px; font-weight: bold; margin-bottom: 8px;"><span>👑 OOGO 奇门遁甲 👑</span></div>' +
         '<div class="info-row" style="justify-content: center; margin-bottom: 5px;"><span>太极生两仪，两仪生四象，四象生八卦</span></div>' +
         '<div class="info-row" style="justify-content: center; margin-top: 15px;"><span style="color: var(--text-blue); font-weight: bold;">👆 请设定时间与参数后，点击右上角【起局】</span></div>';
     }
@@ -387,7 +387,6 @@
     const stems = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
     const branches = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
 
-  
     function simplifyDeity(name) {
       if (!name) return '';
       return name.replace('值符','符').replace('腾蛇','螣').replace('太阴','阴').replace('六合','合').replace('白虎','白').replace('玄武','玄').replace('九地','地').replace('九天','天').replace('勾陈','勾').replace('太常','常').replace('朱雀','雀');
@@ -550,7 +549,7 @@
         else if (gateStatus) { fyText = gateStatus; }
 
         if (fyText) {
-          fyText = '<span style="color:#d34e55; font-weight:bold; margin-left:8px; border:1px solid #d34e55; padding:1px 4px; border-radius:4px; font-size:11px;">' + fyText + '</span>';
+          fyText = '<span style="color:#d34e55; font-weight:bold; margin-left:8px; border:1px solid #d34e55; padding:1px 4px; border-radius:4px; font-size:13px;">' + fyText + '</span>';
         }
 
         let boardHtml =
@@ -616,7 +615,7 @@
 
     function exportImage() {
       const logo = document.querySelector('.circle-logo');
-      if (logo) { logo.innerText = '生成..'; logo.style.fontSize = '10px'; }
+      if (logo) { logo.innerText = '生成..'; logo.style.fontSize = '12px'; }
       window.scrollTo(0, 0);
 
       const body = document.body;
