@@ -88,7 +88,24 @@
     .zhen-group { display: flex; flex: 1; gap: 4px; min-width: 0; }
     .zhen-item { background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 0 4px; display: flex; align-items: center; justify-content: center; height: 30px; box-sizing: border-box; min-width: 0; }
     .zhen-item input[type="checkbox"] { margin-right: 4px; accent-color: var(--text-blue); }
-    .zhen-item select, .zhen-item input[type="number"] { background: transparent; border: none; color: var(--text-main); width: 100%; height: 30px; line-height: 30px; text-align: center; outline: none; font-size: 13px; -webkit-appearance: none; appearance: none; padding: 0; margin: 0; }
+    /* 修改后： */
+.zhen-item select, .zhen-item input[type="number"] { 
+  background: transparent; 
+  border: none; 
+  color: var(--text-main); 
+  width: 100%; 
+  height: 100%; 
+  line-height: normal; /* 彻底修复 iOS/Safari 及截图组件导致的文字下沉飘移问题 */
+  text-align: center; 
+  outline: none; 
+  font-size: 13px; 
+  -webkit-appearance: none; 
+  appearance: none; 
+  padding: 0; 
+  margin: 0; 
+  vertical-align: middle;
+}
+
     .zhen-item select { color: var(--text-blue); text-align-last: center; }
     .sub-ctrl { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-color); padding-top: 8px; margin-top: 0; gap: 4px; }
     .sub-text { color: var(--text-gray); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; }
@@ -103,7 +120,7 @@
     .info-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-gray); margin-bottom: 8px; }
     .zhifu-row { margin: 12px 0; }
     .pill-green { background: rgba(37, 185, 85, 0.1); color: var(--c-gate-g); border: 1px solid var(--c-gate-g); padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-    .circle-logo { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--text-gold); background: var(--panel-bg); color: var(--text-main); display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; box-shadow: 0 0 8px rgba(226,180,95,0.2); }
+    .circle-logo { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--text-gold); background: var(--panel-bg); color: var(--text-main); display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; box-shadow: 0 0 8px rgba(226,180,95,0.2); }
     .circle-logo:active { transform: scale(0.9); background: var(--text-gold); color: #000; }
     .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--gold-line); border: 1px solid var(--gold-line); border-radius: 4px; padding: 1px; }
     .cell { background: var(--cell-bg); position: relative; height: 125px; box-sizing: border-box; transition: background 0.3s; overflow: hidden; transform: translateZ(0); backface-visibility: hidden; }
@@ -666,7 +683,7 @@
       setTimeout(function () {
         if (typeof html2canvas === 'undefined') {
           body.style.overflow = originalOverflow;
-          if (logo) { logo.innerText = '历'; logo.style.fontSize = '14px'; }
+          if (logo) { logo.innerText = '历'; logo.style.fontSize = '16px'; }
           alert('截图组件未加载，请检查网络后刷新重试');
           return;
         }
@@ -675,15 +692,25 @@
           backgroundColor: bg, scale: scale, useCORS: true, allowTaint: true, logging: false, scrollX: 0, scrollY: -window.scrollY, width: body.scrollWidth, height: body.scrollHeight, windowWidth: body.scrollWidth, windowHeight: body.scrollHeight, x: 0, y: 0,
           // 💡 关键修改：在导出的图片画面中，把图标文字强制改回“历”
           onclone: function(clonedDoc) {
-            const clonedLogo = clonedDoc.querySelector('.circle-logo');
-            if (clonedLogo) {
-              clonedLogo.innerText = '历';
-              clonedLogo.style.fontSize = '14px';
-            }
-          }
-        }).then(function (canvas) {
+  // 1. 保证“历”字还原
+  const clonedLogo = clonedDoc.querySelector('.circle-logo');
+  if (clonedLogo) {
+    clonedLogo.innerText = '历';
+    clonedLogo.style.fontSize = '16px';
+  }
+
+  // 2. 彻底修正输入框文字下沉偏斜问题
+  const clonedInputs = clonedDoc.querySelectorAll('.zhen-item select, .zhen-item input');
+  clonedInputs.forEach(el => {
+    el.style.lineHeight = 'normal';
+    el.style.padding = '0';
+    el.style.margin = '0';
+  });
+}
+
+          .then(function (canvas) {
           body.style.overflow = originalOverflow;
-          if (logo) { logo.innerText = '历'; logo.style.fontSize = '14px'; }
+          if (logo) { logo.innerText = '历'; logo.style.fontSize = '16px'; }
           
           canvas.toBlob(function (blob) {
             if (!blob) {
