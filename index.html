@@ -386,7 +386,22 @@
 
     const stems = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
     const branches = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
-
+    // 在 <script> 标签内的任何函数定义外面添加这段：
+const OogoAlignAdapter = {
+  alignZhuanPan: function(chart) {
+    if (!chart || !chart.palaces) return chart;
+    let palace5 = chart.palaces.find(p => p.position === 5);
+    let palace2 = chart.palaces.find(p => p.position === 2);
+    if (palace5 && palace2) {
+      let extraStem = palace5.earthlyStem || palace5.heavenlyStem;
+      if (extraStem && palace2) {
+        if (!Array.isArray(palace2.earthlyStem)) palace2.earthlyStem = [palace2.earthlyStem];
+        if (!palace2.earthlyStem.includes(extraStem)) palace2.earthlyStem.push(extraStem);
+      }
+    }
+    return chart;
+  }
+};
   
     function simplifyDeity(name) {
       if (!name) return '';
@@ -445,8 +460,49 @@
           chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0);
         }
 
+        // 🌟【修改这里】：在这里彻底解决“阳遁中五宫寄宫导致八门全反”的问题
         if (panType === 'fei') {
           chart = OogoFeiPan.fly(chart);
+        } else if (panType === 'zhuan') {
+          // 1. 强制将中5宫的干支寄入坤2宫（对齐传统主流软件）
+          let p5 = chart.palaces.find(p => p.position === 5);
+          let p2 = chart.palaces.find(p => p.position === 2);
+          if (p5 && p2) {
+            let extraStem = p5.earthlyStem || p5.heavenlyStem;
+            if (extraStem) {
+              if (!Array.isArray(p2.earthlyStem)) p2.earthlyStem = [p2.earthlyStem];
+              if (!p2.earthlyStem.includes(extraStem)) p2.earthlyStem.push(extraStem);
+            }
+          }
+
+          // 2. 修复底层库“阳遁值使落5宫强制寄8宫”导致八门正好相反(180度错位)的BUG
+          let isYang = chart.ju.type.indexOf('阳') !== -1;
+          let hBIdx = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"].indexOf(chart.fourPillars.hour.branch);
+          let hSIdx = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"].indexOf(chart.fourPillars.hour.stem);
+          let xunOffset = (hBIdx - hSIdx + 12) % 12;
+          let zfPalace = chart.zhiFu ? chart.zhiFu.position : 1; 
+
+          // 推算值使门真实的初始落宫
+          let step = (hBIdx - xunOffset + 12) % 12;
+          let zsRaw = zfPalace;
+          if (isYang) {
+              for(let i=0; i<step; i++) { zsRaw++; if(zsRaw > 9) zsRaw = 1; }
+          } else {
+              for(let i=0; i<step; i++) { zsRaw--; if(zsRaw < 1) zsRaw = 9; }
+          }
+          
+          // 如果算出来正好落5宫，且是阳遁，证明底层库排错了，我们把门对调回来！
+          if (zsRaw === 5 && isYang) {
+              let oppo = {1:9, 8:2, 3:7, 4:6, 9:1, 2:8, 7:3, 6:4}; // 九宫对冲映射
+              let tempGates = {};
+              chart.palaces.forEach(p => { tempGates[p.position] = p.gate; });
+              chart.palaces.forEach(p => {
+                  if(p.position !== 5) {
+                      p.gate = tempGates[oppo[p.position]]; // 直接把门180度翻转回来
+                  }
+              });
+              if(chart.zhiShi) chart.zhiShi.position = 2; // 强制值使门显示在坤2宫
+          }
         }
 
         let bY = chart.fourPillars.year.stem + chart.fourPillars.year.branch;
