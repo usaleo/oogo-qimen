@@ -131,6 +131,7 @@
     }
   </style>
 
+  <!-- 依赖库与外部算法引擎 -->
   <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/3meta.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/html2canvas.min.js"></script>
   <script src="./oogo-zhirun.js"></script>
@@ -275,7 +276,7 @@
             generateChart();
         }
     }
-
+    
     // ==========================================
     // 传统流派转盘对齐适配器
     // ==========================================
@@ -420,7 +421,7 @@
     }
 
     // ==========================================
-    // 起局入口（已集成转盘对齐适配器）
+    // 起局入口
     // ==========================================
     function generateChart() {
       try {
@@ -466,7 +467,7 @@
           chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0);
         }
 
-        // 🌟 核心分流：飞盘走自定义飞盘，转盘走流派对齐适配器
+        // 🌟 核心分流处理
         if (panType === 'fei') {
           chart = OogoFeiPan.fly(chart);
         } else if (panType === 'zhuan') {
