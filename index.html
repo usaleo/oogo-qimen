@@ -121,12 +121,8 @@
     .info-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-gray); margin-bottom: 8px; }
     .zhifu-row { margin: 12px 0; }
     .pill-green { background: rgba(37, 185, 85, 0.1); color: var(--c-gate-g); border: 1px solid var(--c-gate-g); padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-    
-    /* 圆圈 Logo 样式定制 */
-    .circle-logo { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--text-gold); background: var(--panel-bg); color: var(--text-main); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-shadow: 0 0 8px rgba(226,180,95,0.2); overflow: hidden; padding: 0; }
-    .circle-logo:active { transform: scale(0.9); background: var(--text-gold); }
-    .circle-logo img { width: 85%; height: 85%; object-fit: contain; display: block; border-radius: 50%; }
-
+    .circle-logo { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--text-gold); background: var(--panel-bg); color: var(--text-main); display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 20px; line-height: 1; cursor: pointer; transition: 0.2s; box-shadow: 0 0 8px rgba(226,180,95,0.2); }
+    .circle-logo:active { transform: scale(0.9); background: var(--text-gold); color: #000; }
     .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--gold-line); border: 1px solid var(--gold-line); border-radius: 4px; padding: 1px; }
     .cell { background: var(--cell-bg); position: relative; height: 125px; box-sizing: border-box; transition: background 0.3s; overflow: hidden; transform: translateZ(0); backface-visibility: hidden; }
     .center-cell { background: var(--cell-bg); display: flex; justify-content: center; align-items: center; position: relative; transition: background 0.3s; overflow: hidden; transform: translateZ(0); backface-visibility: hidden; }
@@ -616,7 +612,7 @@
             '<div class="bazi-box"><div class="bazi-title">时柱</div><div class="bazi-value">' + formatPillar(bH) + '</div></div>' +
           '</div>' +
           '<div class="info-row"><span style="display:flex; align-items:center;">' + jqName + runTag + ' &nbsp;' + yuanStr + ' &nbsp;' + dunStr + '</span><span>符头: ' + fuTou + '</span></div>' +
-          '<div class="info-row zhifu-row"><span class="pill-green">值符: ' + displayZfName + '(' + zfPalace + '宫)</span><div class="circle-logo" onclick="exportImage()"><img src="./icon-512.png" alt="Logo"></div><span class="pill-green">值使: ' + zsName + '(' + zsPalace + '宫)</span></div>' +
+          '<div class="info-row zhifu-row"><span class="pill-green">值符: ' + displayZfName + '(' + zfPalace + '宫)</span><div class="circle-logo" onclick="exportImage()">历</div><span class="pill-green">值使: ' + zsName + '(' + zsPalace + '宫)</span></div>' +
           '<div class="info-row"><span style="display:flex; align-items:center;">旬首: ' + xunName + '遁' + xunDun + fyText + '</span><span>马星: ' + maXing + ' &nbsp;空亡: ' + kong1 + ',' + kong2 + '</span></div>';
         
         document.getElementById('infoBoard').innerHTML = boardHtml;
@@ -676,8 +672,7 @@
 
     function exportImage() {
       const logo = document.querySelector('.circle-logo');
-      const logoImgHTML = '<img src="./icon-512.png" alt="Logo">';
-      if (logo) { logo.innerHTML = '<span style="font-size:11px;">生成..</span>'; }
+      if (logo) { logo.innerText = '生成..'; logo.style.fontSize = '12px'; }
       window.scrollTo(0, 0);
 
       const body = document.body;
@@ -690,7 +685,7 @@
       setTimeout(function () {
         if (typeof html2canvas === 'undefined') {
           body.style.overflow = originalOverflow;
-          if (logo) { logo.innerHTML = logoImgHTML; }
+          if (logo) { logo.innerText = '历'; logo.style.fontSize = '20px'; }
           alert('截图组件未加载，请检查网络后刷新重试');
           return;
         }
@@ -710,10 +705,11 @@
           x: 0, 
           y: 0,
           onclone: function(clonedDoc) {
-            // 1. 保证截图图片中的 Logo 还原
+            // 1. 保证截图图片中的“历”字还原并最大化
             const clonedLogo = clonedDoc.querySelector('.circle-logo');
             if (clonedLogo) {
-              clonedLogo.innerHTML = logoImgHTML;
+              clonedLogo.innerText = '历';
+              clonedLogo.style.fontSize = '20px';
             }
 
             // 2. 彻底修正输入框文字下沉偏斜问题
@@ -726,7 +722,7 @@
           }
         }).then(function (canvas) {
           body.style.overflow = originalOverflow;
-          if (logo) { logo.innerHTML = logoImgHTML; }
+          if (logo) { logo.innerText = '历'; logo.style.fontSize = '20px'; }
           
           canvas.toBlob(function (blob) {
             if (!blob) {
@@ -797,7 +793,7 @@
 
         }).catch(function (err) {
           body.style.overflow = originalOverflow;
-          if (logo) { logo.innerHTML = logoImgHTML; }
+          if (logo) { logo.innerText = '历'; logo.style.fontSize = '20px'; }
           alert('生成图片失败：' + (err && err.message ? err.message : '未知错误'));
         });
       }, 150);
