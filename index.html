@@ -32,6 +32,13 @@
       --edeity-text: #c4b5a2;
       --dark-stem-color: #818cf8;
       --dark-stem-bg: rgba(129, 140, 248, 0.1);
+      
+      /* 五行颜色 (暗黑主题下更亮眼清晰)[cite: 1] */
+      --wx-wood: #22c55e;   /* 木：绿色 */
+      --wx-fire: #ef4444;   /* 火：红色 */
+      --wx-earth: #d97706;  /* 土：泥土棕黄色 */
+      --wx-metal: #fbbf24;  /* 金：金黄色 */
+      --wx-water: #3b82f6;  /* 水：蓝色 */
     }
 
     body.light-theme {
@@ -55,6 +62,13 @@
       --edeity-text: #8b5cf6;
       --dark-stem-color: #4f46e5;
       --dark-stem-bg: rgba(79, 70, 229, 0.08);
+
+      /* 五行颜色 (亮色主题下适当加深以保证对比度)[cite: 1] */
+      --wx-wood: #16a34a;   /* 木：绿色 */
+      --wx-fire: #dc2626;   /* 火：红色 */
+      --wx-earth: #b45309;  /* 土：深泥土棕色 */
+      --wx-metal: #d97706;  /* 金：深金黄色 */
+      --wx-water: #2563eb;  /* 水：蓝色 */
     }
 
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; padding: 5px; background: var(--bg-main); color: var(--text-main); margin: 0 auto; max-width: 100%; transition: background 0.3s, color 0.3s; box-sizing: border-box; }
@@ -239,7 +253,7 @@
         </div>
 
         <div class="sub-ctrl">
-  <div class="sub-text" style="cursor: pointer;" onclick="isChartGenerated = false; renderDefaultBoard();" title="返回初始画面">☯️ OOGO 奇门遁甲</div>
+          <div class="sub-text" style="cursor: pointer;" onclick="isChartGenerated = false; renderDefaultBoard();" title="返回初始画面">☯️ OOGO 奇门遁甲</div>
           <div class="select-group">
             <select id="methodSelect" onchange="onSelectChange()">
               <option value="zhirun" selected>置闰法</option>
@@ -289,6 +303,24 @@
     function pad(n) { return n < 10 ? '0' + n : n; }
     initDateSelects();
 
+    // 五行颜色匹配函数（已按要求：金=金黄、土=泥土深黄/棕色、木=绿、火=红、水=蓝）[cite: 1]
+    function getWuxingColor(char) {
+      if (['甲', '乙', '寅', '卯'].includes(char)) return 'var(--wx-wood)';   // 木：绿
+      if (['丙', '丁', '巳', '午'].includes(char)) return 'var(--wx-fire)';   // 火：红
+      if (['戊', '己', '辰', '戌', '丑', '未'].includes(char)) return 'var(--wx-earth)'; // 土：泥土深黄/棕色
+      if (['庚', '辛', '申', '酉'].includes(char)) return 'var(--wx-metal)'; // 金：金黄色
+      if (['壬', '癸', '亥', '子'].includes(char)) return 'var(--wx-water)'; // 水：蓝
+      return 'inherit';
+    }
+
+    // 格式化四柱（天干地支按五行上色，支持黑白主题动态自适应）[cite: 1]
+    function formatPillar(pillarStr) {
+      if (!pillarStr) return '';
+      let stem = pillarStr[0] || '';
+      let branch = pillarStr[1] || '';
+      return `<span style="color: ${getWuxingColor(stem)}">${stem}</span><span style="color: ${getWuxingColor(branch)}">${branch}</span>`;
+    }
+
     function renderDefaultBoard() {
       const grid = document.getElementById('chartGrid');
       grid.style.background = 'transparent';
@@ -310,7 +342,7 @@
       `;
 
       document.getElementById('infoBoard').innerHTML = 
-        '<div class="info-row" style="justify-content: center; color: var(--text-gold); font-size: 15px; font-weight: bold; margin-bottom: 8px;"><span>👑 OOGO 奇门遁甲 👑</span></div>' +
+        '<div class="info-row" style="justify-content: center; color: var(--text-gold); font-size: 15px; font-weight: bold; margin-bottom: 8px;"><span>👑 OOGO 太极无极阵 👑</span></div>' +
         '<div class="info-row" style="justify-content: center; margin-bottom: 5px;"><span>太极生两仪，两仪生四象，四象生八卦</span></div>' +
         '<div class="info-row" style="justify-content: center; margin-top: 15px;"><span style="color: var(--text-blue); font-weight: bold;">👆 请设定时间与参数后，点击右上角【起局】</span></div>';
     }
@@ -553,7 +585,12 @@
         }
 
         let boardHtml =
-          '<div class="bazi-row"><div class="bazi-box"><div class="bazi-title">年柱</div><div class="bazi-value">' + bY + '</div></div><div class="bazi-box"><div class="bazi-title">月柱</div><div class="bazi-value">' + bM + '</div></div><div class="bazi-box"><div class="bazi-title">日柱</div><div class="bazi-value">' + bD + '</div></div><div class="bazi-box"><div class="bazi-title">时柱</div><div class="bazi-value">' + bH + '</div></div></div>' +
+          '<div class="bazi-row">' +
+            '<div class="bazi-box"><div class="bazi-title">年柱</div><div class="bazi-value">' + formatPillar(bY) + '</div></div>' +
+            '<div class="bazi-box"><div class="bazi-title">月柱</div><div class="bazi-value">' + formatPillar(bM) + '</div></div>' +
+            '<div class="bazi-box"><div class="bazi-title">日柱</div><div class="bazi-value">' + formatPillar(bD) + '</div></div>' +
+            '<div class="bazi-box"><div class="bazi-title">时柱</div><div class="bazi-value">' + formatPillar(bH) + '</div></div>' +
+          '</div>' +
           '<div class="info-row"><span style="display:flex; align-items:center;">' + jqName + runTag + ' &nbsp;' + yuanStr + ' &nbsp;' + dunStr + '</span><span>符头: ' + fuTou + '</span></div>' +
           '<div class="info-row zhifu-row"><span class="pill-green">值符: ' + displayZfName + '(' + zfPalace + '宫)</span><div class="circle-logo" onclick="exportImage()">历</div><span class="pill-green">值使: ' + zsName + '(' + zsPalace + '宫)</span></div>' +
           '<div class="info-row"><span style="display:flex; align-items:center;">旬首: ' + xunName + '遁' + xunDun + fyText + '</span><span>马星: ' + maXing + ' &nbsp;空亡: ' + kong1 + ',' + kong2 + '</span></div>';
