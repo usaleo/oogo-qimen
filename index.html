@@ -386,22 +386,7 @@
 
     const stems = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
     const branches = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
-    // 在 <script> 标签内的任何函数定义外面添加这段：
-const OogoAlignAdapter = {
-  alignZhuanPan: function(chart) {
-    if (!chart || !chart.palaces) return chart;
-    let palace5 = chart.palaces.find(p => p.position === 5);
-    let palace2 = chart.palaces.find(p => p.position === 2);
-    if (palace5 && palace2) {
-      let extraStem = palace5.earthlyStem || palace5.heavenlyStem;
-      if (extraStem && palace2) {
-        if (!Array.isArray(palace2.earthlyStem)) palace2.earthlyStem = [palace2.earthlyStem];
-        if (!palace2.earthlyStem.includes(extraStem)) palace2.earthlyStem.push(extraStem);
-      }
-    }
-    return chart;
-  }
-};
+
   
     function simplifyDeity(name) {
       if (!name) return '';
@@ -460,13 +445,8 @@ const OogoAlignAdapter = {
           chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0);
         }
 
-        // 🌟 修改此处：添加转盘适配逻辑
         if (panType === 'fei') {
           chart = OogoFeiPan.fly(chart);
-        } else if (panType === 'zhuan') {
-          if (typeof OogoAlignAdapter !== 'undefined') {
-            chart = OogoAlignAdapter.alignZhuanPan(chart);
-          }
         }
 
         let bY = chart.fourPillars.year.stem + chart.fourPillars.year.branch;
