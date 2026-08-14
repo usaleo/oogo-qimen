@@ -381,8 +381,8 @@
       grid.innerHTML = `
         <div style="width: 100%; max-width: 420px; aspect-ratio: 1/1; display: flex; justify-content: center; align-items: center;">
           <svg viewBox="0 0 200 200" style="width: 100%; height: 100%; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.35));">
-            <path d="M 100 0 A 100 100 0 0 1 100 200 A 50 50 0 0 1 100 100 A 50 50 0 0 0 100 0 Z" fill="#000000"/>
-            <path d="M 100 200 A 100 100 0 0 1 100 0 A 50 50 0 0 1 100 100 A 50 50 0 0 0 100 200 Z" fill="#ffffff"/>
+            <path d="M 100 0 A 100 100 0 0 1 100 200 C 33.33 200, 33.33 100, 100 100 C 166.67 100, 166.67 0, 100 0 Z" fill="#000000"/>
+            <path d="M 100 200 A 100 100 0 0 1 100 0 C 166.67 0, 166.67 100, 100 100 C 33.33 100, 33.33 200, 100 200 Z" fill="#ffffff"/>
             <circle cx="100" cy="50" r="26" fill="#000000"/>
             <circle cx="100" cy="150" r="26" fill="#ffffff"/>
           </svg>
@@ -696,9 +696,9 @@
 
           if (pos === 5) {
             if (panType === 'fei') {
-              gridHtml += '<div class="cell"><svg class="taichi-svg" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.06;z-index:0;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#fff" stroke="var(--border-color)" stroke-width="1"/><path d="M50,2 A48,48 0 0,1 50,98 A24,24 0 0,1 50,50 A24,24 0 0,0 50,2" fill="#000"/></svg><div class="corner top-right">' + rightCornerHtml + '</div><div class="inner-content" style="z-index:1;">' + innerHtml + '</div><div class="palace-row" style="z-index:1;"><span>中5宫</span><span class="hidden-stem-text">' + hiddenStem + '</span></div></div>';
+              gridHtml += '<div class="cell"><svg class="taichi-svg" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.06;z-index:0;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#fff" stroke="var(--border-color)" stroke-width="1"/><path d="M 50 2 A 48 48 0 0 1 50 98 C 18 98, 18 50, 50 50 C 82 50, 82 2, 50 2 Z" fill="#000"/></svg><div class="corner top-right">' + rightCornerHtml + '</div><div class="inner-content" style="z-index:1;">' + innerHtml + '</div><div class="palace-row" style="z-index:1;"><span>中5宫</span><span class="hidden-stem-text">' + hiddenStem + '</span></div></div>';
             } else {
-              gridHtml += '<div class="cell center-cell"><svg class="taichi-svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#fff" stroke="var(--border-color)" stroke-width="1"/><path d="M50,2 A48,48 0 0,1 50,98 A24,24 0 0,1 50,50 A24,24 0 0,0 50,2" fill="#000"/><text x="50" y="26" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="25" font-weight="bold" fill="#000" text-anchor="middle">' + cH + '</text><text x="50" y="74" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="25" font-weight="bold" fill="#fff" text-anchor="middle">' + cE + '</text></svg></div>';
+              gridHtml += '<div class="cell center-cell"><svg class="taichi-svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#fff" stroke="var(--border-color)" stroke-width="1"/><path d="M 50 2 A 48 48 0 0 1 50 98 C 18 98, 18 50, 50 50 C 82 50, 82 2, 50 2 Z" fill="#000"/><text x="50" y="26" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="25" font-weight="bold" fill="#000" text-anchor="middle">' + cH + '</text><text x="50" y="74" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="25" font-weight="bold" fill="#fff" text-anchor="middle">' + cE + '</text></svg></div>';
             }
           } else {
             gridHtml += '<div class="cell"><div class="corner top-right">' + rightCornerHtml + '</div><div class="inner-content">' + innerHtml + '</div><div class="palace-row"><span>' + (p.trigram || '') + pos + '宫</span><span class="hidden-stem-text">' + hiddenStem + '</span></div></div>';
