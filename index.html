@@ -387,25 +387,37 @@
   grid.style.alignItems = 'center';
   grid.style.padding = '10px';
 
+  function renderDefaultBoard() {
+  const grid = document.getElementById('chartGrid');
+  grid.style.background = 'transparent';
+  grid.style.border = 'none';
+  grid.style.display = 'flex';
+  grid.style.justifyContent = 'center';
+  grid.style.alignItems = 'center';
+  grid.style.padding = '10px';
+
   grid.innerHTML = `
     <div style="width: 100%; max-width: 420px; aspect-ratio: 1/1; display: flex; justify-content: center; align-items: center;">
       <svg viewBox="0 0 200 200" style="width: 100%; height: 100%; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.35));">
-        <!-- 白底 -->
-        <circle cx="100" cy="100" r="100" fill="#ffffff"/>
-        
-        <!-- 贝塞尔超平滑流线阴阳鱼（无折角、无机械拼接） -->
-        <path d="M 100,0 
-                 A 100,100 0 0,1 100,200 
-                 C 45,200 45,120 100,100 
-                 C 155,80 155,0 100,0 Z" 
-              fill="#000000"/>
-        
-        <!-- 鱼眼 -->
-        <circle cx="100" cy="50" r="26" fill="#ffffff"/>
-        <circle cx="100" cy="150" r="26" fill="#000000"/>
+        <!-- 1. 外层白色大底圆 -->
+        <circle cx="100" cy="100" r="100" fill="#ffffff" />
+
+        <!-- 2. 超流线型·贝塞尔曲线黑色阴阳鱼 (C1连续平滑过渡，腰部饱满舒展) -->
+        <path d="M 100 0 A 100 100 0 0 1 100 200 C 45 200 55 125 100 100 C 145 75 155 0 100 0 Z" fill="#000000" />
+
+        <!-- 3. 大气饱满鱼眼 (r=16，在大图下非常威严协调) -->
+        <circle cx="100" cy="50" r="16" fill="#000000" />
+        <circle cx="100" cy="150" r="16" fill="#ffffff" />
       </svg>
     </div>
   `;
+
+  document.getElementById('infoBoard').innerHTML = 
+    '<div class="info-row" style="justify-content: center; color: var(--text-gold); font-size: 15px; font-weight: bold; margin-bottom: 8px;"><span>👑 OOGO 奇门遁甲 👑</span></div>' +
+    '<div class="info-row" style="justify-content: center; margin-bottom: 5px;"><span>太极生两仪，两仪生四象，四象生八卦</span></div>' +
+    '<div class="info-row" style="justify-content: center; margin-top: 15px;"><span style="color: var(--text-blue); font-weight: bold;"> 请设定时间与参数后，点击右上角【起局】👆 </span></div>';
+}
+
 
   document.getElementById('infoBoard').innerHTML = 
     '<div class="info-row" style="justify-content: center; color: var(--text-gold); font-size: 15px; font-weight: bold; margin-bottom: 8px;"><span>👑 OOGO 奇门遁甲 👑</span></div>' +
