@@ -100,6 +100,38 @@ const OogoZhiRun = {
     };
   }
 };
+// 在 OogoEngine 或转盘增强处理中（可直接合并到 oogo-zhirun.js 底部）
+const OogoZhuanPanEnhancer = {
+  enhance: function(chart, xunDun, isYang) {
+    const ring = [1, 8, 3, 4, 9, 2, 7, 6]; 
+    const deities = ['值符', '腾蛇', '太阴', '六合', '白虎', '玄武', '九地', '九天'];
+    let earthDeitiesMap = {};
+    
+    // 寻找地盘旬首落宫
+    let earthXunPalace = 5;
+    for (let i = 1; i <= 9; i++) {
+        let p = chart.palaces.find(x => x.position === i) || {};
+        let eStemStr = Array.isArray(p.earthlyStem) ? p.earthlyStem[0] : (p.earthlyStem || '');
+        if (eStemStr === xunDun) { earthXunPalace = i; break; }
+    }
+    if (earthXunPalace === 5) earthXunPalace = 2; // 中五宫寄坤二宫
+    
+    let eDeityStartIndex = ring.indexOf(earthXunPalace);
+    if (eDeityStartIndex !== -1) {
+        for (let i = 0; i < 8; i++) {
+            let targetPalace = ring[isYang ? (eDeityStartIndex + i) % 8 : (eDeityStartIndex - i + 8) % 8];
+            earthDeitiesMap[targetPalace] = deities[i];
+        }
+    }
+
+    // 将地八神直接写入后端盘面对象的 palaces 中
+    chart.palaces.forEach(p => {
+        p.earthDeity = earthDeitiesMap[p.position] || '';
+    });
+    
+    return chart;
+  }
+};
 
 const OogoFeiPan = {
   fly: function(chart) {
