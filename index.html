@@ -394,23 +394,31 @@
   grid.style.display = 'flex';
   grid.style.justifyContent = 'center';
   grid.style.alignItems = 'center';
-  grid.style.padding = '10px';
+  grid.style.padding = '20px 0';
+  grid.style.minHeight = '300px'; /* 防止高度坍塌为0导致白屏 */
 
   grid.innerHTML = `
-    <div style="width: 100%; max-width: 420px; aspect-ratio: 1/1; display: flex; justify-content: center; align-items: center;">
-      <svg viewBox="0 0 200 200" style="width: 100%; height: 100%; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.35));">
-        <!-- 1. 外层白色大底圆 -->
+    <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
+      <svg viewBox="0 0 200 200" width="280" height="280" style="width: min(78vw, 300px); height: min(78vw, 300px); filter: drop-shadow(0 8px 24px rgba(0,0,0,0.45));">
+        <!-- 1. 白色底圆 -->
         <circle cx="100" cy="100" r="100" fill="#ffffff" />
 
-        <!-- 2. 超流线型·贝塞尔曲线黑色阴阳鱼 (C1连续平滑过渡，腰部饱满舒展) -->
-        <path d="M 100 0 A 100 100 0 0 1 100 200 C 45 200 55 125 100 100 C 145 75 155 0 100 0 Z" fill="#000000" />
+        <!-- 2. 流线型 S 曲线阴阳鱼（中心平滑切入，彻底消除掐腰突兀感） -->
+        <path d="M 100 0 A 100 100 0 0 1 100 200 C 42 195 50 120 100 100 C 150 80 158 5 100 0 Z" fill="#000000" />
 
-        <!-- 3. 大气饱满鱼眼 (r=16，在大图下非常威严协调) -->
+        <!-- 3. 大气饱满阴阳鱼眼 -->
         <circle cx="100" cy="50" r="16" fill="#000000" />
         <circle cx="100" cy="150" r="16" fill="#ffffff" />
       </svg>
     </div>
   `;
+
+  document.getElementById('infoBoard').innerHTML = 
+    '<div class="info-row" style="justify-content: center; color: var(--text-gold); font-size: 15px; font-weight: bold; margin-bottom: 8px;"><span>👑 OOGO 奇门遁甲 👑</span></div>' +
+    '<div class="info-row" style="justify-content: center; margin-bottom: 5px;"><span>太极生两仪，两仪生四象，四象生八卦</span></div>' +
+    '<div class="info-row" style="justify-content: center; margin-top: 15px;"><span style="color: var(--text-blue); font-weight: bold;"> 请设定时间与参数后，点击右上角【起局】👆 </span></div>';
+}
+
 
   document.getElementById('infoBoard').innerHTML = 
     '<div class="info-row" style="justify-content: center; color: var(--text-gold); font-size: 15px; font-weight: bold; margin-bottom: 8px;"><span>👑 OOGO 奇门遁甲 👑</span></div>' +
