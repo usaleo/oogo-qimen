@@ -30,7 +30,7 @@
       --tag-kong-bg: #7a7a90;
       --palace-text: #7a7a90;
       --edeity-text: #c4b5a2;
-      --dark-stem-color: #818cf8;
+      --dark-stem-color: #ba4a00;
       --dark-stem-bg: rgba(129, 140, 248, 0.1);
       
       /* 五行颜色 (暗黑主题下更亮眼清晰) */
@@ -60,7 +60,7 @@
       --c-stem-e: #111827;
       --palace-text: #9ca3af;
       --edeity-text: #8b5cf6;
-      --dark-stem-color: #4f46e5;
+      --dark-stem-color: #ba4a00;
       --dark-stem-bg: rgba(79, 70, 229, 0.08);
 
       /* 五行颜色 (亮色主题下适当加深以保证对比度) */
@@ -143,15 +143,20 @@
     .row { display: flex; justify-content: space-between; align-items: flex-end; }
     .left-item { text-align: left; font-weight: bold; line-height: 1; white-space: nowrap; letter-spacing: 1px; }
     .right-item { text-align: right; font-size: 14px; font-weight: bold; line-height: 1; white-space: nowrap; }
-    .small-stem { font-size: 12px !important; letter-spacing: -1px; }
+    .small-stem-h { font-size: 17px !important; letter-spacing: -1px; }
+    .small-stem-e { font-size: 12px !important; letter-spacing: -1px; }
     .edeity-text { font-size: 13px; color: var(--edeity-text); font-weight: bold; }
     .deity { color: var(--c-deity); }
     .star { color: var(--c-star); }
     .gate-g { color: var(--c-gate-g); }
     .gate-r { color: var(--c-gate-r); }
     .gate-n { color: var(--c-gate-n); }
-    .stem-h { color: var(--c-stem-h); }
-    .stem-e { color: var(--c-stem-e); }
+    /* 新增/修改：给天盘干单独设定更大的字号和对应的多干缩小类 */
+.stem-h { color: var(--c-stem-h); font-size: 17px; } /* 天盘干字号，按需调整 */
+.small-stem-h { font-size: 17px !important; letter-spacing: -1px; } /* 天盘干有多干时的字号 */
+
+.stem-e { color: var(--c-stem-e); font-size: 14px; } /* 地盘干保持原样 */
+.small-stem-e { font-size: 12px !important; letter-spacing: -1px; } /* 地盘干有多干时的字号 */
 
     @media (min-width: 600px) {
       body { max-width: 520px; padding: 16px; }
@@ -651,8 +656,11 @@
           if (maArr.indexOf(maXing) !== -1) rightCornerHtml += '<span class="tag-ma">马</span>';
           if (maArr.indexOf(kong1) !== -1 || maArr.indexOf(kong2) !== -1) rightCornerHtml += '<span class="tag-kong">空</span>';
 
-          let hClass = hStem.indexOf('/') !== -1 ? 'right-item stem-h small-stem' : 'right-item stem-h';
-          let eClass = eStem.indexOf('/') !== -1 ? 'right-item stem-e small-stem' : 'right-item stem-e';
+          // 天盘干使用独立的 stem-h 和 small-stem-h
+         let hClass = hStem.indexOf('/') !== -1 ? 'right-item stem-h small-stem-h' : 'right-item stem-h';
+
+         // 地盘干使用独立的 stem-e 和 small-stem-e
+         let eClass = eStem.indexOf('/') !== -1 ? 'right-item stem-e small-stem-e' : 'right-item stem-e';
           
           let innerHtml = '<div class="row"><div class="left-item deity deity-text">' + tDeity + '</div><div class="' + hClass + '">' + hStem + '</div></div><div class="row"><div class="left-item star star-text">' + starName + '</div><div class="' + eClass + '">' + eStem + '</div></div><div class="row"><div class="left-item ' + gateClass + ' gate-text">' + gateName + '</div><div class="right-item edeity-text">' + eDeity + '</div></div>';
 
