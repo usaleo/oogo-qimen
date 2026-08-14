@@ -455,7 +455,7 @@
         let chart;
         let isRun = false;
         
-        if (method === 'zhirun') {
+                if (method === 'zhirun') {
             let zhirunData = OogoZhiRun.calculate(y, m, d, h, min);
             chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0, {
                 juNumber: zhirunData.juNumber,
@@ -465,13 +465,19 @@
             chart.solarTerm = zhirunData.debugInfo.targetJieQi;
             isRun = zhirunData.debugInfo.isTrueRun;
         } else {
-            // 拆补法：原样直接起
             chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0);
+        }
+
+        // 👈 【新增这一句】如果是转盘，让后端置闰库自动把地八神计算并挂载到 chart 对象上
+        if (panType === 'zhuan' && typeof OogoZhuanPanEnhancer !== 'undefined') {
+            let isYang = chart.ju.type.indexOf('阳') !== -1;
+            chart = OogoZhuanPanEnhancer.enhance(chart, xunDun, isYang);
         }
 
         if (panType === 'fei') {
             chart = OogoFeiPan.fly(chart);
         }
+
 
         // --- 从 chart 提取基础信息 ---
         let bY = chart.fourPillars.year.stem + chart.fourPillars.year.branch;
@@ -557,7 +563,9 @@
           const p = chart.palaces.find(x => x.position === pos) || {};
           
           let tDeity = simplifyDeity(Array.isArray(p.deity) ? p.deity[0] : (p.deity || ''));
-          let eDeity = ''; 
+// 👈 如果是转盘模式，直接读取后端库算好的 p.earthDeity，飞盘则为空
+let eDeity = (panType === 'zhuan') ? simplifyDeity(p.earthDeity || '') : ''; 
+
           
           let starName = (Array.isArray(p.star) ? p.star.join('/') : (p.star || '')).replace(/天/g, '').replace(/星/g, '');
           
