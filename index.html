@@ -8,39 +8,44 @@
   <link rel="icon" type="image/png" href="./apple-touch-icon.png?v=9">
   <link rel="manifest" href="./manifest.json">
   <style>
-    /* 暗黑主题 */
+        /* 暗黑主题 (优化后更亮眼) */
     :root {
-      --bg-main: #131520;
-      --panel-bg: #1d1e2e;
-      --border-color: #2b2c40;
-      --gold-line: #a6833b;
-      --cell-bg: #13141d;
-      --text-main: #ffffff;
-      --text-gray: #9ca3af;
-      --text-blue: #5b92d6;
-      --text-gold: #e2b45f;
-      --c-deity: #d48b57;
-      --c-star: #5c92d1;
-      --c-gate-g: #25b955;
-      --c-gate-r: #d34e55;
-      --c-gate-n: #a881d8;
-      --c-stem-h: #d18a99;
-      --c-stem-e: #ffffff;
-      --tag-ma-bg: #d34e55;
-      --tag-kong-bg: #7a7a90;
-      --palace-text: #7a7a90;
-      --edeity-text: #c4b5a2;
-      --dark-stem-color: #ba4a00;
-      --dark-stem-bg: rgba(129, 140, 248, 0.1);
+      --bg-main: #131520;      /* 把背景压得更黑一点，拉开和文字的对比度 */
+      --panel-bg: #161824;
+      --border-color: #2e3048;
+      --gold-line: #c59b47;    /* 金线稍微调亮一点点 */
+      --cell-bg: #10111a;
       
-      /* 五行颜色 (暗黑主题下更亮眼清晰) */
-      --wx-wood: #22c55e;   /* 木：绿色 */
-      --wx-fire: #ef4444;   /* 火：红色 */
-      --wx-earth: #d97706;  /* 土：泥土棕黄色 */
-      --wx-metal: #fbbf24;  /* 金：金黄色 */
-      --wx-water: #3b82f6;  /* 水：蓝色 */
+      --text-main: #ffffff;
+      --text-gray: #b0b7c3;    /* 灰色调亮，不再灰暗 */
+      --text-blue: #60a5fa;    /* 亮蓝色 */
+      --text-gold: #fbbf24;    /* 更亮的金色 */
+      
+      /* 八神、九星、八门：换成发光感更强的亮色 */
+      --c-deity: #f97316;      /* 八神：从暗橙换成亮橘色 */
+      --c-star: #60a5fa;       /* 九星：从暗蓝换成高亮天蓝色 */
+      --c-gate-g: #22c55e;     /* 吉门：高亮绿 */
+      --c-gate-r: #ef4444;     /* 凶门：高亮红 */
+      --c-gate-n: #c084fc;     /* 中平门：亮紫色 */
+      --c-stem-h: #f472b6;     /* 天盘干：亮粉色，辨识度极高 */
+      --c-stem-e: #ffffff;     /* 地盘干：纯白 */
+      
+      --tag-ma-bg: #ef4444;
+      --tag-kong-bg: #6b7280;
+      --palace-text: #9ca3af;
+      --edeity-text: #d8b4fe;
+      --dark-stem-color: #fb923c;
+      --dark-stem-bg: rgba(129, 140, 248, 0.15);
+      
+      /* 五行颜色（暗黑下更通透） */
+      --wx-wood: #4ade80;   /* 木：亮绿 */
+      --wx-fire: #f87171;   /* 火：亮红 */
+      --wx-earth: #fbbf24;  /* 土：亮黄土色 */
+      --wx-metal: #fde047;  /* 金：亮金光色 */
+      --wx-water: #60a5fa;  /* 水：亮天蓝 */
     }
 
+    /* 白色主题 */
     body.light-theme {
       --bg-main: #f0f2f5;
       --panel-bg: #ffffff;
@@ -70,7 +75,15 @@
       --wx-metal: #d97706;  /* 金：深金黄色 */
       --wx-water: #2563eb;  /* 水：蓝色 */
     }
-
+    /* === ⬇️ 把这段发光代码粘贴在这里 === */
+    body:not(.light-theme) .deity-text,
+    body:not(.light-theme) .star-text,
+    body:not(.light-theme) .gate-text,
+    body:not(.light-theme) .stem-h,
+    body:not(.light-theme) .stem-e {
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
+    }
+    /* ================================== */
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; padding: 3px; background: var(--bg-main); color: var(--text-main); margin: 0 auto; max-width: 100%; transition: background 0.3s, color 0.3s; box-sizing: border-box; }
     .top-ctrl { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; transition: all 0.3s; }
     .ctrl-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; width: 100%; box-sizing: border-box; }
@@ -174,7 +187,7 @@
   <script src="./oogo-zhirun.js"></script>
 </head>
   
-<body class="light-theme">
+<body>
 
   <div class="top-ctrl">
     <!-- 1. 公历时间选择 -->
@@ -278,12 +291,12 @@
         <div class="sub-ctrl">
           <div class="sub-text" style="cursor: pointer;" onclick="isChartGenerated = false; renderDefaultBoard();" title="返回初始画面">☯️ OOGO 奇门遁甲</div>
           <div class="select-group">
-            <select id="methodSelect" onchange="onSelectChange()">
+            <select id="methodSelect">
               <option value="zhirun" selected>置闰法</option>
               <option value="chaibu">拆补法</option>
             </select>
             
-            <select id="panSelect" onchange="onSelectChange()">
+            <select id="panSelect">
               <option value="zhuan" selected>转盘</option>
               <option value="fei">飞盘</option>
             </select>
@@ -307,12 +320,6 @@
     };
 
     let isChartGenerated = false;
-
-    function onSelectChange() {
-        if (isChartGenerated) {
-            generateChart();
-        }
-    }
 
     function pad(n) { return n < 10 ? '0' + n : n; }
 
@@ -400,7 +407,30 @@
       updateDynamicInfo(); 
     }
 
-    function toggleTheme() { document.body.classList.toggle('light-theme'); }
+    // 1. 页面加载时：优先恢复用户上一次的选择（默认暗黑主题，如果存的是light则切到亮色）
+    function initTheme() {
+      const savedTheme = localStorage.getItem('oogo_theme');
+      if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+      } else {
+        document.body.classList.remove('light-theme');
+      }
+    }
+    
+    // 页面一加载立即执行初始化
+    initTheme();
+
+    // 2. 点击按钮切换并保存状态
+    function toggleTheme() { 
+      document.body.classList.toggle('light-theme');
+      
+      // 记录用户的选择到本地存储
+      if (document.body.classList.contains('light-theme')) {
+        localStorage.setItem('oogo_theme', 'light');
+      } else {
+        localStorage.setItem('oogo_theme', 'dark');
+      }
+    }
 
     let checkEngine = setInterval(function() {
       if (typeof ThreeMeta !== 'undefined') {
