@@ -110,6 +110,7 @@ const OogoFeiPan = {
     
     const stemsArr = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
     const branchesArr = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+    const qimenStems = ["戊", "己", "庚", "辛", "壬", "癸", "丁", "丙", "乙"];
     
     const hSIdx = stemsArr.indexOf(timeStem);
     const hBIdx = branchesArr.indexOf(timeBranch);
@@ -117,64 +118,46 @@ const OogoFeiPan = {
     const xunName = stemsArr[0] + branchesArr[xunOffset];
     const xunStem = {"甲子":"戊", "甲戌":"己", "甲申":"庚", "甲午":"辛", "甲辰":"壬", "甲寅":"癸"}[xunName];
 
-    // 1. 免疫转盘寄宫干扰：纯数学还原 1~9 宫的最原始纯净地盘天干
-    const baseEarthStems = {};
-    const qimenStems = ["戊", "己", "庚", "辛", "壬", "癸", "丁", "丙", "乙"];
+    // 纯净地盘
+    const pureEarthStems = {};
     for (let i = 0; i < 9; i++) {
         let p = isYang ? (juNumber + i) : (juNumber - i);
         while (p > 9) p -= 9;
         while (p < 1) p += 9;
-        baseEarthStems[p] = qimenStems[i];
+        pureEarthStems[p] = qimenStems[i];
     }
 
     const origStars = {1:'天蓬', 2:'天芮', 3:'天冲', 4:'天辅', 5:'天禽', 6:'天心', 7:'天柱', 8:'天任', 9:'天英'};
     const origGates = {1:'休门', 2:'死门', 3:'伤门', 4:'杜门', 5:'中门', 6:'开门', 7:'惊门', 8:'生门', 9:'景门'};
 
-    // 2. 寻找旬首落宫 (完全基于纯净地盘，杜绝一切多干错误)
-    let xunPalace = 5;
+    let xunPalace = 5, zfTargetPalace = 5;
     for (let i = 1; i <= 9; i++) {
-        if (baseEarthStems[i] === xunStem) { xunPalace = i; break; }
+        if (pureEarthStems[i] === xunStem) xunPalace = i;
+        if (pureEarthStems[i] === (timeStem === '甲' ? xunStem : timeStem)) zfTargetPalace = i;
     }
 
-    // 3. 寻找值符星目标落宫 (时干所在的地盘宫)
-    let zfTargetPalace = 5;
-    let searchStem = (timeStem === '甲') ? xunStem : timeStem;
-    for (let i = 1; i <= 9; i++) {
-        if (baseEarthStems[i] === searchStem) { zfTargetPalace = i; break; }
-    }
-
-    // 4. 九星与天盘干齐飞 (按照 1~9 数字轨道飞步)
+    // 飞星与天盘干
     let starSteps = isYang ? (zfTargetPalace - xunPalace) : (xunPalace - zfTargetPalace);
     if (starSteps < 0) starSteps += 9;
-
-    const flyStars = {};
-    const flyHeavenStems = {};
+    const flyStars = {}; const flyHeavenStems = {};
     for (let i = 1; i <= 9; i++) {
         let landPalace = isYang ? (i + starSteps) : (i - starSteps);
         while (landPalace > 9) landPalace -= 9;
         while (landPalace < 1) landPalace += 9;
-        
         flyStars[landPalace] = origStars[i];
-        flyHeavenStems[landPalace] = baseEarthStems[i]; // 天盘干取该星老家的纯净地盘干
+        flyHeavenStems[landPalace] = pureEarthStems[i];
     }
 
-    // 5. 飞门 (按地支偏移量，计算值使门落宫)
+    // 飞门
     const xunBranch = xunName[1];
     let branchOffset = branchesArr.indexOf(timeBranch) - branchesArr.indexOf(xunBranch);
     if (branchOffset < 0) branchOffset += 12;
-
-    let zsTargetPalace = xunPalace;
-    if (isYang) {
-        zsTargetPalace = xunPalace + branchOffset;
-        while (zsTargetPalace > 9) zsTargetPalace -= 9;
-    } else {
-        zsTargetPalace = xunPalace - branchOffset;
-        while (zsTargetPalace < 1) zsTargetPalace += 9;
-    }
+    let zsTargetPalace = isYang ? (xunPalace + branchOffset) : (xunPalace - branchOffset);
+    while (zsTargetPalace > 9) zsTargetPalace -= 9;
+    while (zsTargetPalace < 1) zsTargetPalace += 9;
 
     let gateSteps = isYang ? (zsTargetPalace - xunPalace) : (xunPalace - zsTargetPalace);
     if (gateSteps < 0) gateSteps += 9;
-
     const flyGates = {};
     for (let i = 1; i <= 9; i++) {
         let landPalace = isYang ? (i + gateSteps) : (i - gateSteps);
@@ -183,7 +166,7 @@ const OogoFeiPan = {
         flyGates[landPalace] = origGates[i];
     }
 
-    // 6. 飞盘特有九神 (阴阳遁神煞排列不同)
+    // 飞神
     const deitiesYang = ['值符', '腾蛇', '太阴', '六合', '勾陈', '太常', '朱雀', '九地', '九天'];
     const deitiesYin  = ['值符', '腾蛇', '太阴', '六合', '白虎', '太常', '玄武', '九地', '九天'];
     const deitiesList = isYang ? deitiesYang : deitiesYin;
@@ -195,17 +178,55 @@ const OogoFeiPan = {
         flyDeities[landPalace] = deitiesList[i];
     }
 
-    // 7. 覆写原盘所有属性 (干掉转盘的所有杂质)
+    // 飞暗干
+    const flyHiddenStems = {};
+    const tsIdx = qimenStems.indexOf(timeStem === '甲' ? xunStem : timeStem);
+    if (tsIdx !== -1) {
+        for (let i = 0; i < 9; i++) {
+            let landPalace = isYang ? (zsTargetPalace + i) : (zsTargetPalace - i);
+            while (landPalace > 9) landPalace -= 9;
+            while (landPalace < 1) landPalace += 9;
+            flyHiddenStems[landPalace] = qimenStems[(tsIdx + i) % 9];
+        }
+    }
+
+    // --- 覆写原盘属性并【重新判定神煞】 ---
     chart.palaces.forEach(function(p) {
         const pos = p.position;
+        const gate = flyGates[pos];
+        const hStem = flyHeavenStems[pos];
+
         p.star = flyStars[pos];
-        p.gate = flyGates[pos];
+        p.gate = gate;
         p.deity = flyDeities[pos];
-        p.heavenlyStem = flyHeavenStems[pos];
-        p.earthlyStem = baseEarthStems[pos]; 
-        
-        // 彻底清除掉转盘的寄宫记录，防止 UI 和其它排盘渲染逻辑串位
+        p.heavenlyStem = hStem;
+        p.earthlyStem = pureEarthStems[pos];
+        p.hiddenStem = flyHiddenStems[pos] || "无";
         delete p.isJiGong; 
+
+        // 1. 飞盘重新计算：六仪击刑
+        let jx = false;
+        if ((hStem === '戊' && pos === 3) || (hStem === '己' && pos === 2) ||
+            (hStem === '庚' && pos === 8) || (hStem === '辛' && pos === 9) ||
+            (hStem === '壬' && pos === 4) || (hStem === '癸' && pos === 4)) { jx = true; }
+        p.liuYiJiXing = { hasJiXing: jx };
+
+        // 2. 飞盘重新计算：门迫 (门克宫)
+        const gateEle = {"休门":"水","生门":"土","伤门":"木","杜门":"木","景门":"火","死门":"土","惊门":"金","开门":"金","中门":"土"}[gate];
+        const palaceEle = {1:"水",2:"土",3:"木",4:"木",5:"土",6:"金",7:"金",8:"土",9:"火"}[pos];
+        let po = false;
+        if ((gateEle==='水'&&palaceEle==='火') || (gateEle==='火'&&palaceEle==='金') ||
+            (gateEle==='金'&&palaceEle==='木') || (gateEle==='木'&&palaceEle==='土') ||
+            (gateEle==='土'&&palaceEle==='水')) { po = true; }
+        p.gatePressure = po ? '迫' : '无';
+
+        // 3. 飞盘重新计算：天盘入墓
+        let mu = false;
+        if ((pos === 6 && ['丙','戊','乙'].includes(hStem)) ||
+            (pos === 8 && ['丁','己','庚'].includes(hStem)) ||
+            (pos === 4 && ['辛','壬'].includes(hStem)) ||
+            (pos === 2 && hStem === '癸')) { mu = true; }
+        p.tombInfo = { heavenlyStemInTomb: mu ? [hStem] : [], earthlyStemInTomb: [] };
     });
 
     if (!chart.zhiFu) chart.zhiFu = {};
@@ -216,3 +237,4 @@ const OogoFeiPan = {
     return chart;
   }
 };
+
