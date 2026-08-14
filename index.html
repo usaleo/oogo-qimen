@@ -8,27 +8,27 @@
   <link rel="icon" type="image/png" href="./apple-touch-icon.png?v=9">
   <link rel="manifest" href="./manifest.json">
   <style>
-        /* 暗黑主题 (优化后更亮眼) */
+    /* 暗黑主题 (优化后更亮眼) */
     :root {
-      --bg-main: #131520;      /* 把背景压得更黑一点，拉开和文字的对比度 */
+      --bg-main: #131520;      
       --panel-bg: #161824;
       --border-color: #2e3048;
-      --gold-line: #c59b47;    /* 金线稍微调亮一点点 */
+      --gold-line: #c59b47;    
       --cell-bg: #10111a;
       
       --text-main: #ffffff;
-      --text-gray: #b0b7c3;    /* 灰色调亮，不再灰暗 */
-      --text-blue: #60a5fa;    /* 亮蓝色 */
-      --text-gold: #fbbf24;    /* 更亮的金色 */
+      --text-gray: #b0b7c3;    
+      --text-blue: #60a5fa;    
+      --text-gold: #fbbf24;    
       
       /* 八神、九星、八门：换成发光感更强的亮色 */
-      --c-deity: #f97316;      /* 八神：从暗橙换成亮橘色 */
-      --c-star: #60a5fa;       /* 九星：从暗蓝换成高亮天蓝色 */
-      --c-gate-g: #22c55e;     /* 吉门：高亮绿 */
-      --c-gate-r: #dc2626;     /* 凶门：高亮红 */
-      --c-gate-n: #b45309;     /* 中平门：亮紫色 */
-      --c-stem-h: #f472b6;     /* 天盘干：亮粉色，辨识度极高 */
-      --c-stem-e: #ffffff;     /* 地盘干：纯白 */
+      --c-deity: #f97316;      
+      --c-star: #60a5fa;       
+      --c-gate-g: #22c55e;     
+      --c-gate-r: #dc2626;     
+      --c-gate-n: #b45309;     
+      --c-stem-h: #f472b6;     
+      --c-stem-e: #ffffff;     
       
       --tag-ma-bg: #d34e55;
       --tag-kong-bg: #7a7a90;
@@ -38,11 +38,11 @@
       --dark-stem-bg: rgba(129, 140, 248, 0.1);
       
       /* 五行颜色（暗黑下更通透） */
-      --wx-wood: #4ade80;   /* 木：亮绿 */
-      --wx-fire: #dc2626;   /* 火：亮红 */
-      --wx-earth: #b45309;  /* 土：亮黄土色 */
-      --wx-metal: #fde047;  /* 金：亮金光色 */
-      --wx-water: #60a5fa;  /* 水：亮天蓝 */
+      --wx-wood: #4ade80;   
+      --wx-fire: #dc2626;   
+      --wx-earth: #b45309;  
+      --wx-metal: #fde047;  
+      --wx-water: #60a5fa;  
     }
 
     /* 白色主题 */
@@ -69,13 +69,13 @@
       --dark-stem-bg: rgba(79, 70, 229, 0.08);
 
       /* 五行颜色 (亮色主题下适当加深以保证对比度) */
-      --wx-wood: #16a34a;   /* 木：绿色 */
-      --wx-fire: #dc2626;   /* 火：红色 */
-      --wx-earth: #b45309;  /* 土：深泥土棕色 */
-      --wx-metal: #eab308;  /* 金：深金黄色 */
-      --wx-water: #2563eb;  /* 水：蓝色 */
+      --wx-wood: #16a34a;   
+      --wx-fire: #dc2626;   
+      --wx-earth: #b45309;  
+      --wx-metal: #eab308;  
+      --wx-water: #2563eb;  
     }
-    /* === ⬇️ 把这段发光代码粘贴在这里 === */
+    
     body:not(.light-theme) .deity-text,
     body:not(.light-theme) .star-text,
     body:not(.light-theme) .gate-text,
@@ -83,7 +83,7 @@
     body:not(.light-theme) .stem-e {
       text-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
     }
-    /* ================================== */
+    
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; padding: 3px; background: var(--bg-main); color: var(--text-main); margin: 0 auto; max-width: 100%; transition: background 0.3s, color 0.3s; box-sizing: border-box; }
     .top-ctrl { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; transition: all 0.3s; }
     .ctrl-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; width: 100%; box-sizing: border-box; }
@@ -102,22 +102,8 @@
     .zhen-item { background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 0 4px; display: flex; align-items: center; justify-content: center; height: 30px; box-sizing: border-box; min-width: 0; }
     .zhen-item input[type="checkbox"] { margin-right: 4px; accent-color: var(--text-blue); }
     
-    /* 彻底修复输入框和下拉框文字下沉偏斜问题 */
     .zhen-item select, .zhen-item input[type="number"] { 
-      background: transparent; 
-      border: none; 
-      color: var(--text-main); 
-      width: 100%; 
-      height: 100%; 
-      line-height: normal; 
-      text-align: center; 
-      outline: none; 
-      font-size: 13px; 
-      -webkit-appearance: none; 
-      appearance: none; 
-      padding: 0; 
-      margin: 0; 
-      vertical-align: middle;
+      background: transparent; border: none; color: var(--text-main); width: 100%; height: 100%; line-height: normal; text-align: center; outline: none; font-size: 13px; -webkit-appearance: none; appearance: none; padding: 0; margin: 0; vertical-align: middle;
     }
 
     .zhen-item select { color: var(--text-blue); text-align-last: center; }
@@ -164,12 +150,8 @@
     .gate-g { color: var(--c-gate-g); }
     .gate-r { color: var(--c-gate-r); }
     .gate-n { color: var(--c-gate-n); }
-    /* 新增/修改：给天盘干单独设定更大的字号和对应的多干缩小类 */
-.stem-h { color: var(--c-stem-h); font-size: 17px; } /* 天盘干字号，按需调整 */
-.small-stem-h { font-size: 17px !important; letter-spacing: -1px; } /* 天盘干有多干时的字号 */
-
-.stem-e { color: var(--c-stem-e); font-size: 14px; } /* 地盘干保持原样 */
-.small-stem-e { font-size: 12px !important; letter-spacing: -1px; } /* 地盘干有多干时的字号 */
+    .stem-h { color: var(--c-stem-h); font-size: 17px; } 
+    .stem-e { color: var(--c-stem-e); font-size: 14px; } 
 
     @media (min-width: 600px) {
       body { max-width: 520px; padding: 16px; }
@@ -181,7 +163,6 @@
     }
   </style>
 
-  <!-- 依赖库与外部算法引擎 -->
   <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/8oogo.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/usaleo/oogo-qimen@main/html2canvas.min.js"></script>
   <script src="./oogo-zhirun.js"></script>
@@ -190,7 +171,7 @@
 <body>
 
   <div class="top-ctrl">
-    <!-- 1. 公历时间选择 -->
+    <!-- 公历时间选择 -->
     <div class="ctrl-row">
       <div class="badge badge-gong">公</div>
       <div class="date-group">
@@ -203,7 +184,7 @@
       <button class="btn-red" onclick="setNowTime()">现在</button>
     </div>
 
-    <!-- 2. 动态联动的节气时间段 -->
+    <!-- 动态联动的节气时间段 -->
     <div class="ctrl-row">
       <div class="badge badge-nong">节</div>
       <div style="flex: 1; background: var(--bg-main); border: 1px solid var(--border-color); height: 26px; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 0 2px; box-sizing: border-box;">
@@ -213,7 +194,7 @@
       </div>
     </div>
 
-    <!-- 3. 起局参数区域 -->
+    <!-- 起局参数区域 -->
     <div class="ctrl-row" style="align-items: stretch; margin-bottom: 0;">
       <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; gap: 8px;">
         
@@ -231,54 +212,21 @@
                   <option value="117.20" selected>天津</option>
                   <option value="114.48">石家庄</option>
                   <option value="112.53">太原</option>
-                  <option value="111.65">呼和浩特</option>
-                </optgroup>
-                <optgroup label="东北地区">
-                  <option value="123.38">沈阳</option>
-                  <option value="121.62">大连</option>
-                  <option value="125.35">长春</option>
-                  <option value="126.63">哈尔滨</option>
                 </optgroup>
                 <optgroup label="华东地区">
                   <option value="121.47">上海</option>
                   <option value="118.78">南京</option>
                   <option value="120.19">杭州</option>
-                  <option value="117.27">合肥</option>
                   <option value="119.30">福州</option>
-                  <option value="118.10">厦门</option>
-                  <option value="115.89">南昌</option>
-                  <option value="117.00">济南</option>
-                  <option value="120.33">青岛</option>
-                </optgroup>
-                <optgroup label="华中地区">
-                  <option value="113.62">郑州</option>
-                  <option value="114.31">武汉</option>
-                  <option value="112.93">长沙</option>
                 </optgroup>
                 <optgroup label="华南地区">
                   <option value="113.26">广州</option>
                   <option value="114.05">深圳</option>
-                  <option value="108.32">南宁</option>
-                  <option value="110.35">海口</option>
                 </optgroup>
-                <optgroup label="西南地区">
+                <optgroup label="西南西北">
                   <option value="106.55">重庆</option>
                   <option value="104.06">成都</option>
-                  <option value="106.71">贵阳</option>
-                  <option value="102.73">昆明</option>
-                  <option value="91.11">拉萨</option>
-                </optgroup>
-                <optgroup label="西北地区">
                   <option value="108.94">西安</option>
-                  <option value="103.82">兰州</option>
-                  <option value="101.77">西宁</option>
-                  <option value="106.27">银川</option>
-                  <option value="87.68">乌鲁木齐</option>
-                </optgroup>
-                <optgroup label="港澳台">
-                  <option value="114.17">香港</option>
-                  <option value="113.54">澳门</option>
-                  <option value="121.50">台北</option>
                 </optgroup>
               </select>
             </div>
@@ -326,16 +274,15 @@
     function initDateSelects() {
       try {
           const y = document.getElementById('selY'); for(let i=1900; i<=2100; i++) y.add(new Option(i, i));
-          const m = document.getElementById('selM'); for(let i=1; i<=12; i++) m.add(new Option(pad(i), i));   // 月：01 - 12
-          const d = document.getElementById('selD'); for(let i=1; i<=31; i++) d.add(new Option(pad(i), i));   // 日：01 - 31
-          const h = document.getElementById('selH'); for(let i=0; i<=23; i++) h.add(new Option(pad(i), i));   // 时：00 - 23
-          const min = document.getElementById('selMin'); for(let i=0; i<=59; i++) min.add(new Option(pad(i), i)); // 分：00 - 59
+          const m = document.getElementById('selM'); for(let i=1; i<=12; i++) m.add(new Option(pad(i), i)); 
+          const d = document.getElementById('selD'); for(let i=1; i<=31; i++) d.add(new Option(pad(i), i)); 
+          const h = document.getElementById('selH'); for(let i=0; i<=23; i++) h.add(new Option(pad(i), i)); 
+          const min = document.getElementById('selMin'); for(let i=0; i<=59; i++) min.add(new Option(pad(i), i)); 
       } catch(e) {}
     }
 
     initDateSelects();
 
-    // 统一获取当前选择的生效时间对象（自动判断并加上真太阳时差）
     function getEffectiveDate() {
       let yIn = parseInt(document.getElementById('selY').value);
       let mIn = parseInt(document.getElementById('selM').value);
@@ -351,17 +298,15 @@
       return dDate;
     }
 
-    // 五行颜色匹配函数（金=金黄、土=泥土深黄/棕色、木=绿、火=红、水=蓝）
     function getWuxingColor(char) {
-      if (['甲', '乙', '寅', '卯'].includes(char)) return 'var(--wx-wood)';   // 木：绿
-      if (['丙', '丁', '巳', '午'].includes(char)) return 'var(--wx-fire)';   // 火：红
-      if (['戊', '己', '辰', '戌', '丑', '未'].includes(char)) return 'var(--wx-earth)'; // 土：泥土深黄/棕色
-      if (['庚', '辛', '申', '酉'].includes(char)) return 'var(--wx-metal)'; // 金：金黄色
-      if (['壬', '癸', '亥', '子'].includes(char)) return 'var(--wx-water)'; // 水：蓝
+      if (['甲', '乙', '寅', '卯'].includes(char)) return 'var(--wx-wood)';   
+      if (['丙', '丁', '巳', '午'].includes(char)) return 'var(--wx-fire)';   
+      if (['戊', '己', '辰', '戌', '丑', '未'].includes(char)) return 'var(--wx-earth)'; 
+      if (['庚', '辛', '申', '酉'].includes(char)) return 'var(--wx-metal)'; 
+      if (['壬', '癸', '亥', '子'].includes(char)) return 'var(--wx-water)'; 
       return 'inherit';
     }
 
-    // 格式化四柱（天干地支按五行上色，支持黑白主题动态自适应）
     function formatPillar(pillarStr) {
       if (!pillarStr) return '';
       let stem = pillarStr[0] || '';
@@ -407,7 +352,6 @@
       updateDynamicInfo(); 
     }
 
-    // 1. 页面加载时：优先恢复用户上一次的选择（默认暗黑主题，如果存的是light则切到亮色）
     function initTheme() {
       const savedTheme = localStorage.getItem('oogo_theme');
       if (savedTheme === 'light') {
@@ -417,14 +361,10 @@
       }
     }
     
-    // 页面一加载立即执行初始化
     initTheme();
 
-    // 2. 点击按钮切换并保存状态
     function toggleTheme() { 
       document.body.classList.toggle('light-theme');
-      
-      // 记录用户的选择到本地存储
       if (document.body.classList.contains('light-theme')) {
         localStorage.setItem('oogo_theme', 'light');
       } else {
@@ -490,13 +430,8 @@
       return name.replace('值符','符').replace('腾蛇','螣').replace('太阴','阴').replace('六合','合').replace('白虎','白').replace('玄武','玄').replace('九地','地').replace('九天','天').replace('勾陈','勾').replace('太常','常').replace('朱雀','雀');
     }
 
-    function getJieQi(m, d) {
-      const terms = { 1: d<5?"冬至":d<20?"小寒":"大寒", 2: d<4?"大寒":d<19?"立春":"雨水", 3: d<5?"雨水":d<20?"惊蛰":"春分", 4: d<5?"春分":d<20?"清明":"谷雨", 5: d<5?"谷雨":d<21?"立夏":"小满", 6: d<6?"小满":d<21?"芒种":"夏至", 7: d<7?"夏至":d<23?"小暑":"大暑", 8: d<7?"大暑":d<23?"立秋":"处暑", 9: d<7?"处暑":d<23?"白露":"秋分", 10: d<8?"秋分":d<23?"寒露":"霜降", 11: d<7?"霜降":d<22?"立冬":"小雪", 12: d<7?"小雪":d<22?"大雪":"冬至" };
-      return terms[m];
-    }
-
     // ==========================================
-    // 起局入口
+    // 起局入口 (已解耦：前端只负责解析 chart 对象渲染 UI)
     // ==========================================
     function generateChart() {
       try {
@@ -515,125 +450,85 @@
 
         let method = document.getElementById('methodSelect').value;
         let panType = document.getElementById('panSelect').value;
+        
+        // 核心起局 (交由底层引擎处理)
         let chart;
-        let zhirunData = null;
-
+        let isRun = false;
+        
         if (method === 'zhirun') {
-          zhirunData = OogoZhiRun.calculate(y, m, d, h, min);
-          let timeString = y + "-" + pad(m) + "-" + pad(d) + "T" + pad(h) + ":" + pad(min) + ":00";
-          chart = ThreeMeta.QimenChart.byDatetime(timeString, {
-            juNumber: zhirunData.juNumber,
-            isYangdun: zhirunData.isYangdun
-          });
-          chart.solarTerm = zhirunData.debugInfo.targetJieQi;
-          chart.yuan = zhirunData.debugInfo.yuanName;
+            let zhirunData = OogoZhiRun.calculate(y, m, d, h, min);
+            chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0, {
+                juNumber: zhirunData.juNumber,
+                isYangdun: zhirunData.isYangdun
+            });
+            chart.yuan = zhirunData.debugInfo.yuanName;
+            chart.solarTerm = zhirunData.debugInfo.targetJieQi;
+            isRun = zhirunData.debugInfo.isTrueRun;
         } else {
-          chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0);
+            // 拆补法：原样直接起
+            chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0);
         }
 
         if (panType === 'fei') {
-          chart = OogoFeiPan.fly(chart);
+            chart = OogoFeiPan.fly(chart);
         }
 
+        // --- 从 chart 提取基础信息 ---
         let bY = chart.fourPillars.year.stem + chart.fourPillars.year.branch;
         let bM = chart.fourPillars.month.stem + chart.fourPillars.month.branch;
         let bD = chart.fourPillars.day.stem + chart.fourPillars.day.branch;
         let bH = chart.fourPillars.hour.stem + chart.fourPillars.hour.branch;
 
-        let dSIdx = stems.indexOf(chart.fourPillars.day.stem); let dBIdx = branches.indexOf(chart.fourPillars.day.branch);
+        // 计算符头 (UI 展示需要)
+        let dSIdx = stems.indexOf(chart.fourPillars.day.stem); 
+        let dBIdx = branches.indexOf(chart.fourPillars.day.branch);
         let fuOffset = dSIdx % 5;
         let fuTou = stems[dSIdx - fuOffset] + branches[(dBIdx - fuOffset + 12) % 12];
-        let maXing = {"申":"寅","子":"寅","辰":"寅", "亥":"巳","卯":"巳","未":"巳", "寅":"申","午":"申","戌":"申", "巳":"亥","酉":"亥","丑":"亥"}[chart.fourPillars.hour.branch];
-
-        let hSIdx = stems.indexOf(chart.fourPillars.hour.stem); let hBIdx = branches.indexOf(chart.fourPillars.hour.branch);
-        let xunOffset = (hBIdx - hSIdx + 12) % 12;
-        let kong1 = branches[(xunOffset + 10) % 12]; let kong2 = branches[(xunOffset + 11) % 12];
-        let xunName = stems[0] + branches[xunOffset]; let xunDun = {"甲子":"戊", "甲戌":"己", "甲申":"庚", "甲午":"辛", "甲辰":"壬", "甲寅":"癸"}[xunName];
-
-        let zhiFuObj = chart.zhiFu || {};
-        let zhiShiObj = chart.zhiShi || {};
-        let logicZfName = (zhiFuObj.star || '').replace('星', ''); 
-        let displayZfName = logicZfName.replace(/天/g, '');
-        let zsName = (zhiShiObj.gate || '').replace('门', '');
-        
-        let zfPalace = zhiFuObj.position || (chart.palaces.find(function(p) { return p.star === logicZfName || (Array.isArray(p.star) && p.star.indexOf(logicZfName) !== -1); }) || {}).position || 1;
-        let zsPalace = zhiShiObj.position || (chart.palaces.find(function(p) { return p.gate === zsName + '门' || p.gate === zsName; }) || {}).position || 1;
-
-        let isYang = chart.ju.type.indexOf('阳') !== -1;
         let yuanDay = fuOffset + 1; 
-        
-        let jqName = "";
-        if (method === 'zhirun' && zhirunData && zhirunData.debugInfo) {
-            jqName = zhirunData.debugInfo.targetJieQi;
-        } else {
-            let rawJq = chart.jieQi || chart.solarTerm || (chart.ju && chart.ju.solarTerm) || (chart.timeInfo && chart.timeInfo.solarTerm);
-            if (rawJq && rawJq !== "未知" && rawJq !== "undefined") { jqName = rawJq; } else { jqName = getJieQi(m, d); }
-        }
 
-        let runTag = '';
-        if (method === 'zhirun' && chart.yuan && zhirunData && zhirunData.debugInfo && zhirunData.debugInfo.isTrueRun) {
-            runTag = '<span style="color:var(--c-gate-r); font-weight:bold; margin-left:2px;">(闰)</span>';
-        }
+        // 读取引擎算好的马星、空亡、旬首
+        let maXing = chart.postHorse.branch;
+        let voidnessArr = chart.timeInfo.voidness || [];
+        let kong1 = voidnessArr[0] || '';
+        let kong2 = voidnessArr[1] || '';
         
+        let hSIdx = stems.indexOf(chart.fourPillars.hour.stem); 
+        let hBIdx = branches.indexOf(chart.fourPillars.hour.branch);
+        let xunOffset = (hBIdx - hSIdx + 12) % 12;
+        let xunName = stems[0] + branches[xunOffset]; 
+        let xunDun = {"甲子":"戊", "甲戌":"己", "甲申":"庚", "甲午":"辛", "甲辰":"壬", "甲寅":"癸"}[xunName];
+
+        let zfPalace = chart.zhiFu.position;
+        let zsPalace = chart.zhiShi.position;
+        // 获取值符星、值使门的名字用于顶部展示
+        let zfPalaceObj = chart.palaces.find(p => p.position === zfPalace) || {};
+        let zsPalaceObj = chart.palaces.find(p => p.position === zsPalace) || {};
+        let displayZfName = (Array.isArray(zfPalaceObj.star) ? zfPalaceObj.star[0] : (zfPalaceObj.star || '')).replace(/天|星/g, '');
+        let zsName = (zsPalaceObj.gate || '').replace('门', '');
+
+        let jqName = chart.solarTerm || chart.timeInfo.solarTerm || "未知";
+        let runTag = isRun ? '<span style="color:var(--c-gate-r); font-weight:bold; margin-left:2px;">(闰)</span>' : '';
         let yuanStr = (chart.yuan || '中元') + '第' + yuanDay + '天';
         let dunStr = chart.ju.type + chart.ju.number + '局';
 
-        const ring = [1, 8, 3, 4, 9, 2, 7, 6]; const deities = ['值符', '腾蛇', '太阴', '六合', '白虎', '玄武', '九地', '九天'];
-        let earthDeitiesMap = {};
+        // 检查伏吟反吟 (提取后端算好的特殊格局)
+        let specialPatterns = chart.specialPatterns || {};
+        let allPatterns = [];
+        if (specialPatterns.inauspiciousPatterns) allPatterns = allPatterns.concat(specialPatterns.inauspiciousPatterns);
+        if (specialPatterns.auspiciousPatterns) allPatterns = allPatterns.concat(specialPatterns.auspiciousPatterns);
         
-        if (panType === 'zhuan') {
-            let earthXunPalace = 5;
-            for (let i = 1; i <= 9; i++) {
-                let p = chart.palaces.find(function(x) { return x.position === i; }) || {};
-                let eStemStr = Array.isArray(p.earthlyStem) ? p.earthlyStem[0] : (p.earthlyStem || '');
-                if (eStemStr === xunDun) { earthXunPalace = i; break; }
-            }
-            if (earthXunPalace === 5) earthXunPalace = 2; 
-            
-            let eDeityStartIndex = ring.indexOf(earthXunPalace);
-            for (let i = 0; i < 8; i++) { earthDeitiesMap[ring[isYang ? (eDeityStartIndex + i) % 8 : (eDeityStartIndex - i + 8) % 8]] = deities[i]; }
-        }
-
-        let timeStem = chart.fourPillars.hour.stem;
-        let hiddenStemStart = (timeStem === '甲') ? xunDun : timeStem;
-        const qimenStems = ["戊", "己", "庚", "辛", "壬", "癸", "丁", "丙", "乙"];
-        let startStemIndex = qimenStems.indexOf(hiddenStemStart);
-        let hiddenStemsMap = {};
-        let currPalace = zsPalace; 
-        for (let i = 0; i < 9; i++) {
-            hiddenStemsMap[currPalace] = qimenStems[(startStemIndex + i) % 9];
-            if (isYang) { currPalace++; if (currPalace > 9) currPalace = 1; } else { currPalace--; if (currPalace < 1) currPalace = 9; }
-        }
-
-        let isStarFu = true, isStarFan = true, isGateFu = true, isGateFan = true;
-        const origStar = {1:'天蓬', 2:'天芮', 3:'天冲', 4:'天辅', 6:'天心', 7:'天柱', 8:'天任', 9:'天英', 5:'天禽'};
-        const origGate = {1:'休门', 2:'死门', 3:'伤门', 4:'杜门', 6:'开门', 7:'惊门', 8:'生门', 9:'景门', 5:'中门'};
-        const oppoPalace = {1:9, 2:8, 3:7, 4:6, 6:4, 7:3, 8:2, 9:1, 5:5};
-
-        [1,2,3,4,6,7,8,9].forEach(function(pos) {
-          let p = chart.palaces.find(function(x) { return x.position === pos; }) || {};
-          let sName = (Array.isArray(p.star) ? p.star.join('') : (p.star || '')).replace(/天|星/g, '');
-          let targetFuStar = (origStar[pos] || '').replace(/天|星/g, '');
-          let targetFanStar = (origStar[oppoPalace[pos]] || '').replace(/天|星/g, '');
-          if (sName.indexOf(targetFuStar) === -1) isStarFu = false;
-          if (sName.indexOf(targetFanStar) === -1) isStarFan = false;
-          
-          let gName = (p.gate || '').replace('门', '');
-          let targetFuGate = (origGate[pos] || '').replace('门', '');
-          let targetFanGate = (origGate[oppoPalace[pos]] || '').replace('门', '');
-          if (gName !== targetFuGate) isGateFu = false;
-          if (gName !== targetFanGate) isGateFan = false;
-        });
-
-        let starStatus = isStarFu ? '星伏' : (isStarFan ? '星反' : '');
-        let gateStatus = isGateFu ? '门伏' : (isGateFan ? '门反' : '');
         let fyText = '';
-        if (starStatus && gateStatus) {
-          if (starStatus === '星伏' && gateStatus === '门伏') { fyText = '星门俱伏'; } 
-          else if (starStatus === '星反' && gateStatus === '门反') { fyText = '星门俱反'; } 
-          else { fyText = starStatus + gateStatus; }
-        } else if (starStatus) { fyText = starStatus; } 
-        else if (gateStatus) { fyText = gateStatus; }
+        let hasStarFu = allPatterns.some(pt => pt.name === '星伏吟');
+        let hasStarFan = allPatterns.some(pt => pt.name === '星反吟');
+        let hasGateFu = allPatterns.some(pt => pt.name === '门伏吟');
+        let hasGateFan = allPatterns.some(pt => pt.name === '门反吟');
+        
+        if (hasStarFu && hasGateFu) fyText = '星门俱伏';
+        else if (hasStarFan && hasGateFan) fyText = '星门俱反';
+        else if (hasStarFu) fyText = '星伏';
+        else if (hasStarFan) fyText = '星反';
+        else if (hasGateFu) fyText = '门伏';
+        else if (hasGateFan) fyText = '门反';
 
         if (fyText) {
           fyText = '<span style="color:#d34e55; font-weight:bold; margin-left:8px; border:1px solid #d34e55; padding:1px 4px; border-radius:4px; font-size:13px;">' + fyText + '</span>';
@@ -652,45 +547,50 @@
         
         document.getElementById('infoBoard').innerHTML = boardHtml;
 
-        let centerP = chart.palaces.find(function(x) { return x.position === 5; }) || {};
+        let centerP = chart.palaces.find(x => x.position === 5) || {};
         let cH = Array.isArray(centerP.heavenlyStem) ? centerP.heavenlyStem[0] : (centerP.heavenlyStem || '');
         let cE = Array.isArray(centerP.earthlyStem) ? centerP.earthlyStem[0] : (centerP.earthlyStem || '');
         let gridHtml = '';
 
         const displayOrder = [4, 9, 2, 3, 5, 7, 8, 1, 6];
         displayOrder.forEach(function(pos) {
-          const p = chart.palaces.find(function(x) { return x.position === pos; }) || {};
+          const p = chart.palaces.find(x => x.position === pos) || {};
           
           let tDeity = simplifyDeity(Array.isArray(p.deity) ? p.deity[0] : (p.deity || ''));
-          let eDeity = '';
-          if (panType === 'zhuan' && pos !== 5) eDeity = simplifyDeity(earthDeitiesMap[pos]);
+          let eDeity = ''; 
           
           let starName = (Array.isArray(p.star) ? p.star.join('/') : (p.star || '')).replace(/天/g, '').replace(/星/g, '');
-          let hiddenStem = hiddenStemsMap[pos] || '';
+          
+          // 从引擎读取暗干 (如果是转盘且原库是Map，用get方法；如果是飞盘则直接读取属性)
+          let hiddenStem = "";
+          if (panType === 'fei') {
+              hiddenStem = p.hiddenStem || "";
+          } else {
+              if (chart.hiddenStems && typeof chart.hiddenStems.get === 'function') {
+                  hiddenStem = chart.hiddenStems.get(pos) || "";
+              } else if (chart.hiddenStems) {
+                  hiddenStem = chart.hiddenStems[pos] || "";
+              }
+          }
           
           let hStem = Array.isArray(p.heavenlyStem) ? p.heavenlyStem.join('/') : (p.heavenlyStem || '');
           let eStem = Array.isArray(p.earthlyStem) ? p.earthlyStem.join('/') : (p.earthlyStem || '');
-          let origGate = p.gate || ''; let gateName = origGate.replace('门', '');
+          let origGate = p.gate || ''; 
+          let gateName = origGate.replace('门', '');
           
           let gateClass = (origGate === '生门' || origGate === '休门' || origGate === '开门') ? 'gate-g' : ((origGate === '杜门' || origGate === '景门') ? 'gate-n' : 'gate-r');
           if (origGate === '中门') gateClass = 'gate-g';
 
+          // --- 根据后端给的数据智能贴标签 ---
           let rightCornerHtml = '';
-          let hStemStr = String(p.heavenlyStem || '');
-          if ((hStemStr.indexOf('戊')!==-1&&pos===3)||(hStemStr.indexOf('己')!==-1&&pos===2)||(hStemStr.indexOf('庚')!==-1&&pos===8)||(hStemStr.indexOf('辛')!==-1&&pos===9)||(hStemStr.indexOf('壬')!==-1&&pos===4)||(hStemStr.indexOf('癸')!==-1&&pos===4)) rightCornerHtml += '<span class="tag-jx">刑</span>';
-          if ((origGate==='休门'&&pos===9)||((origGate==='生门'||origGate==='死门')&&pos===1)||((origGate==='伤门'||origGate==='杜门')&&(pos===2||pos===8))||(origGate==='景门'&&(pos===6||pos===7))||((origGate==='惊门'||origGate==='开门')&&(pos===3||pos===4))) rightCornerHtml += '<span class="tag-po">迫</span>';
-          if ((pos===6&&(hStemStr.indexOf('丙')!==-1||hStemStr.indexOf('戊')!==-1||hStemStr.indexOf('乙')!==-1))||(pos===8&&(hStemStr.indexOf('丁')!==-1||hStemStr.indexOf('己')!==-1||hStemStr.indexOf('庚')!==-1))||(pos===4&&(hStemStr.indexOf('辛')!==-1||hStemStr.indexOf('壬')!==-1))||(pos===2&&hStemStr.indexOf('癸')!==-1)) rightCornerHtml += '<span class="tag-mu">墓</span>';
-          
-          let maDict = {1:['子'], 8:['丑','寅'], 3:['卯'], 4:['辰','巳'], 9:['午'], 2:['未','申'], 7:['酉'], 6:['戌','亥']};
-          let maArr = maDict[pos] || [];
-          if (maArr.indexOf(maXing) !== -1) rightCornerHtml += '<span class="tag-ma">马</span>';
-          if (maArr.indexOf(kong1) !== -1 || maArr.indexOf(kong2) !== -1) rightCornerHtml += '<span class="tag-kong">空</span>';
+          if (p.liuYiJiXing && p.liuYiJiXing.hasJiXing) rightCornerHtml += '<span class="tag-jx">刑</span>';
+          if (p.gatePressure === '迫') rightCornerHtml += '<span class="tag-po">迫</span>';
+          if (p.tombInfo && (p.tombInfo.heavenlyStemInTomb.length > 0 || p.tombInfo.earthlyStemInTomb.length > 0)) rightCornerHtml += '<span class="tag-mu">墓</span>';
+          if (p.isPostHorse) rightCornerHtml += '<span class="tag-ma">马</span>';
+          if (p.voidness && p.voidness.hasVoidness) rightCornerHtml += '<span class="tag-kong">空</span>';
 
-          // 天盘干使用独立的 stem-h 和 small-stem-h
-         let hClass = hStem.indexOf('/') !== -1 ? 'right-item stem-h small-stem-h' : 'right-item stem-h';
-
-         // 地盘干使用独立的 stem-e 和 small-stem-e
-         let eClass = eStem.indexOf('/') !== -1 ? 'right-item stem-e small-stem-e' : 'right-item stem-e';
+          let hClass = hStem.indexOf('/') !== -1 ? 'right-item stem-h small-stem-h' : 'right-item stem-h';
+          let eClass = eStem.indexOf('/') !== -1 ? 'right-item stem-e small-stem-e' : 'right-item stem-e';
           
           let innerHtml = '<div class="row"><div class="left-item deity deity-text">' + tDeity + '</div><div class="' + hClass + '">' + hStem + '</div></div><div class="row"><div class="left-item star star-text">' + starName + '</div><div class="' + eClass + '">' + eStem + '</div></div><div class="row"><div class="left-item ' + gateClass + ' gate-text">' + gateName + '</div><div class="right-item edeity-text">' + eDeity + '</div></div>';
 
@@ -743,14 +643,12 @@
           x: 0, 
           y: 0,
           onclone: function(clonedDoc) {
-            // 1. 保证截图图片中的“历”字还原并最大化
             const clonedLogo = clonedDoc.querySelector('.circle-logo');
             if (clonedLogo) {
               clonedLogo.innerText = '历';
               clonedLogo.style.fontSize = '20px';
             }
 
-            // 2. 彻底修正输入框文字下沉偏斜问题
             const clonedInputs = clonedDoc.querySelectorAll('.zhen-item select, .zhen-item input');
             clonedInputs.forEach(el => {
               el.style.lineHeight = 'normal';
