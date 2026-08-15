@@ -451,12 +451,14 @@
         
         let chart;
         let isRun = false;
+        let superShenDays = 0; // 定义超神天数变量
         
         // 1. 统一先通过置闰或拆补引擎计算定局基础信息
         let juInfo;
         if (method === 'zhirun') {
             juInfo = OogoZhiRun.calculate(y, m, d, h, min, 0);
             isRun = juInfo.isTrueRun;
+            superShenDays = juInfo.superShenDays || 0; // 获取超神天数
         } else {
             juInfo = OogoChaiBu.calculate(y, m, d, h, min, 0);
         }
@@ -529,6 +531,9 @@
 
         let jqName = chart.solarTerm || (chart.timeInfo && chart.timeInfo.solarTerm) || "未知";
         let runTag = isRun ? '<span style="color:var(--c-gate-r); font-weight:bold; margin-left:2px;">(闰)</span>' : '';
+        // 组装超神天数提示标签
+        let superShenTip = (method === 'zhirun' && superShenDays > 0) ? `<span style="color:var(--text-gold); font-weight:bold; margin-left:2px;">(超神${superShenDays}天)</span>` : '';
+        
         let yuanStr = (chart.yuan || '中元') + '第' + yuanDay + '天';
         let dunStr = (chart.ju.type || '') + (chart.ju.number || '') + '局';
         let xunName = chart.xun ? chart.xun.name : "";
@@ -547,7 +552,7 @@
             '<div class="bazi-box"><div class="bazi-title">日柱</div><div class="bazi-value">' + formatPillar(bD) + '</div></div>' +
             '<div class="bazi-box"><div class="bazi-title">时柱</div><div class="bazi-value">' + formatPillar(bH) + '</div></div>' +
           '</div>' +
-          '<div class="info-row"><span style="display:flex; align-items:center;">' + jqName + runTag + ' &nbsp;' + yuanStr + ' &nbsp;' + dunStr + '</span><span>符头: ' + fuTou + '</span></div>' +
+          '<div class="info-row"><span style="display:flex; align-items:center;">' + jqName + superShenTip + runTag + ' &nbsp;' + yuanStr + ' &nbsp;' + dunStr + '</span><span>符头: ' + fuTou + '</span></div>' +
           '<div class="info-row zhifu-row"><span class="pill-green">值符: ' + displayZfName + '(' + zfPalace + '宫)</span><div class="circle-logo" onclick="exportImage()">历</div><span class="pill-green">值使: ' + zsName + '(' + zsPalace + '宫)</span></div>' +
           '<div class="info-row"><span style="display:flex; align-items:center;">旬首: ' + xunName + '遁' + xunDun + fyText + '</span><span>马星: ' + maXing + ' &nbsp;空亡: ' + kong1 + ',' + kong2 + '</span></div>';
         
@@ -578,16 +583,15 @@
               }
           }
           
-         let hStem = Array.isArray(p.heavenlyStem) ? p.heavenlyStem.join('/') : (p.heavenlyStem || '');
-let eStem = Array.isArray(p.earthlyStem) ? p.earthlyStem.join('/') : (p.earthlyStem || '');
+          let hStem = Array.isArray(p.heavenlyStem) ? p.heavenlyStem.join('/') : (p.heavenlyStem || '');
+          let eStem = Array.isArray(p.earthlyStem) ? p.earthlyStem.join('/') : (p.earthlyStem || '');
+          
+          let dayStem = chart.fourPillars.day.stem; 
+          let dColor = getWuxingColor(dayStem);
+          let showHStem = hStem.replace(new RegExp(dayStem, 'g'), `<span style="color:${dColor};">${dayStem}</span>`);
+          let showEStem = eStem; 
 
-// 仅获取日干并给天盘干（hStem）中的日干上色，地盘干（eStem）保持原样
-let dayStem = chart.fourPillars.day.stem; 
-let dColor = getWuxingColor(dayStem);
-let showHStem = hStem.replace(new RegExp(dayStem, 'g'), `<span style="color:${dColor};">${dayStem}</span>`);
-let showEStem = eStem; 
-
-let origGate = p.gate || ''; 
+          let origGate = p.gate || ''; 
           let gateName = origGate.replace('门', '');
           
           let gateClass = (origGate === '生门' || origGate === '休门' || origGate === '开门') ? 'gate-g' : ((origGate === '杜门' || origGate === '景门') ? 'gate-n' : 'gate-r');
@@ -603,7 +607,7 @@ let origGate = p.gate || '';
           let hClass = hStem.indexOf('/') !== -1 ? 'right-item stem-h small-stem-h' : 'right-item stem-h';
           let eClass = eStem.indexOf('/') !== -1 ? 'right-item stem-e small-stem-e' : 'right-item stem-e';
           
-          let innerHtml = '<div class="row"><div class="left-item deity deity-text">' + tDeity + '</div><div class="' + hClass + '">' + showHStem + '</div></div><div class="row"><div class="left-item star star-text">' + starName + '</div><div class="' + eClass + '">' + eStem + '</div></div><div class="row"><div class="left-item ' + gateClass + ' gate-text">' + gateName + '</div><div class="right-item edeity-text">' + eDeity + '</div></div>';
+          let innerHtml = '<div class="row"><div class="left-item deity deity-text">' + tDeity + '</div><div class="' + hClass + '">' + showHStem + '</div></div><div class="row"><div class="left-item star star-text">' + starName + '</div><div class="' + eClass + '">' + showEStem + '</div></div><div class="row"><div class="left-item ' + gateClass + ' gate-text">' + gateName + '</div><div class="right-item edeity-text">' + eDeity + '</div></div>';
 
           if (pos === 5) {
             if (panType === 'fei') {
