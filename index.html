@@ -68,7 +68,7 @@
       --dark-stem-color: #ba4a00;
       --dark-stem-bg: rgba(79, 70, 229, 0.08);
 
-      /* 五行颜色 (亮色主题下适当加深以保证对比度) */
+      /* 五行颜色 */
       --wx-wood: #16a34a;   
       --wx-fire: #dc2626;   
       --wx-earth: #b45309;  
@@ -84,7 +84,7 @@
       text-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
     }
     
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; padding: 3px; background: var(--bg-main); color: var(--text-main); margin: 0 auto; max-width: 100%; transition: background 0.3s, color 0.3s; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; padding: 3px; background: var(--bg-main); color: var(--text-main); margin: 0 auto; max-width: 100%; transition: background 0.3s, color 0.3s; box-sizing: border-box; }
     .top-ctrl { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; transition: all 0.3s; }
     .ctrl-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; width: 100%; box-sizing: border-box; }
     .badge { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; }
@@ -102,11 +102,9 @@
     .zhen-item { background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 0 4px; display: flex; align-items: center; justify-content: center; height: 30px; box-sizing: border-box; min-width: 0; }
     .zhen-item input[type="checkbox"] { margin-right: 4px; accent-color: var(--text-blue); }
     
-    .zhen-item select, .zhen-item input[type="number"] { 
-      background: transparent; border: none; color: var(--text-main); width: 100%; height: 100%; line-height: normal; text-align: center; outline: none; font-size: 13px; -webkit-appearance: none; appearance: none; padding: 0; margin: 0; vertical-align: middle;
-    }
-
+    .zhen-item select, .zhen-item input[type="number"] { background: transparent; border: none; color: var(--text-main); width: 100%; height: 100%; line-height: normal; text-align: center; outline: none; font-size: 13px; -webkit-appearance: none; appearance: none; padding: 0; margin: 0; vertical-align: middle; }
     .zhen-item select { color: var(--text-blue); text-align-last: center; }
+    
     .sub-ctrl { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-color); padding-top: 8px; margin-top: 0; gap: 4px; }
     .sub-text { color: var(--text-gray); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; }
     .select-group { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
@@ -134,11 +132,11 @@
     .star-text  { font-size: 18px; }
     .gate-text  { font-size: 18px; }
     .taichi-svg { width: 115px; height: 115px; filter: drop-shadow(0 0 8px rgba(0,0,0,0.4)); }
-    .tag-ma { color: #ffffff; background: #d34e55; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; box-shadow: none; }
-    .tag-kong { color: #ffffff; background: #7a7a90; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; box-shadow: none; }
-    .tag-jx { color: #ffffff; background: #8b5cf6; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; box-shadow: none; }
-    .tag-mu { color: #ffffff; background: #374151; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; box-shadow: none; }
-    .tag-po { color: #ffffff; background: #d97706; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; box-shadow: none; }
+    .tag-ma { color: #ffffff; background: #d34e55; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; }
+    .tag-kong { color: #ffffff; background: #7a7a90; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; }
+    .tag-jx { color: #ffffff; background: #8b5cf6; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; }
+    .tag-mu { color: #ffffff; background: #374151; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; }
+    .tag-po { color: #ffffff; background: #d97706; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; }
     .row { display: flex; justify-content: space-between; align-items: flex-end; }
     .left-item { text-align: left; font-weight: bold; line-height: 1; white-space: nowrap; letter-spacing: 1px; }
     .right-item { text-align: right; font-size: 14px; font-weight: bold; line-height: 1; white-space: nowrap; }
@@ -431,7 +429,7 @@
     }
 
     // ==========================================
-    // 起局入口 (已解耦：前端只负责解析 chart 对象渲染 UI)
+    // 起局入口 (已修复：旬首计算逻辑提前)
     // ==========================================
     function generateChart() {
       try {
@@ -455,7 +453,7 @@
         let chart;
         let isRun = false;
         
-                if (method === 'zhirun') {
+        if (method === 'zhirun') {
             let zhirunData = OogoZhiRun.calculate(y, m, d, h, min);
             chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0, {
                 juNumber: zhirunData.juNumber,
@@ -468,7 +466,15 @@
             chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0);
         }
 
-        // 👈 【新增这一句】如果是转盘，让后端置闰库自动把地八神计算并挂载到 chart 对象上
+        // 🟢 【修复点：必须把旬首等计算提前！】
+        // 如果放在底下，上面的 OogoZhuanPanEnhancer 使用到 xunDun 就会直接导致程序崩溃，致使后续排版代码不执行
+        let hSIdx = stems.indexOf(chart.fourPillars.hour.stem); 
+        let hBIdx = branches.indexOf(chart.fourPillars.hour.branch);
+        let xunOffset = (hBIdx - hSIdx + 12) % 12;
+        let xunName = stems[0] + branches[xunOffset]; 
+        let xunDun = {"甲子":"戊", "甲戌":"己", "甲申":"庚", "甲午":"辛", "甲辰":"壬", "甲寅":"癸"}[xunName];
+
+        // 👈 如果是转盘，让后端置闰库自动把地八神计算并挂载到 chart 对象上
         if (panType === 'zhuan' && typeof OogoZhuanPanEnhancer !== 'undefined') {
             let isYang = chart.ju.type.indexOf('阳') !== -1;
             chart = OogoZhuanPanEnhancer.enhance(chart, xunDun, isYang);
@@ -497,12 +503,6 @@
         let voidnessArr = chart.timeInfo.voidness || [];
         let kong1 = voidnessArr[0] || '';
         let kong2 = voidnessArr[1] || '';
-        
-        let hSIdx = stems.indexOf(chart.fourPillars.hour.stem); 
-        let hBIdx = branches.indexOf(chart.fourPillars.hour.branch);
-        let xunOffset = (hBIdx - hSIdx + 12) % 12;
-        let xunName = stems[0] + branches[xunOffset]; 
-        let xunDun = {"甲子":"戊", "甲戌":"己", "甲申":"庚", "甲午":"辛", "甲辰":"壬", "甲寅":"癸"}[xunName];
 
         let zfPalace = chart.zhiFu.position;
         let zsPalace = chart.zhiShi.position;
@@ -563,9 +563,8 @@
           const p = chart.palaces.find(x => x.position === pos) || {};
           
           let tDeity = simplifyDeity(Array.isArray(p.deity) ? p.deity[0] : (p.deity || ''));
-// 👈 如果是转盘模式，直接读取后端库算好的 p.earthDeity，飞盘则为空
-let eDeity = (panType === 'zhuan') ? simplifyDeity(p.earthDeity || '') : ''; 
-
+          // 👈 如果是转盘模式，直接读取后端库算好的 p.earthDeity，飞盘则为空
+          let eDeity = (panType === 'zhuan') ? simplifyDeity(p.earthDeity || '') : ''; 
           
           let starName = (Array.isArray(p.star) ? p.star.join('/') : (p.star || '')).replace(/天/g, '').replace(/星/g, '');
           
