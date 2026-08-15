@@ -429,7 +429,7 @@
     }
 
     // ==========================================
-    // 起局入口
+    // 起局入口 (适配转盘与飞盘无缝切换)
     // ==========================================
     function generateChart() {
       try {
@@ -452,7 +452,7 @@
         let chart;
         let isRun = false;
         
-        // 1. 先通过我们自己的置闰或拆补引擎定局
+        // 1. 统一先通过置闰或拆补引擎计算定局基础信息
         let juInfo;
         if (method === 'zhirun') {
             juInfo = OogoZhiRun.calculate(y, m, d, h, min, 0);
@@ -461,49 +461,47 @@
             juInfo = OogoChaiBu.calculate(y, m, d, h, min, 0);
         }
 
-        // 2. 根据用户选择的盘式类型（转盘 or 飞盘）生成对应的盘面
+        // 2. 区分【转盘】或【飞盘】走不同的生成逻辑
         if (panType === 'fei') {
-            // 飞盘模式：使用置闰/拆补算出的底层 chart，然后调用飞盘引擎
+            // --- 飞盘模式 ---
             chart = juInfo.chart;
-            // 补齐飞盘需要的局数信息
             chart.ju = {
                 number: juInfo.juNumber,
                 type: juInfo.isYangdun ? "阳遁" : "阴遁"
             };
-            chart.yuan = juInfo.yuanName;
+            chart.yuan = juInfo.yuanName || "中元";
             chart.solarTerm = juInfo.termName;
             
             // 执行飞盘全盘飞渡
             chart = OogoFeiPan.fly(chart);
         } else {
-            // 转盘模式：直接调用标准转盘计算引擎（它内部已经自动处理好了置闰/拆补）
+            // --- 转盘模式 ---
+            // 直接调用新版转盘引擎
             let zhuanResult = OogoZhuanPan.calculate(y, m, d, h, min, 0, method);
-            chart = zhuanResult; // 此时 zhuanResult 已经是符合标准的完整盘面对象
-        }
-
-        // 旬首计算提前
-        let hSIdx = stems.indexOf(chart.fourPillars.hour.stem); 
-        let hBIdx = branches.indexOf(chart.fourPillars.hour.branch);
-        let xunOffset = (hBIdx - hSIdx + 12) % 12;
-        let xunName = stems[0] + branches[xunOffset]; 
-        let xunDun = {"甲子":"戊", "甲戌":"己", "甲申":"庚", "甲午":"辛", "甲辰":"壬", "甲寅":"癸"}[xunName];
-
-        // 👈 如果是转盘，让后端置闰库自动把地八神计算并挂载到 chart 对象上
-        if (panType === 'zhuan' && typeof OogoZhuanPanEnhancer !== 'undefined') {
+            
+            // 将转盘引擎包装的数据平铺映射给前端渲染变量
+            chart = zhuanResult.chart;
+            chart.palaces = zhuanResult.palaces;
+            chart.fourPillars = zhuanResult.fourPillars;
+            chart.ju = zhuanResult.ju;
+            chart.yuan = zhuanResult.fuTou.yuan;
+            chart.solarTerm = zhuanResult.solarTerm.name;
+            chart.zhiFu = zhuanResult.zhiFu;
+            chart.zhiShi = zhuanResult.zhiShi;
+            chart.xun = zhuanResult.xun;
+            chart.timeInfo = {
+                voidness: zhuanResult.kongWang ? zhuanResult.kongWang.branches : []
+            };
+            chart.postHorse = zhuanResult.yiMa;
+            chart.uiTagFuYin = zhuanResult.uiTagFuYinFanYin ? zhuanResult.uiTagFuYinFanYin.text : '';
+            
+            // 补充转盘的地八神挂载
+            let xunDun = {"甲子":"戊", "甲戌":"己", "甲申":"庚", "甲午":"辛", "甲辰":"壬", "甲寅":"癸"}[chart.xun.name || "甲子"];
             let isYang = chart.ju.type.indexOf('阳') !== -1;
             chart = OogoZhuanPanEnhancer.enhance(chart, xunDun, isYang);
         }
 
-        if (panType === 'fei') {
-            chart = OogoFeiPan.fly(chart);
-        }
-
-        // 🟢 交给底层库统一处理所有 UI 标签，实现前端零算法
-        if (typeof OogoTagEnhancer !== 'undefined') {
-            chart = OogoTagEnhancer.enhance(chart);
-        }
-
-        // --- 从 chart 提取基础信息 ---
+        // --- 从 chart 提取基础展示信息 ---
         let bY = chart.fourPillars.year.stem + chart.fourPillars.year.branch;
         let bM = chart.fourPillars.month.stem + chart.fourPillars.month.branch;
         let bD = chart.fourPillars.day.stem + chart.fourPillars.day.branch;
@@ -512,28 +510,29 @@
         // 计算符头 (UI 展示需要)
         let dSIdx = stems.indexOf(chart.fourPillars.day.stem); 
         let dBIdx = branches.indexOf(chart.fourPillars.day.branch);
-        let fuOffset = dSIdx % 5;
+        let fuOffset = dSIdx >= 0 ? dSIdx % 5 : 0;
         let fuTou = stems[dSIdx - fuOffset] + branches[(dBIdx - fuOffset + 12) % 12];
         let yuanDay = fuOffset + 1; 
 
-        // 读取引擎算好的马星、空亡、旬首
+        // 读取马星、空亡、旬首
         let maXing = chart.postHorse ? chart.postHorse.branch : '';
-        let voidnessArr = chart.timeInfo.voidness || [];
+        let voidnessArr = (chart.timeInfo && chart.timeInfo.voidness) ? chart.timeInfo.voidness : [];
         let kong1 = voidnessArr[0] || '';
         let kong2 = voidnessArr[1] || '';
 
         let zfPalace = chart.zhiFu.position;
         let zsPalace = chart.zhiShi.position;
-        // 获取值符星、值使门的名字用于顶部展示
         let zfPalaceObj = chart.palaces.find(p => p.position === zfPalace) || {};
         let zsPalaceObj = chart.palaces.find(p => p.position === zsPalace) || {};
         let displayZfName = (Array.isArray(zfPalaceObj.star) ? zfPalaceObj.star[0] : (zfPalaceObj.star || '')).replace(/天|星/g, '');
         let zsName = (zsPalaceObj.gate || '').replace('门', '');
 
-        let jqName = chart.solarTerm || chart.timeInfo.solarTerm || "未知";
+        let jqName = chart.solarTerm || (chart.timeInfo && chart.timeInfo.solarTerm) || "未知";
         let runTag = isRun ? '<span style="color:var(--c-gate-r); font-weight:bold; margin-left:2px;">(闰)</span>' : '';
         let yuanStr = (chart.yuan || '中元') + '第' + yuanDay + '天';
-        let dunStr = chart.ju.type + chart.ju.number + '局';
+        let dunStr = (chart.ju.type || '') + (chart.ju.number || '') + '局';
+        let xunName = chart.xun ? chart.xun.name : "";
+        let xunDun = chart.xun ? chart.xun.stem : "";
 
         // 提取特殊格局显示的标签
         let fyText = chart.uiTagFuYin || '';
@@ -564,12 +563,10 @@
           const p = chart.palaces.find(x => x.position === pos) || {};
           
           let tDeity = simplifyDeity(Array.isArray(p.deity) ? p.deity[0] : (p.deity || ''));
-          // 👈 如果是转盘模式，直接读取后端库算好的 p.earthDeity，飞盘则为空
           let eDeity = (panType === 'zhuan') ? simplifyDeity(p.earthDeity || '') : ''; 
           
           let starName = (Array.isArray(p.star) ? p.star.join('/') : (p.star || '')).replace(/天/g, '').replace(/星/g, '');
           
-          // 从引擎读取暗干 (如果是转盘且原库是Map，用get方法；如果是飞盘则直接读取属性)
           let hiddenStem = "";
           if (panType === 'fei') {
               hiddenStem = p.hiddenStem || "";
@@ -589,7 +586,6 @@
           let gateClass = (origGate === '生门' || origGate === '休门' || origGate === '开门') ? 'gate-g' : ((origGate === '杜门' || origGate === '景门') ? 'gate-n' : 'gate-r');
           if (origGate === '中门') gateClass = 'gate-g';
 
-          // --- 🟢 前端零算法：只认底层给的 true/false 开关 ---
           let rightCornerHtml = '';
           if (p.uiTagJx) rightCornerHtml += '<span class="tag-jx">刑</span>';
           if (p.uiTagPo) rightCornerHtml += '<span class="tag-po">迫</span>';
