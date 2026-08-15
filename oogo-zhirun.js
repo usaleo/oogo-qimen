@@ -274,11 +274,23 @@ const OogoFeiPan = {
 
 const OogoTagEnhancer = {
   enhance: function(chart) {
-    // 1. 物理映射：计算马星与空亡的绝对落宫
-    const maXing = chart.postHorse ? chart.postHorse.branch : '';
+    // ==========================================
+    // 1. 拦截并修复 3meta 的【驿马星】致命 Bug
+    // ==========================================
+    // 彻底抛弃 chart.postHorse，使用时支重新精准计算马星
+    const timeBranch = chart.fourPillars.hour.branch; 
+    let maXing = '';
+    if (['申', '子', '辰'].includes(timeBranch)) maXing = '寅';
+    else if (['亥', '卯', '未'].includes(timeBranch)) maXing = '巳'; // 修复 3meta 误写为'申'的Bug
+    else if (['寅', '午', '戌'].includes(timeBranch)) maXing = '申';
+    else if (['巳', '酉', '丑'].includes(timeBranch)) maXing = '亥';
+
     const maPalaceMap = { "寅": 8, "巳": 4, "申": 2, "亥": 6 };
     const maPalaceNum = maPalaceMap[maXing] || 0;
 
+    // ==========================================
+    // 2. 物理映射：空亡绝对落宫
+    // ==========================================
     const voidnessArr = (chart.timeInfo && chart.timeInfo.voidness) ? chart.timeInfo.voidness : [];
     const kong1 = voidnessArr[0] || '';
     const kong2 = voidnessArr[1] || '';
@@ -289,19 +301,37 @@ const OogoTagEnhancer = {
     const kongPalace1 = branchToPalace[kong1] || 0;
     const kongPalace2 = branchToPalace[kong2] || 0;
 
-    // 2. 遍历宫位，将所有算法结果降维成 UI 直接可读的布尔值 (true/false)
+    // ==========================================
+    // 3. 遍历宫位，覆盖重写算法，屏蔽 3meta 的错误
+    // ==========================================
     chart.palaces.forEach(p => {
-        // 马星与空亡打标
-        p.uiTagMa = (p.position === maPalaceNum);
-        p.uiTagKong = (p.position === kongPalace1 || p.position === kongPalace2 || (p.voidness && p.voidness.hasVoidness));
+        const pos = p.position;
+        const hStem = Array.isArray(p.heavenlyStem) ? p.heavenlyStem[0] : (p.heavenlyStem || '');
+
+        // 马星与空亡打标 (使用我们自己修复好的绝对落宫)
+        p.uiTagMa = (pos === maPalaceNum);
+        p.uiTagKong = (pos === kongPalace1 || pos === kongPalace2);
         
-        // 神煞格局打标 (将深层结构压平)
+        // 击刑与门迫 (3meta 算的是对的，直接透传)
         p.uiTagJx = !!(p.liuYiJiXing && p.liuYiJiXing.hasJiXing);
         p.uiTagPo = (p.gatePressure === '迫');
-        p.uiTagMu = !!(p.tombInfo && (p.tombInfo.heavenlyStemInTomb.length > 0 || p.tombInfo.earthlyStemInTomb.length > 0));
+
+        // ==========================================
+        // 4. 拦截并修复 3meta 库的【天盘入墓】Bug
+        // ==========================================
+        // 废弃 p.tombInfo，强制使用标准《烟波钓叟歌》严格入墓规则 (乙仅在乾6入墓)
+        let mu = false;
+        if ((pos === 6 && ['丙','戊','乙'].includes(hStem)) ||
+            (pos === 8 && ['丁','己','庚'].includes(hStem)) ||
+            (pos === 4 && ['辛','壬'].includes(hStem)) ||
+            (pos === 2 && hStem === '癸')) {
+            mu = true;
+        }
+        p.uiTagMu = mu;
     });
 
     return chart;
   }
 };
+
 
