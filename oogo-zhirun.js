@@ -706,10 +706,15 @@ const OogoFuFan = {
     let starFu = true, gateFu = true, starFan = true, gateFan = true;
     for (const p of palaces) {
       if (p.position === 5) continue;
-      const star = Array.isArray(p.star) ? p.star[0] : p.star;
-      const gate = p.gate || "";
+      let star = Array.isArray(p.star) ? p.star[0] : p.star;
+// 兼容处理：将 "天芮/天禽" 统一截断或替换为 "天芮" 参与比对
+if (star === "天芮/天禽") {
+  star = "天芮";
+}
+const gate = p.gate || "";
 
-      if (star !== this.starBase[p.position]) starFu = false;
+if (star !== this.starBase[p.position]) starFu = false;
+
       if (gate && gate !== this.gateBase[p.position]) gateFu = false;
 
       const opposite = this.opposite[p.position];
