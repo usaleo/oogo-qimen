@@ -449,21 +449,36 @@
         let method = document.getElementById('methodSelect').value;
         let panType = document.getElementById('panSelect').value;
         
-        // 核心起局 (交由底层引擎处理)
         let chart;
         let isRun = false;
         
+        // 1. 先通过我们自己的置闰或拆补引擎定局
+        let juInfo;
         if (method === 'zhirun') {
-            let zhirunData = OogoZhiRun.calculate(y, m, d, h, min);
-            chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0, {
-                juNumber: zhirunData.juNumber,
-                isYangdun: zhirunData.isYangdun
-            });
-            chart.yuan = zhirunData.debugInfo.yuanName;
-            chart.solarTerm = zhirunData.debugInfo.targetJieQi;
-            isRun = zhirunData.debugInfo.isTrueRun;
+            juInfo = OogoZhiRun.calculate(y, m, d, h, min, 0);
+            isRun = juInfo.isTrueRun;
         } else {
-            chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0);
+            juInfo = OogoChaiBu.calculate(y, m, d, h, min, 0);
+        }
+
+        // 2. 根据用户选择的盘式类型（转盘 or 飞盘）生成对应的盘面
+        if (panType === 'fei') {
+            // 飞盘模式：使用置闰/拆补算出的底层 chart，然后调用飞盘引擎
+            chart = juInfo.chart;
+            // 补齐飞盘需要的局数信息
+            chart.ju = {
+                number: juInfo.juNumber,
+                type: juInfo.isYangdun ? "阳遁" : "阴遁"
+            };
+            chart.yuan = juInfo.yuanName;
+            chart.solarTerm = juInfo.termName;
+            
+            // 执行飞盘全盘飞渡
+            chart = OogoFeiPan.fly(chart);
+        } else {
+            // 转盘模式：直接调用标准转盘计算引擎（它内部已经自动处理好了置闰/拆补）
+            let zhuanResult = OogoZhuanPan.calculate(y, m, d, h, min, 0, method);
+            chart = zhuanResult; // 此时 zhuanResult 已经是符合标准的完整盘面对象
         }
 
         // 旬首计算提前
