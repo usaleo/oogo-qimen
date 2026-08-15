@@ -300,19 +300,39 @@ const OogoTagEnhancer = {
     const kongPalace1 = branchToPalace[kong1] || 0;
     const kongPalace2 = branchToPalace[kong2] || 0;
 
+        // ==========================================
+    // 3. 提取全局特殊格局：伏吟与反吟 (纯原生物理判定，脱离底层引擎依赖)
     // ==========================================
-    // 3. 提取全局特殊格局：伏吟与反吟
-    // ==========================================
-    let specialPatterns = chart.specialPatterns || {};
-    let allPatterns = [];
-    if (specialPatterns.inauspiciousPatterns) allPatterns = allPatterns.concat(specialPatterns.inauspiciousPatterns);
-    if (specialPatterns.auspiciousPatterns) allPatterns = allPatterns.concat(specialPatterns.auspiciousPatterns);
+    let hasStarFu = true;
+    let hasGateFu = true;
+    let hasStarFan = true;
+    let hasGateFan = true;
+
+    // 原宫位标准配置 (老家)
+    const baseStars = {1:'天蓬', 2:'天芮', 3:'天冲', 4:'天辅', 6:'天心', 7:'天柱', 8:'天任', 9:'天英'};
+    const baseGates = {1:'休门', 2:'死门', 3:'伤门', 4:'杜门', 6:'开门', 7:'惊门', 8:'生门', 9:'景门'};
     
-    let hasStarFu = allPatterns.some(pt => pt.name === '星伏吟');
-    let hasStarFan = allPatterns.some(pt => pt.name === '星反吟');
-    let hasGateFu = allPatterns.some(pt => pt.name === '门伏吟');
-    let hasGateFan = allPatterns.some(pt => pt.name === '门反吟');
-    
+    // 反吟对宫标准配置 (1-9, 2-8, 3-7, 4-6对调)
+    const fanStars = {1:'天英', 2:'天任', 3:'天柱', 4:'天心', 6:'天辅', 7:'天冲', 8:'天芮', 9:'天蓬'};
+    const fanGates = {1:'景门', 2:'生门', 3:'惊门', 4:'开门', 6:'杜门', 7:'伤门', 8:'死门', 9:'休门'};
+
+    // 遍历九宫，进行物理位置核对
+    chart.palaces.forEach(p => {
+        let pos = p.position;
+        if (pos === 5) return; // 中五宫跳过，校验外围八宫即可绝对定性
+
+        let starName = Array.isArray(p.star) ? p.star[0] : (p.star || '');
+        let gateName = p.gate || '';
+
+        // 只要有一个不在老家，就不是伏吟
+        if (starName !== baseStars[pos]) hasStarFu = false;
+        if (gateName !== baseGates[pos] && gateName !== '') hasGateFu = false;
+
+        // 只要有一个不在对宫，就不是反吟
+        if (starName !== fanStars[pos]) hasStarFan = false;
+        if (gateName !== fanGates[pos] && gateName !== '') hasGateFan = false;
+    });
+
     let fyText = '';
     if (hasStarFu && hasGateFu) fyText = '星门俱伏';
     else if (hasStarFan && hasGateFan) fyText = '星门俱反';
@@ -323,6 +343,7 @@ const OogoTagEnhancer = {
 
     // 挂载到全局 chart 对象，供前端直接读取
     chart.uiTagFuYin = fyText;
+
 
     // ==========================================
     // 4. 遍历宫位，覆盖重写算法，屏蔽 3meta 的错误
