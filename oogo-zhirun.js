@@ -516,7 +516,13 @@ const OogoZhiRun = {
 
   calculate(year, month, day, hour, min, sec = 0) {
     const fullChart = CalendarAdapter.getFullChart(year, month, day, hour, min, sec);
-    const targetDate = this.createDate(year, month, day);
+    let targetDate = this.createDate(year, month, day);
+
+    // 【修复新增】：如果是晚子时 (23点及以后)，历法计算的基准日必须 +1 天
+    if (hour >= 23) {
+        targetDate = this.addDays(targetDate, 1);
+    }
+
 
     let SS_prev = this.getSolsticeDate(year - 1, false);
     let WS_prev = this.getSolsticeDate(year - 1, true);
