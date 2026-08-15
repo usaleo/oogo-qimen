@@ -270,18 +270,17 @@ const OogoFeiPan = {
   }
 };
 
-// oogo-zhirun.js 的最底部追加以下代码
+// oogo-zhirun.js 的最底部追加/替换为以下代码
 
 const OogoTagEnhancer = {
   enhance: function(chart) {
     // ==========================================
     // 1. 拦截并修复 3meta 的【驿马星】致命 Bug
     // ==========================================
-    // 彻底抛弃 chart.postHorse，使用时支重新精准计算马星
     const timeBranch = chart.fourPillars.hour.branch; 
     let maXing = '';
     if (['申', '子', '辰'].includes(timeBranch)) maXing = '寅';
-    else if (['亥', '卯', '未'].includes(timeBranch)) maXing = '巳'; // 修复 3meta 误写为'申'的Bug
+    else if (['亥', '卯', '未'].includes(timeBranch)) maXing = '巳'; 
     else if (['寅', '午', '戌'].includes(timeBranch)) maXing = '申';
     else if (['巳', '酉', '丑'].includes(timeBranch)) maXing = '亥';
 
@@ -302,7 +301,31 @@ const OogoTagEnhancer = {
     const kongPalace2 = branchToPalace[kong2] || 0;
 
     // ==========================================
-    // 3. 遍历宫位，覆盖重写算法，屏蔽 3meta 的错误
+    // 3. 提取全局特殊格局：伏吟与反吟
+    // ==========================================
+    let specialPatterns = chart.specialPatterns || {};
+    let allPatterns = [];
+    if (specialPatterns.inauspiciousPatterns) allPatterns = allPatterns.concat(specialPatterns.inauspiciousPatterns);
+    if (specialPatterns.auspiciousPatterns) allPatterns = allPatterns.concat(specialPatterns.auspiciousPatterns);
+    
+    let hasStarFu = allPatterns.some(pt => pt.name === '星伏吟');
+    let hasStarFan = allPatterns.some(pt => pt.name === '星反吟');
+    let hasGateFu = allPatterns.some(pt => pt.name === '门伏吟');
+    let hasGateFan = allPatterns.some(pt => pt.name === '门反吟');
+    
+    let fyText = '';
+    if (hasStarFu && hasGateFu) fyText = '星门俱伏';
+    else if (hasStarFan && hasGateFan) fyText = '星门俱反';
+    else if (hasStarFu) fyText = '星伏';
+    else if (hasStarFan) fyText = '星反';
+    else if (hasGateFu) fyText = '门伏';
+    else if (hasGateFan) fyText = '门反';
+
+    // 挂载到全局 chart 对象，供前端直接读取
+    chart.uiTagFuYin = fyText;
+
+    // ==========================================
+    // 4. 遍历宫位，覆盖重写算法，屏蔽 3meta 的错误
     // ==========================================
     chart.palaces.forEach(p => {
         const pos = p.position;
@@ -312,14 +335,11 @@ const OogoTagEnhancer = {
         p.uiTagMa = (pos === maPalaceNum);
         p.uiTagKong = (pos === kongPalace1 || pos === kongPalace2);
         
-        // 击刑与门迫 (3meta 算的是对的，直接透传)
+        // 击刑与门迫
         p.uiTagJx = !!(p.liuYiJiXing && p.liuYiJiXing.hasJiXing);
         p.uiTagPo = (p.gatePressure === '迫');
 
-        // ==========================================
-        // 4. 拦截并修复 3meta 库的【天盘入墓】Bug
-        // ==========================================
-        // 废弃 p.tombInfo，强制使用标准《烟波钓叟歌》严格入墓规则 (乙仅在乾6入墓)
+        // 拦截并修复 3meta 库的【天盘入墓】Bug (乙仅在乾6入墓)
         let mu = false;
         if ((pos === 6 && ['丙','戊','乙'].includes(hStem)) ||
             (pos === 8 && ['丁','己','庚'].includes(hStem)) ||
@@ -333,5 +353,6 @@ const OogoTagEnhancer = {
     return chart;
   }
 };
+
 
 
