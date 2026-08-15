@@ -483,7 +483,7 @@
             chart = OogoFeiPan.fly(chart);
         }
 
-        // 🟢 【新增】交给底层库统一处理所有 UI 标签，实现前端零算法
+        // 🟢 交给底层库统一处理所有 UI 标签，实现前端零算法
         if (typeof OogoTagEnhancer !== 'undefined') {
             chart = OogoTagEnhancer.enhance(chart);
         }
@@ -501,7 +501,7 @@
         let fuTou = stems[dSIdx - fuOffset] + branches[(dBIdx - fuOffset + 12) % 12];
         let yuanDay = fuOffset + 1; 
 
-        // 修复：加入防崩溃判断读取引擎算好的马星、空亡、旬首（给顶部信息栏用）
+        // 读取引擎算好的马星、空亡、旬首
         let maXing = chart.postHorse ? chart.postHorse.branch : '';
         let voidnessArr = chart.timeInfo.voidness || [];
         let kong1 = voidnessArr[0] || '';
@@ -520,25 +520,8 @@
         let yuanStr = (chart.yuan || '中元') + '第' + yuanDay + '天';
         let dunStr = chart.ju.type + chart.ju.number + '局';
 
-        // 检查伏吟反吟 (提取后端算好的特殊格局)
-        let specialPatterns = chart.specialPatterns || {};
-        let allPatterns = [];
-        if (specialPatterns.inauspiciousPatterns) allPatterns = allPatterns.concat(specialPatterns.inauspiciousPatterns);
-        if (specialPatterns.auspiciousPatterns) allPatterns = allPatterns.concat(specialPatterns.auspiciousPatterns);
-        
-        let fyText = '';
-        let hasStarFu = allPatterns.some(pt => pt.name === '星伏吟');
-        let hasStarFan = allPatterns.some(pt => pt.name === '星反吟');
-        let hasGateFu = allPatterns.some(pt => pt.name === '门伏吟');
-        let hasGateFan = allPatterns.some(pt => pt.name === '门反吟');
-        
-        if (hasStarFu && hasGateFu) fyText = '星门俱伏';
-        else if (hasStarFan && hasGateFan) fyText = '星门俱反';
-        else if (hasStarFu) fyText = '星伏';
-        else if (hasStarFan) fyText = '星反';
-        else if (hasGateFu) fyText = '门伏';
-        else if (hasGateFan) fyText = '门反';
-
+        // 提取特殊格局显示的标签
+        let fyText = chart.uiTagFuYin || '';
         if (fyText) {
           fyText = '<span style="color:#d34e55; font-weight:bold; margin-left:8px; border:1px solid #d34e55; padding:1px 4px; border-radius:4px; font-size:13px;">' + fyText + '</span>';
         }
