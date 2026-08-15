@@ -429,7 +429,7 @@
     }
 
     // ==========================================
-    // 起局入口 (已修复：旬首计算逻辑提前)
+    // 起局入口
     // ==========================================
     function generateChart() {
       try {
@@ -466,8 +466,7 @@
             chart = ThreeMeta.QimenChart.fromSolar(y, m, d, h, min, 0);
         }
 
-        // 🟢 【修复点：必须把旬首等计算提前！】
-        // 如果放在底下，上面的 OogoZhuanPanEnhancer 使用到 xunDun 就会直接导致程序崩溃，致使后续排版代码不执行
+        // 旬首计算提前
         let hSIdx = stems.indexOf(chart.fourPillars.hour.stem); 
         let hBIdx = branches.indexOf(chart.fourPillars.hour.branch);
         let xunOffset = (hBIdx - hSIdx + 12) % 12;
@@ -484,6 +483,10 @@
             chart = OogoFeiPan.fly(chart);
         }
 
+        // 🟢 【新增】交给底层库统一处理所有 UI 标签，实现前端零算法
+        if (typeof OogoTagEnhancer !== 'undefined') {
+            chart = OogoTagEnhancer.enhance(chart);
+        }
 
         // --- 从 chart 提取基础信息 ---
         let bY = chart.fourPillars.year.stem + chart.fourPillars.year.branch;
@@ -498,8 +501,8 @@
         let fuTou = stems[dSIdx - fuOffset] + branches[(dBIdx - fuOffset + 12) % 12];
         let yuanDay = fuOffset + 1; 
 
-        // 读取引擎算好的马星、空亡、旬首
-        let maXing = chart.postHorse.branch;
+        // 修复：加入防崩溃判断读取引擎算好的马星、空亡、旬首（给顶部信息栏用）
+        let maXing = chart.postHorse ? chart.postHorse.branch : '';
         let voidnessArr = chart.timeInfo.voidness || [];
         let kong1 = voidnessArr[0] || '';
         let kong2 = voidnessArr[1] || '';
@@ -588,13 +591,13 @@
           let gateClass = (origGate === '生门' || origGate === '休门' || origGate === '开门') ? 'gate-g' : ((origGate === '杜门' || origGate === '景门') ? 'gate-n' : 'gate-r');
           if (origGate === '中门') gateClass = 'gate-g';
 
-          // --- 根据后端给的数据智能贴标签 ---
+          // --- 🟢 前端零算法：只认底层给的 true/false 开关 ---
           let rightCornerHtml = '';
-          if (p.liuYiJiXing && p.liuYiJiXing.hasJiXing) rightCornerHtml += '<span class="tag-jx">刑</span>';
-          if (p.gatePressure === '迫') rightCornerHtml += '<span class="tag-po">迫</span>';
-          if (p.tombInfo && (p.tombInfo.heavenlyStemInTomb.length > 0 || p.tombInfo.earthlyStemInTomb.length > 0)) rightCornerHtml += '<span class="tag-mu">墓</span>';
-          if (p.isPostHorse) rightCornerHtml += '<span class="tag-ma">马</span>';
-          if (p.voidness && p.voidness.hasVoidness) rightCornerHtml += '<span class="tag-kong">空</span>';
+          if (p.uiTagJx) rightCornerHtml += '<span class="tag-jx">刑</span>';
+          if (p.uiTagPo) rightCornerHtml += '<span class="tag-po">迫</span>';
+          if (p.uiTagMu) rightCornerHtml += '<span class="tag-mu">墓</span>';
+          if (p.uiTagMa) rightCornerHtml += '<span class="tag-ma">马</span>';
+          if (p.uiTagKong) rightCornerHtml += '<span class="tag-kong">空</span>';
 
           let hClass = hStem.indexOf('/') !== -1 ? 'right-item stem-h small-stem-h' : 'right-item stem-h';
           let eClass = eStem.indexOf('/') !== -1 ? 'right-item stem-e small-stem-e' : 'right-item stem-e';
