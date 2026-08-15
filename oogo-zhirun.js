@@ -1,5 +1,6 @@
 // ============================================================
 // OOGO 奇门遁甲核心引擎 (含完美置闰、拆补、传统转盘与原生飞盘)
+// 全量修正版 2026-08-15 - 补全转盘天/地盘干寄宫数组显示逻辑
 // ============================================================
 // 主体系：
 //   时家奇门
@@ -16,13 +17,11 @@
 //   地八神
 // ============================================================
 
-
 // ============================================================
 // 一、基础常量
 // ============================================================
 
 const QimenConst = {
-
   STEMS: [
     "甲","乙","丙","丁","戊",
     "己","庚","辛","壬","癸"
@@ -42,15 +41,9 @@ const QimenConst = {
   // 洛书九宫
   PALACES: [1,2,3,4,5,6,7,8,9],
 
-  // 八宫顺序
+  // 八宫顺序（转盘用）
   // 坎 → 艮 → 震 → 巽 → 离 → 坤 → 兑 → 乾
   BAGUA_RING: [1,8,3,4,9,2,7,6],
-
-  // 阳遁地盘顺序
-  YANG_QI_RING: [1,2,3,4,5,6,7,8,9],
-
-  // 阴遁地盘顺序
-  YIN_QI_RING: [9,8,7,6,5,4,3,2,1],
 
   // 九星原始宫位
   STARS: {
@@ -77,7 +70,7 @@ const QimenConst = {
     9: "景门"
   },
 
-  // 八门固定顺序
+  // 八门固定顺序（永远顺时针）
   GATE_ORDER: [
     "休门",
     "生门",
@@ -89,27 +82,28 @@ const QimenConst = {
     "开门"
   ],
 
-  // 传统转盘八神
-  DEITIES: [
-    "值符",
-    "螣蛇",
-    "太阴",
-    "六合",
-    "白虎",
-    "玄武",
-    "九地",
-    "九天"
+  // 传统转盘八神（阴遁默认）
+  DEITY_ORDER_YIN: [
+    "符",
+    "螣",
+    "阴",
+    "合",
+    "白",
+    "玄",
+    "地",
+    "天"
   ],
 
-  DEITY_ORDER: [
-    "值符",
-    "螣蛇",
-    "太阴",
-    "六合",
-    "白虎",
-    "玄武",
-    "九地",
-    "九天"
+  // 阳遁八神（勾陈/朱雀）
+  DEITY_ORDER_YANG: [
+    "符",
+    "螣",
+    "阴",
+    "合",
+    "勾",
+    "朱",
+    "地",
+    "天"
   ],
 
   // 九宫五行
@@ -203,13 +197,11 @@ const QimenConst = {
   ]
 };
 
-
 // ============================================================
 // 二、工具函数
 // ============================================================
 
 const QimenUtil = {
-
   mod(value, length) {
     return ((value % length) + length) % length;
   },
@@ -220,6 +212,11 @@ const QimenUtil = {
 
   isOuterPalace(palace) {
     return palace !== 5;
+  },
+
+  // 统一中宫寄坤
+  resolveJiGong(palace) {
+    return palace === 5 ? 2 : palace;
   },
 
   nextDate(date, days) {
@@ -235,8 +232,8 @@ const QimenUtil = {
   dateKey(date) {
     return [
       date.getFullYear(),
-      String(date.getMonth() + 1).padStart(2,"0"),
-      String(date.getDate()).padStart(2,"0")
+      String(date.getMonth() + 1).padStart(2, "0"),
+      String(date.getDate()).padStart(2, "0")
     ].join("-");
   },
 
@@ -314,9 +311,9 @@ const QimenUtil = {
   },
 
   isTianGanMu(stem, palace) {
-    if (palace === 6 && ["乙","丙","戊"].includes(stem)) return true;
-    if (palace === 8 && ["丁","己","庚"].includes(stem)) return true;
-    if (palace === 4 && ["辛","壬"].includes(stem)) return true;
+    if (palace === 6 && ["乙", "丙", "戊"].includes(stem)) return true;
+    if (palace === 8 && ["丁", "己", "庚"].includes(stem)) return true;
+    if (palace === 4 && ["辛", "壬"].includes(stem)) return true;
     if (palace === 2 && stem === "癸") return true;
     return false;
   },
@@ -336,7 +333,6 @@ const QimenUtil = {
     );
   }
 };
-
 
 // ============================================================
 // 三、CalendarAdapter
@@ -364,7 +360,6 @@ const CalendarAdapter = {
     };
   }
 };
-
 
 // ============================================================
 // 四、符头系统与节气扫描器
@@ -399,9 +394,9 @@ const QimenFuTou = {
 
   getYuanFromFuTou(fuTouGanZhi) {
     const branch = fuTouGanZhi.branch;
-    if (["子","午","卯","酉"].includes(branch)) return { index: 0, name: "上元" };
-    if (["寅","申","巳","亥"].includes(branch)) return { index: 1, name: "中元" };
-    if (["辰","戌","丑","未"].includes(branch)) return { index: 2, name: "下元" };
+    if (["子", "午", "卯", "酉"].includes(branch)) return { index: 0, name: "上元" };
+    if (["寅", "申", "巳", "亥"].includes(branch)) return { index: 1, name: "中元" };
+    if (["辰", "戌", "丑", "未"].includes(branch)) return { index: 2, name: "下元" };
     throw new Error(`无法判定三元：${fuTouGanZhi.stem}${branch}`);
   }
 };
@@ -448,82 +443,173 @@ const QimenSolarTerm = {
   }
 };
 
-
 // ============================================================
 // 五、置闰法与拆补法
 // ============================================================
 
 const OogoZhiRun = {
-  classifyFuTouAndTerm(fuTouDate, termDate) {
-    const diff = Math.round((fuTouDate.getTime() - termDate.getTime()) / 86400000);
-    if (diff === 0) return { type: "正授", days: 0 };
-    if (diff < 0) return { type: "超神", days: Math.abs(diff) };
-    return { type: "接气", days: diff };
+  createDate(y, m, d) {
+    return new Date(y, m - 1, d, 12, 0, 0, 0); 
+  },
+  addDays(date, days) {
+    let d = new Date(date.getTime());
+    d.setDate(d.getDate() + days);
+    return d;
+  },
+  diffDays(d1, d2) {
+    return Math.round((d1.getTime() - d2.getTime()) / 86400000);
+  },
+  
+  getDayGanzhiIndex(date) {
+    let y = date.getFullYear();
+    let m = date.getMonth() + 1;
+    let d = date.getDate();
+    let chart = CalendarAdapter.getDayGanZhi(y, m, d);
+    return QimenUtil.findStemBranchIndex(chart.stem, chart.branch);
   },
 
-  getCurrentTermContext(year, month, day) {
-    const date = QimenUtil.dateOnly(year, month, day);
-    const current = CalendarAdapter.getSolarTermInfo(year, month, day);
-    const previous = QimenSolarTerm.findPreviousTerm(date);
-    const next = QimenSolarTerm.findNextTerm(date);
-    return { date, currentName: current.name, previous, next };
+  getSolsticeDate(year, isWinter) {
+    let m = isWinter ? 12 : 6;
+    let targetTerm = isWinter ? "冬至" : "夏至";
+    for (let d = 15; d <= 25; d++) {
+        let chart = CalendarAdapter.getFullChart(year, m, d, 23, 59);
+        if (chart.timeInfo && chart.timeInfo.solarTerm === targetTerm) {
+            let prevChart = CalendarAdapter.getFullChart(year, m, d - 1, 23, 59);
+            if (prevChart.timeInfo && prevChart.timeInfo.solarTerm !== targetTerm) {
+                return this.createDate(year, m, d);
+            }
+        }
+    }
+    return this.createDate(year, m, 21);
+  },
+
+  getAnchorUpperYuan(solsticeDate) {
+    let baseTime = solsticeDate.getTime();
+    for (let offset = -9; offset <= 5; offset++) {
+        let d = this.addDays(solsticeDate, offset);
+        let gzIdx = this.getDayGanzhiIndex(d);
+        if (gzIdx % 15 === 0) {
+            return d;
+        }
+    }
+    return solsticeDate;
+  },
+
+  getTermStartDateExact(termName, targetDate) {
+    for (let d = -30; d <= 30; d++) {
+        let testDate = this.addDays(targetDate, d);
+        let chart = CalendarAdapter.getFullChart(
+            testDate.getFullYear(), testDate.getMonth() + 1, testDate.getDate(), 23, 59
+        );
+        if (chart.timeInfo && chart.timeInfo.solarTerm === termName) {
+            let prevDate = this.addDays(testDate, -1);
+            let prevChart = CalendarAdapter.getFullChart(
+                prevDate.getFullYear(), prevDate.getMonth() + 1, prevDate.getDate(), 23, 59
+            );
+            if (prevChart.timeInfo && prevChart.timeInfo.solarTerm !== termName) {
+                return testDate;
+            }
+        }
+    }
+    return targetDate; 
   },
 
   calculate(year, month, day, hour, min, sec = 0) {
     const fullChart = CalendarAdapter.getFullChart(year, month, day, hour, min, sec);
-    const fuTou = QimenFuTou.getFuTouDate(year, month, day);
-    const yuan = QimenFuTou.getYuanFromFuTou({ stem: fuTou.stem, branch: fuTou.branch });
+    const targetDate = this.createDate(year, month, day);
 
-    const termContext = this.getCurrentTermContext(year, month, day);
-    const termName = termContext.currentName;
-    const termDate = termContext.previous.date;
+    let SS_prev = this.getSolsticeDate(year - 1, false);
+    let WS_prev = this.getSolsticeDate(year - 1, true);
+    let SS_curr = this.getSolsticeDate(year, false);
+    let WS_curr = this.getSolsticeDate(year, true);
 
-    const relation = this.classifyFuTouAndTerm(fuTou.date, termDate);
-    const isYang = QimenSolarTerm.isYangDun(termName);
+    let A_SS_prev = this.getAnchorUpperYuan(SS_prev);
+    let A_WS_prev = this.getAnchorUpperYuan(WS_prev);
+    let A_SS_curr = this.getAnchorUpperYuan(SS_curr);
+    let A_WS_curr = this.getAnchorUpperYuan(WS_curr);
 
-    let superShenDays = relation.type === "超神" ? relation.days : 0;
-    let isTrueRun = false;
-    if (superShenDays > 9 && (termName === "芒种" || termName === "大雪")) {
-      isTrueRun = true;
+    let FT_D = null;
+    for (let offset = 0; offset >= -14; offset--) {
+        let d = this.addDays(targetDate, offset);
+        if (this.getDayGanzhiIndex(d) % 15 === 0) {
+            FT_D = d;
+            break;
+        }
     }
 
-    const table = QimenSolarTerm.getJuTable(termName, isYang);
-    if (!table) throw new Error(`没有找到节气局数表：${termName}`);
+    let isYang = true;
+    let termsList = QimenConst.YANG_TERMS;
+    let baseAnchor = null;
 
-    let yuanIndex = yuan.index;
-    let mode = relation.type;
-    if (isTrueRun) mode = "闰奇";
+    if (FT_D.getTime() < A_WS_prev.getTime()) {
+        isYang = false;
+        termsList = QimenConst.YIN_TERMS;
+        baseAnchor = A_SS_prev;
+    } else if (FT_D.getTime() < A_SS_curr.getTime()) {
+        isYang = true;
+        termsList = QimenConst.YANG_TERMS;
+        baseAnchor = A_WS_prev;
+    } else if (FT_D.getTime() < A_WS_curr.getTime()) {
+        isYang = false;
+        termsList = QimenConst.YIN_TERMS;
+        baseAnchor = A_SS_curr;
+    } else {
+        isYang = true;
+        termsList = QimenConst.YANG_TERMS;
+        baseAnchor = A_WS_curr;
+    }
 
-    const juNumber = table[yuanIndex];
+    let diffDays = this.diffDays(FT_D, baseAnchor);
+    let k = Math.round(diffDays / 15);
+
+    let isTrueRun = false;
+    let termIndex = k;
+    if (k >= 12) {
+        termIndex = 11; 
+        isTrueRun = true;
+    }
+
+    let termName = termsList[termIndex];
+
+    let daysSinceFT = this.diffDays(targetDate, FT_D);
+    let yuanIndex = Math.floor(daysSinceFT / 5); 
+    let yuanName = ["上元", "中元", "下元"][yuanIndex];
+
+    let table = isYang ? QimenConst.YANG_JU[termName] : QimenConst.YIN_JU[termName];
+    let juNumber = table[yuanIndex];
+
+    let astroStart = this.getTermStartDateExact(termName, targetDate);
+    let relationDays = this.diffDays(FT_D, astroStart);
+    let relation = relationDays === 0 ? "正授" : (relationDays < 0 ? "超神" : "接气");
+    let superShenDays = relation === "超神" ? Math.abs(relationDays) : 0;
+    if (isTrueRun) relation = "闰奇";
+
+    let fuTouChart = CalendarAdapter.getDayGanZhi(FT_D.getFullYear(), FT_D.getMonth() + 1, FT_D.getDate());
+    let fuTouGanZhi = fuTouChart.stem + fuTouChart.branch;
 
     return {
-      chart: fullChart,
-      method: "置闰法",
-      juNumber,
-      isYangdun: isYang,
-      termName,
-      termDate,
-      fuTouDate: fuTou.date,
-      fuTouGanZhi: fuTou.ganZhi,
-      yuanIndex,
-      yuanName: yuan.name,
-      relation: mode,
-      superShenDays,
-      isTrueRun,
-      debugInfo: {
-        currentDate: QimenUtil.dateKey(QimenUtil.dateOnly(year, month, day)),
-        fuTouDate: QimenUtil.dateKey(fuTou.date),
-        fuTouGanZhi: fuTou.ganZhi,
-        yuan: yuan.name,
-        solarTerm: termName,
-        solarTermDate: QimenUtil.dateKey(termDate),
-        relation: relation.type,
-        relationDays: relation.days,
-        superShenDays,
-        isTrueRun,
-        juNumber,
-        isYangdun: isYang
-      }
+        chart: fullChart,
+        method: "置闰法",
+        juNumber: juNumber,
+        isYangdun: isYang,
+        termName: termName,
+        termDate: astroStart,
+        fuTouDate: FT_D,
+        fuTouGanZhi: fuTouGanZhi,
+        yuanIndex: yuanIndex,
+        yuanName: yuanName,
+        relation: relation,
+        superShenDays: superShenDays,
+        isTrueRun: isTrueRun,
+        debugInfo: {
+            targetDate: QimenUtil.dateKey(targetDate),
+            FT_D: QimenUtil.dateKey(FT_D),
+            baseAnchor: QimenUtil.dateKey(baseAnchor),
+            diffDays: diffDays,
+            periods: k,
+            astroStart: QimenUtil.dateKey(astroStart),
+            isTrueRun: isTrueRun
+        }
     };
   }
 };
@@ -553,19 +639,18 @@ const OogoChaiBu = {
       termName,
       termDate,
       yuanIndex,
-      yuanName: ["上元","中元","下元"][yuanIndex],
+      yuanName: ["上元", "中元", "下元"][yuanIndex],
       debugInfo: {
         termName,
         termDate: QimenUtil.dateKey(termDate),
         daysFromTerm: days,
         yuanIndex,
-        yuanName: ["上元","中元","下元"][yuanIndex],
+        yuanName: ["上元", "中元", "下元"][yuanIndex],
         juNumber: table[yuanIndex]
       }
     };
   }
 };
-
 
 // ============================================================
 // 六、空亡、驿马与标签增强
@@ -595,10 +680,10 @@ const OogoKongWang = {
 
 const OogoYiMa = {
   getMaBranch(timeBranch) {
-    if (["申","子","辰"].includes(timeBranch)) return "寅";
-    if (["亥","卯","未"].includes(timeBranch)) return "巳";
-    if (["寅","午","戌"].includes(timeBranch)) return "申";
-    if (["巳","酉","丑"].includes(timeBranch)) return "亥";
+    if (["申", "子", "辰"].includes(timeBranch)) return "寅";
+    if (["亥", "卯", "未"].includes(timeBranch)) return "巳";
+    if (["寅", "午", "戌"].includes(timeBranch)) return "申";
+    if (["巳", "酉", "丑"].includes(timeBranch)) return "亥";
     return "";
   },
 
@@ -675,17 +760,20 @@ const OogoTagEnhancer = {
   }
 };
 
-
 // ============================================================
-// 七、传统转盘模块 (DiPan, ZhuanXing, ZhuanMen, TianShen, DiShen)
+// 七、传统转盘模块
 // ============================================================
 
 const OogoDiPan = {
   build(juNumber, isYang) {
     const result = {};
-    const order = isYang ? [1,2,3,4,5,6,7,8,9] : [9,8,7,6,5,4,3,2,1];
+    const stems = QimenConst.QIMEN_STEMS;
+    let palace = juNumber;
+    const direction = isYang ? 1 : -1;
+
     for (let i = 0; i < 9; i++) {
-      result[order[i]] = QimenConst.QIMEN_STEMS[i];
+      result[palace] = stems[i];
+      palace = QimenUtil.numberMove(palace, 1, direction);
     }
     return result;
   }
@@ -697,7 +785,7 @@ const OogoZhuanXing = {
     return QimenConst.STARS[palace];
   },
 
-  build(earthStems, timeStem, xunStem, xunPalace, isYang) {
+  build(earthStems, timeStem, xunStem, origXunPalace, isYang) {
     const result = {};
     const effectiveTimeStem = timeStem === "甲" ? xunStem : timeStem;
     let timeStemPalace = null;
@@ -710,12 +798,17 @@ const OogoZhuanXing = {
     }
     if (!timeStemPalace) throw new Error(`找不到时干地盘宫：${effectiveTimeStem}`);
 
-    const zhiFuStar = OogoZhuanXing.getStarAtOriginalPalace(xunPalace);
+    const zhiFuStar = this.getStarAtOriginalPalace(origXunPalace === 5 ? 5 : origXunPalace);
     const ring = QimenConst.BAGUA_RING;
-    const xunRingIndex = ring.indexOf(xunPalace);
-    const targetRingIndex = ring.indexOf(timeStemPalace);
+
+    const effectiveXun = QimenUtil.resolveJiGong(origXunPalace);
+    const effectiveTime = QimenUtil.resolveJiGong(timeStemPalace);
+
+    const xunRingIndex = ring.indexOf(effectiveXun);
+    const targetRingIndex = ring.indexOf(effectiveTime);
 
     const shift = QimenUtil.mod(targetRingIndex - xunRingIndex, 8);
+
     for (let i = 0; i < 8; i++) {
       const sourcePalace = ring[QimenUtil.mod(xunRingIndex + i, 8)];
       const targetPalace = ring[QimenUtil.mod(xunRingIndex + i + shift, 8)];
@@ -724,11 +817,18 @@ const OogoZhuanXing = {
 
     let tianRuiPalace = null;
     for (const p of QimenConst.PALACES) {
-      if (result[p] === "天芮") { tianRuiPalace = p; break; }
+      if (result[p] === "天芮") {
+        tianRuiPalace = p;
+        break;
+      }
     }
     if (tianRuiPalace) result[tianRuiPalace] = "天芮/天禽";
 
-    return { stars: result, zhiFuStar, zhiFuPalace: timeStemPalace };
+    return {
+      stars: result,
+      zhiFuStar: zhiFuStar === "天禽" ? "天芮/天禽" : zhiFuStar,
+      zhiFuPalace: effectiveTime
+    };
   }
 };
 
@@ -737,27 +837,37 @@ const OogoZhuanMen = {
     return QimenConst.GATES[palace] || "";
   },
 
-  build(xunPalace, xunBranch, timeBranch, isYang) {
+  build(origXunPalace, xunBranch, timeBranch, isYang) {
     const result = {};
-    const xunIndex = QimenUtil.branchIndex(xunBranch);
-    const timeIndex = QimenUtil.branchIndex(timeBranch);
-    const branchOffset = QimenUtil.mod(timeIndex - xunIndex, 12);
-
-    const targetPalace = QimenUtil.numberMove(xunPalace, branchOffset, isYang ? 1 : -1);
-    const effectiveXunPalace = xunPalace === 5 ? 2 : xunPalace;
-    const zhiShiGate = OogoZhuanMen.getOriginalGate(effectiveXunPalace);
-
     const ring = QimenConst.BAGUA_RING;
-    const targetRingIndex = ring.indexOf(targetPalace);
-    const gateIndex = QimenConst.GATE_ORDER.indexOf(zhiShiGate);
+
+    const effectiveXun = QimenUtil.resolveJiGong(origXunPalace);
+    const zhiShiGate = this.getOriginalGate(effectiveXun);
+
+    const xunIdx = QimenUtil.branchIndex(xunBranch);
+    const timeIdx = QimenUtil.branchIndex(timeBranch);
+    const steps = QimenUtil.mod(timeIdx - xunIdx, 12);
+
+    const direction = isYang ? 1 : -1;
+    
+    let targetPalace = QimenUtil.numberMove(origXunPalace, steps, direction); 
+    targetPalace = QimenUtil.resolveJiGong(targetPalace);
+
+    const targetRingIdx = ring.indexOf(targetPalace);
+    const gateStartIdx = QimenConst.GATE_ORDER.indexOf(zhiShiGate);
 
     for (let i = 0; i < 8; i++) {
-      const gate = QimenConst.GATE_ORDER[QimenUtil.mod(gateIndex + i, 8)];
-      const palace = ring[QimenUtil.mod(targetRingIndex + i, 8)];
+      const gate = QimenConst.GATE_ORDER[QimenUtil.mod(gateStartIdx + i, 8)];
+      const palace = ring[QimenUtil.mod(targetRingIdx + i, 8)];
       result[palace] = gate;
     }
 
-    return { gates: result, zhiShiGate, zhiShiPalace: targetPalace, branchOffset };
+    return {
+      gates: result,
+      zhiShiGate,
+      zhiShiPalace: targetPalace,
+      branchOffset: steps
+    };
   }
 };
 
@@ -765,12 +875,13 @@ const OogoTianShen = {
   build(zhiFuPalace, isYang) {
     const result = {};
     const ring = QimenConst.BAGUA_RING;
-    const start = ring.indexOf(zhiFuPalace);
+    const deities = isYang ? QimenConst.DEITY_ORDER_YANG : QimenConst.DEITY_ORDER_YIN;
+    const start = ring.indexOf(QimenUtil.resolveJiGong(zhiFuPalace));
     const direction = isYang ? 1 : -1;
 
     for (let i = 0; i < 8; i++) {
       const palace = ring[QimenUtil.mod(start + direction * i, 8)];
-      result[palace] = QimenConst.DEITY_ORDER[i];
+      result[palace] = deities[i];
     }
     return result;
   }
@@ -780,12 +891,13 @@ const OogoDiShen = {
   build(earthXunPalace, isYang) {
     const result = {};
     const ring = QimenConst.BAGUA_RING;
-    const start = ring.indexOf(earthXunPalace);
+    const deities = isYang ? QimenConst.DEITY_ORDER_YANG : QimenConst.DEITY_ORDER_YIN;
+    const start = ring.indexOf(QimenUtil.resolveJiGong(earthXunPalace));
     const direction = isYang ? 1 : -1;
 
     for (let i = 0; i < 8; i++) {
       const palace = ring[QimenUtil.mod(start + direction * i, 8)];
-      result[palace] = QimenConst.DEITY_ORDER[i];
+      result[palace] = deities[i];
     }
     return result;
   }
@@ -793,7 +905,10 @@ const OogoDiShen = {
 
 const OogoZhuanPan = {
   calculate(year, month, day, hour, min, sec = 0, method = "zhirun") {
-    let juInfo = method === "chaibu" ? OogoChaiBu.calculate(year, month, day, hour, min, sec) : OogoZhiRun.calculate(year, month, day, hour, min, sec);
+    const juInfo = method === "chaibu"
+      ? OogoChaiBu.calculate(year, month, day, hour, min, sec)
+      : OogoZhiRun.calculate(year, month, day, hour, min, sec);
+
     const chart = juInfo.chart;
     const juNumber = juInfo.juNumber;
     const isYang = juInfo.isYangdun;
@@ -803,17 +918,43 @@ const OogoZhuanPan = {
     const xun = QimenUtil.getXunInfo(timeStem, timeBranch);
 
     const earthStems = OogoDiPan.build(juNumber, isYang);
-    let xunPalace = null;
-    for (const p of QimenConst.PALACES) {
-      if (earthStems[p] === xun.stem) { xunPalace = p; break; }
-    }
-    if (xunPalace === 5) xunPalace = 2;
-    if (!xunPalace) throw new Error(`找不到旬首地盘宫：${xun.stem}`);
 
-    const starInfo = OogoZhuanXing.build(earthStems, timeStem, xun.stem, xunPalace, isYang);
-    const gateInfo = OogoZhuanMen.build(xunPalace, xun.branch, timeBranch, isYang);
+    let origXunPalace = null;
+    for (const p of QimenConst.PALACES) {
+      if (earthStems[p] === xun.stem) {
+        origXunPalace = p;
+        break;
+      }
+    }
+    if (!origXunPalace) throw new Error(`找不到旬首地盘宫：${xun.stem}`);
+
+    const starInfo = OogoZhuanXing.build(earthStems, timeStem, xun.stem, origXunPalace, isYang);
+    const gateInfo = OogoZhuanMen.build(origXunPalace, xun.branch, timeBranch, isYang);
     const heavenDeities = OogoTianShen.build(starInfo.zhiFuPalace, isYang);
-    const earthDeities = OogoDiShen.build(xunPalace, isYang);
+    const earthDeities = OogoDiShen.build(origXunPalace, isYang);
+
+    // ==========================================
+    // ★ 飞暗干逻辑：用 Map 对象强行覆盖原库的脏数据
+    // ==========================================
+    const hiddenStemsMap = new Map();
+    const qimenStems = ["戊", "己", "庚", "辛", "壬", "癸", "丁", "丙", "乙"];
+    const hiddenTimeStem = timeStem === "甲" ? xun.stem : timeStem;
+    const tsIdx = qimenStems.indexOf(hiddenTimeStem);
+
+    if (tsIdx !== -1) {
+      let zsTargetPalace = gateInfo.zhiShiPalace;
+      
+      for (let i = 0; i < 9; i++) {
+        let landPalace = isYang ? (zsTargetPalace + i) : (zsTargetPalace - i);
+        while (landPalace > 9) landPalace -= 9;
+        while (landPalace < 1) landPalace += 9;
+        
+        hiddenStemsMap.set(landPalace, qimenStems[(tsIdx + i) % 9]);
+      }
+    }
+    
+    chart.hiddenStems = hiddenStemsMap;
+    // ==========================================
 
     const palaces = [];
     for (const position of QimenConst.PALACES) {
@@ -826,7 +967,7 @@ const OogoZhuanPan = {
         gate: gateInfo.gates[position] || "",
         deity: heavenDeities[position] || "",
         earthDeity: earthDeities[position] || "",
-        hiddenStem: "",
+        hiddenStem: hiddenStemsMap.get(position) || "无", 
         isJiGong: position === 5
       });
     }
@@ -835,10 +976,15 @@ const OogoZhuanPan = {
     const effectiveTimeStem = timeStem === "甲" ? xun.stem : timeStem;
     let timeStemPalace = null;
     for (const p of QimenConst.PALACES) {
-      if (earthStems[p] === effectiveTimeStem) { timeStemPalace = p; break; }
+      if (earthStems[p] === effectiveTimeStem) {
+        timeStemPalace = p;
+        break;
+      }
     }
+    timeStemPalace = QimenUtil.resolveJiGong(timeStemPalace);
 
-    const xunRingIndex = ring.indexOf(xunPalace);
+    const effectiveXunPalace = QimenUtil.resolveJiGong(origXunPalace);
+    const xunRingIndex = ring.indexOf(effectiveXunPalace); 
     const targetRingIndex = ring.indexOf(timeStemPalace);
     const starShift = QimenUtil.mod(targetRingIndex - xunRingIndex, 8);
 
@@ -852,6 +998,19 @@ const OogoZhuanPan = {
 
     palaces.forEach(p => {
       p.heavenlyStem = heavenStems[p.position] || "";
+
+      // ==========================================
+      // ★ 补全丢失的：天盘、地盘寄宫数组显示逻辑
+      // 匹配前端 index.html 的 small-stem 缩放类名
+      // ==========================================
+      if (p.position === 2) {
+        // 坤2宫地盘：[原坤2地干, 中5宫地干]
+        p.earthlyStem = [p.earthlyStem, earthStems[5]];
+      }
+      if (p.star === "天芮/天禽" || p.star === "天芮") {
+        // 天芮星所在宫天盘：[原天干, 中5宫地干]
+        p.heavenlyStem = [p.heavenlyStem, earthStems[5]];
+      }
     });
 
     const result = {
@@ -863,7 +1022,8 @@ const OogoZhuanPan = {
       fuTou: { date: juInfo.fuTouDate, ganZhi: juInfo.fuTouGanZhi, yuan: juInfo.yuanName },
       zhiFu: { star: starInfo.zhiFuStar, position: starInfo.zhiFuPalace },
       zhiShi: { gate: gateInfo.zhiShiGate, position: gateInfo.zhiShiPalace },
-      xun: { name: xun.name, stem: xun.stem, branch: xun.branch, palace: xunPalace },
+      xun: { name: xun.name, stem: xun.stem, branch: xun.branch, palace: origXunPalace },
+      hiddenStems: hiddenStemsMap, // 给前端使用
       palaces,
       debugInfo: juInfo.debugInfo
     };
@@ -872,50 +1032,57 @@ const OogoZhuanPan = {
   }
 };
 
-
 // ============================================================
-// 八、原生飞盘模块 (OogoFeiPan) —— 完整恢复移入
+// 八、原生飞盘模块（地盘已与转盘统一）
 // ============================================================
 
 const OogoFeiPan = {
   fly(chart) {
-    const isYang = (chart.ju && chart.ju.type) ? chart.ju.type.indexOf('阳') !== -1 : true;
+    const isYang = (chart.ju && chart.ju.type) ? chart.ju.type.indexOf("阳") !== -1 : true;
     const juNumber = chart.ju.number;
     const timeStem = chart.fourPillars.hour.stem;
     const timeBranch = chart.fourPillars.hour.branch;
 
-    const stemsArr = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
-    const branchesArr = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+    const stemsArr = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
+    const branchesArr = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
     const qimenStems = ["戊", "己", "庚", "辛", "壬", "癸", "丁", "丙", "乙"];
 
     const hSIdx = stemsArr.indexOf(timeStem);
     const hBIdx = branchesArr.indexOf(timeBranch);
     const xunOffset = (hBIdx - hSIdx + 12) % 12;
     const xunName = stemsArr[0] + branchesArr[xunOffset];
-    const xunStem = {"甲子":"戊", "甲戌":"己", "甲申":"庚", "甲午":"辛", "甲辰":"壬", "甲寅":"癸"}[xunName];
+    const xunStem = {
+      "甲子": "戊", "甲戌": "己", "甲申": "庚",
+      "甲午": "辛", "甲辰": "壬", "甲寅": "癸"
+    }[xunName];
 
-    // 纯净地盘
     const pureEarthStems = {};
+    let palace = juNumber;
+    const direction = isYang ? 1 : -1;
     for (let i = 0; i < 9; i++) {
-      let p = isYang ? (juNumber + i) : (juNumber - i);
-      while (p > 9) p -= 9;
-      while (p < 1) p += 9;
-      pureEarthStems[p] = qimenStems[i];
+      pureEarthStems[palace] = qimenStems[i];
+      palace = QimenUtil.numberMove(palace, 1, direction);
     }
 
-    const origStars = {1:'天蓬', 2:'天芮', 3:'天冲', 4:'天辅', 5:'天禽', 6:'天心', 7:'天柱', 8:'天任', 9:'天英'};
-    const origGates = {1:'休门', 2:'死门', 3:'伤门', 4:'杜门', 5:'中门', 6:'开门', 7:'惊门', 8:'生门', 9:'景门'};
+    const origStars = {
+      1: "天蓬", 2: "天芮", 3: "天冲", 4: "天辅", 5: "天禽",
+      6: "天心", 7: "天柱", 8: "天任", 9: "天英"
+    };
+    const origGates = {
+      1: "休门", 2: "死门", 3: "伤门", 4: "杜门", 5: "中门",
+      6: "开门", 7: "惊门", 8: "生门", 9: "景门"
+    };
 
     let xunPalace = 5, zfTargetPalace = 5;
     for (let i = 1; i <= 9; i++) {
       if (pureEarthStems[i] === xunStem) xunPalace = i;
-      if (pureEarthStems[i] === (timeStem === '甲' ? xunStem : timeStem)) zfTargetPalace = i;
+      if (pureEarthStems[i] === (timeStem === "甲" ? xunStem : timeStem)) zfTargetPalace = i;
     }
 
-    // 飞星与天盘干
     let starSteps = isYang ? (zfTargetPalace - xunPalace) : (xunPalace - zfTargetPalace);
     if (starSteps < 0) starSteps += 9;
-    const flyStars = {}; 
+
+    const flyStars = {};
     const flyHeavenStems = {};
     for (let i = 1; i <= 9; i++) {
       let landPalace = isYang ? (i + starSteps) : (i - starSteps);
@@ -925,16 +1092,17 @@ const OogoFeiPan = {
       flyHeavenStems[landPalace] = pureEarthStems[i];
     }
 
-    // 飞门
     const xunBranch = xunName[1];
     let branchOffset = branchesArr.indexOf(timeBranch) - branchesArr.indexOf(xunBranch);
     if (branchOffset < 0) branchOffset += 12;
+
     let zsTargetPalace = isYang ? (xunPalace + branchOffset) : (xunPalace - branchOffset);
     while (zsTargetPalace > 9) zsTargetPalace -= 9;
     while (zsTargetPalace < 1) zsTargetPalace += 9;
 
     let gateSteps = isYang ? (zsTargetPalace - xunPalace) : (xunPalace - zsTargetPalace);
     if (gateSteps < 0) gateSteps += 9;
+
     const flyGates = {};
     for (let i = 1; i <= 9; i++) {
       let landPalace = isYang ? (i + gateSteps) : (i - gateSteps);
@@ -943,10 +1111,10 @@ const OogoFeiPan = {
       flyGates[landPalace] = origGates[i];
     }
 
-    // 飞神 (九神体系)
-    const deitiesYang = ['值符', '腾蛇', '太阴', '六合', '勾陈', '太常', '朱雀', '九地', '九天'];
-    const deitiesYin  = ['值符', '腾蛇', '太阴', '六合', '白虎', '太常', '玄武', '九地', '九天'];
+    const deitiesYang = ["符", "螣", "阴", "合", "勾", "常", "朱", "地", "天"];
+    const deitiesYin  = ["符", "螣", "阴", "合", "白", "常", "玄", "地", "天"];
     const deitiesList = isYang ? deitiesYang : deitiesYin;
+
     const flyDeities = {};
     for (let i = 0; i < 9; i++) {
       let landPalace = isYang ? (zfTargetPalace + i) : (zfTargetPalace - i);
@@ -955,9 +1123,8 @@ const OogoFeiPan = {
       flyDeities[landPalace] = deitiesList[i];
     }
 
-    // 飞暗干
     const flyHiddenStems = {};
-    const tsIdx = qimenStems.indexOf(timeStem === '甲' ? xunStem : timeStem);
+    const tsIdx = qimenStems.indexOf(timeStem === "甲" ? xunStem : timeStem);
     if (tsIdx !== -1) {
       for (let i = 0; i < 9; i++) {
         let landPalace = isYang ? (zsTargetPalace + i) : (zsTargetPalace - i);
@@ -967,8 +1134,7 @@ const OogoFeiPan = {
       }
     }
 
-    // 覆写原盘属性并重新判定神煞
-    chart.palaces.forEach(function(p) {
+    chart.palaces.forEach(function (p) {
       const pos = p.position;
       const gate = flyGates[pos];
       const hStem = flyHeavenStems[pos];
@@ -981,28 +1147,34 @@ const OogoFeiPan = {
       p.hiddenStem = flyHiddenStems[pos] || "无";
       delete p.isJiGong;
 
-      // 1. 六仪击刑
       let jx = false;
-      if ((hStem === '戊' && pos === 3) || (hStem === '己' && pos === 2) ||
-          (hStem === '庚' && pos === 8) || (hStem === '辛' && pos === 9) ||
-          (hStem === '壬' && pos === 4) || (hStem === '癸' && pos === 4)) { jx = true; }
+      if ((hStem === "戊" && pos === 3) || (hStem === "己" && pos === 2) ||
+          (hStem === "庚" && pos === 8) || (hStem === "辛" && pos === 9) ||
+          (hStem === "壬" && pos === 4) || (hStem === "癸" && pos === 4)) {
+        jx = true;
+      }
       p.liuYiJiXing = { hasJiXing: jx };
 
-      // 2. 门迫
-      const gateEle = {"休门":"水","生门":"土","伤门":"木","杜门":"木","景门":"火","死门":"土","惊门":"金","开门":"金","中门":"土"}[gate];
-      const palaceEle = {1:"水",2:"土",3:"木",4:"木",5:"土",6:"金",7:"金",8:"土",9:"火"}[pos];
+      const gateEle = {
+        "休门": "水", "生门": "土", "伤门": "木", "杜门": "木",
+        "景门": "火", "死门": "土", "惊门": "金", "开门": "金", "中门": "土"
+      }[gate];
+      const palaceEle = { 1: "水", 2: "土", 3: "木", 4: "木", 5: "土", 6: "金", 7: "金", 8: "土", 9: "火" }[pos];
       let po = false;
-      if ((gateEle==='水'&&palaceEle==='火') || (gateEle==='火'&&palaceEle==='金') ||
-          (gateEle==='金'&&palaceEle==='木') || (gateEle==='木'&&palaceEle==='土') ||
-          (gateEle==='土'&&palaceEle==='水')) { po = true; }
-      p.gatePressure = { hasPressure: po, text: po ? '门迫' : '' };
+      if ((gateEle === "水" && palaceEle === "火") || (gateEle === "火" && palaceEle === "金") ||
+          (gateEle === "金" && palaceEle === "木") || (gateEle === "木" && palaceEle === "土") ||
+          (gateEle === "土" && palaceEle === "水")) {
+        po = true;
+      }
+      p.gatePressure = { hasPressure: po, text: po ? "门迫" : "" };
 
-      // 3. 天盘入墓
       let mu = false;
-      if ((pos === 6 && ['丙','戊','乙'].includes(hStem)) ||
-          (pos === 8 && ['丁','己','庚'].includes(hStem)) ||
-          (pos === 4 && ['辛','壬'].includes(hStem)) ||
-          (pos === 2 && hStem === '癸')) { mu = true; }
+      if ((pos === 6 && ["丙", "戊", "乙"].includes(hStem)) ||
+          (pos === 8 && ["丁", "己", "庚"].includes(hStem)) ||
+          (pos === 4 && ["辛", "壬"].includes(hStem)) ||
+          (pos === 2 && hStem === "癸")) {
+        mu = true;
+      }
       p.tombInfo = { heavenlyStemInTomb: mu ? [hStem] : [], earthlyStemInTomb: [] };
     });
 
@@ -1015,51 +1187,14 @@ const OogoFeiPan = {
   }
 };
 
-
 // ============================================================
-// 九、转盘增强器 (带阳遁勾陈/朱雀切换)
+// 九、统一入口与导出
 // ============================================================
-
 const OogoZhuanPanEnhancer = {
   enhance(chart, xunDun, isYang) {
-    if (!chart) throw new Error("OogoZhuanPanEnhancer：chart不能为空");
-    const ring = QimenConst.BAGUA_RING;
-    const deitiesYang = ['值符', '腾蛇', '太阴', '六合', '勾陈', '朱雀', '九地', '九天'];
-    const deitiesYin  = ['值符', '腾蛇', '太阴', '六合', '白虎', '玄武', '九地', '九天'];
-    const deities = isYang ? deitiesYang : deitiesYin;
-
-    let earthXunPalace = 5;
-    for (const p of chart.palaces) {
-      const stem = Array.isArray(p.earthlyStem) ? p.earthlyStem[0] : p.earthlyStem;
-      if (stem === xunDun) {
-        earthXunPalace = p.position;
-        break;
-      }
-    }
-    if (earthXunPalace === 5) earthXunPalace = 2;
-
-    const earthDeitiesMap = {};
-    const eDeityStartIndex = ring.indexOf(earthXunPalace);
-    if (eDeityStartIndex !== -1) {
-      for (let i = 0; i < 8; i++) {
-        let targetPalace = ring[isYang ? (eDeityStartIndex + i) % 8 : (eDeityStartIndex - i + 8) % 8];
-        earthDeitiesMap[targetPalace] = deities[i];
-      }
-    }
-
-    chart.palaces.forEach(p => {
-      p.earthDeity = earthDeitiesMap[p.position] || "";
-    });
-
     return chart;
   }
 };
-
-
-// ============================================================
-// 十、统一入口与导出
-// ============================================================
-
 const OogoQimen = {
   calculate(year, month, day, hour, min, sec = 0) {
     return OogoZhuanPan.calculate(year, month, day, hour, min, sec, "zhirun");
