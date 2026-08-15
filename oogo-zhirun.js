@@ -270,3 +270,38 @@ const OogoFeiPan = {
   }
 };
 
+// oogo-zhirun.js 的最底部追加以下代码
+
+const OogoTagEnhancer = {
+  enhance: function(chart) {
+    // 1. 物理映射：计算马星与空亡的绝对落宫
+    const maXing = chart.postHorse ? chart.postHorse.branch : '';
+    const maPalaceMap = { "寅": 8, "巳": 4, "申": 2, "亥": 6 };
+    const maPalaceNum = maPalaceMap[maXing] || 0;
+
+    const voidnessArr = (chart.timeInfo && chart.timeInfo.voidness) ? chart.timeInfo.voidness : [];
+    const kong1 = voidnessArr[0] || '';
+    const kong2 = voidnessArr[1] || '';
+    const branchToPalace = {
+        "子": 1, "丑": 8, "寅": 8, "卯": 3, "辰": 4, "巳": 4,
+        "午": 9, "未": 2, "申": 2, "酉": 7, "戌": 6, "亥": 6
+    };
+    const kongPalace1 = branchToPalace[kong1] || 0;
+    const kongPalace2 = branchToPalace[kong2] || 0;
+
+    // 2. 遍历宫位，将所有算法结果降维成 UI 直接可读的布尔值 (true/false)
+    chart.palaces.forEach(p => {
+        // 马星与空亡打标
+        p.uiTagMa = (p.position === maPalaceNum);
+        p.uiTagKong = (p.position === kongPalace1 || p.position === kongPalace2 || (p.voidness && p.voidness.hasVoidness));
+        
+        // 神煞格局打标 (将深层结构压平)
+        p.uiTagJx = !!(p.liuYiJiXing && p.liuYiJiXing.hasJiXing);
+        p.uiTagPo = (p.gatePressure === '迫');
+        p.uiTagMu = !!(p.tombInfo && (p.tombInfo.heavenlyStemInTomb.length > 0 || p.tombInfo.earthlyStemInTomb.length > 0));
+    });
+
+    return chart;
+  }
+};
+
