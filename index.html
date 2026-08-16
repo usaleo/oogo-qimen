@@ -359,7 +359,7 @@
     function animateBigTaiji() {
         // 如果没有在拖拽，则自动旋转
         if (!isTaijiDragging && bigTaijiElem) {
-            taijiAngle += 0.3; // 调整这里的数值可以改变自转速度
+            taijiAngle += 0.5; // 调整这里的数值可以改变自转速度
             if (taijiAngle >= 360) taijiAngle -= 360;
             bigTaijiElem.style.transform = `rotate(${taijiAngle}deg)`;
         }
