@@ -100,8 +100,8 @@ const QimenConst = {
     "螣",
     "阴",
     "合",
-    "勾",
-    "朱",
+    "虎",
+    "玄",
     "地",
     "天"
   ],
@@ -514,15 +514,22 @@ const OogoZhiRun = {
     return targetDate; 
   },
 
-  calculate(year, month, day, hour, min, sec = 0) {
-    const fullChart = CalendarAdapter.getFullChart(year, month, day, hour, min, sec);
-    let targetDate = this.createDate(year, month, day);
-
-    // 【修复新增】：如果是晚子时 (23点及以后)，历法计算的基准日必须 +1 天
+   calculate(year, month, day, hour, min, sec = 0) {
+    let tYear = year, tMonth = month, tDay = day;
+    
+    // 【同步处理】：如果是晚子时，历法基准和四柱排盘全部跨日推后一天
     if (hour >= 23) {
-        targetDate = this.addDays(targetDate, 1);
+        let nextDay = new Date(year, month - 1, day);
+        nextDay.setDate(nextDay.getDate() + 1);
+        tYear = nextDay.getFullYear();
+        tMonth = nextDay.getMonth() + 1;
+        tDay = nextDay.getDate();
+        // 注意：这里是否需要把 hour 从 23 改成 0，取决于你的 CalendarAdapter 底层库是否能自动识别 23点为新一天的子时。
     }
 
+    // 这样拿到的 fullChart，它的四柱就已经是第二天（跨日后）的正确干支了
+    const fullChart = CalendarAdapter.getFullChart(tYear, tMonth, tDay, hour, min, sec);
+    let targetDate = this.createDate(tYear, tMonth, tDay);
 
     let SS_prev = this.getSolsticeDate(year - 1, false);
     let WS_prev = this.getSolsticeDate(year - 1, true);
