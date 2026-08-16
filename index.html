@@ -312,7 +312,96 @@
       return `<span style="color: ${getWuxingColor(stem)}">${stem}</span><span style="color: ${getWuxingColor(branch)}">${branch}</span>`;
     }
 
+    // ==========================================
+    // 大太极自动旋转与手动拨动引擎
+    // ==========================================
+    let taijiAngle = 0;
+    let isTaijiDragging = false;
+    let taijiOffsetAngle = 0;
+    let taijiReqFrame = null;
+    let bigTaijiElem = null;
+    let taijiWrapper = null;
+
+    function initBigTaiji() {
+        bigTaijiElem = document.getElementById('bigTaiji');
+        taijiWrapper = document.getElementById('taijiWrapper');
+        if (!bigTaijiElem || !taijiWrapper) return;
+
+        // 初始化状态
+        if(taijiReqFrame) cancelAnimationFrame(taijiReqFrame);
+        isTaijiDragging = false;
+        
+        animateBigTaiji();
+
+        // 绑定交互事件（兼容鼠标和触屏）
+        taijiWrapper.addEventListener('pointerdown', startDrag);
+        document.addEventListener('pointermove', doDrag, { passive: false });
+        document.addEventListener('pointerup', endDrag);
+        document.addEventListener('pointercancel', endDrag);
+    }
+
+    function stopBigTaiji() {
+        // 清理动画和事件监听，防止内存泄漏和干扰排盘
+        if(taijiReqFrame) {
+            cancelAnimationFrame(taijiReqFrame);
+            taijiReqFrame = null;
+        }
+        if(taijiWrapper) {
+            taijiWrapper.removeEventListener('pointerdown', startDrag);
+        }
+        document.removeEventListener('pointermove', doDrag);
+        document.removeEventListener('pointerup', endDrag);
+        document.removeEventListener('pointercancel', endDrag);
+        bigTaijiElem = null;
+        taijiWrapper = null;
+    }
+
+    function animateBigTaiji() {
+        // 如果没有在拖拽，则自动旋转
+        if (!isTaijiDragging && bigTaijiElem) {
+            taijiAngle += 0.3; // 调整这里的数值可以改变自转速度
+            if (taijiAngle >= 360) taijiAngle -= 360;
+            bigTaijiElem.style.transform = `rotate(${taijiAngle}deg)`;
+        }
+        if (bigTaijiElem) {
+            taijiReqFrame = requestAnimationFrame(animateBigTaiji);
+        }
+    }
+
+    function getAngle(x, y) {
+        if(!bigTaijiElem) return 0;
+        let rect = bigTaijiElem.getBoundingClientRect();
+        let cx = rect.left + rect.width / 2;
+        let cy = rect.top + rect.height / 2;
+        return Math.atan2(y - cy, x - cx) * 180 / Math.PI;
+    }
+
+    function startDrag(e) {
+        isTaijiDragging = true;
+        let angle = getAngle(e.clientX, e.clientY);
+        taijiOffsetAngle = taijiAngle - angle;
+        taijiWrapper.style.cursor = 'grabbing';
+    }
+
+    function doDrag(e) {
+        if (!isTaijiDragging || !bigTaijiElem) return;
+        // 阻止触屏滑动时页面跟着滚动
+        if (e.cancelable) e.preventDefault(); 
+        
+        let angle = getAngle(e.clientX, e.clientY);
+        taijiAngle = angle + taijiOffsetAngle;
+        bigTaijiElem.style.transform = `rotate(${taijiAngle}deg)`;
+    }
+
+    function endDrag(e) {
+        isTaijiDragging = false;
+        if(taijiWrapper) taijiWrapper.style.cursor = 'grab';
+    }
+
     function renderDefaultBoard() {
+      // 如果之前有运行的太极，先停止清理
+      if (typeof stopBigTaiji === 'function') stopBigTaiji();
+
       const grid = document.getElementById('chartGrid');
       grid.style.background = 'transparent';
       grid.style.border = 'none';
@@ -322,8 +411,8 @@
       grid.style.padding = '10px';
 
       grid.innerHTML = `
-        <div style="width: 100%; max-width: 420px; aspect-ratio: 1/1; display: flex; justify-content: center; align-items: center;">
-          <svg viewBox="0 0 200 200" style="width: 100%; height: 100%; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.35));">
+        <div id="taijiWrapper" style="width: 100%; max-width: 420px; aspect-ratio: 1/1; display: flex; justify-content: center; align-items: center; cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent;">
+          <svg id="bigTaiji" viewBox="0 0 200 200" style="width: 100%; height: 100%; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.35));">
             <path d="M 100 0 A 100 100 0 0 1 100 200 C 33.33 200, 33.33 100, 100 100 C 166.67 100, 166.67 0, 100 0 Z" fill="#000000"/>
             <path d="M 100 200 A 100 100 0 0 1 100 0 C 166.67 0, 166.67 100, 100 100 C 33.33 100, 33.33 200, 100 200 Z" fill="#ffffff"/>
             <circle cx="100" cy="50" r="27.5" fill="#000000"/>
@@ -336,6 +425,11 @@
         '<div class="info-row" style="justify-content: center; color: var(--text-gold); font-size: 15px; font-weight: bold; margin-bottom: 8px;"><span>👑 OOGO 奇门遁甲 👑</span></div>' +
         '<div class="info-row" style="justify-content: center; margin-bottom: 5px;"><span>太极生两仪，两仪生四象，四象生八卦</span></div>' +
         '<div class="info-row" style="justify-content: center; margin-top: 15px;"><span style="color: var(--text-blue); font-weight: bold;"> 请设定时间与参数后，点击右上角【起局】👆 </span></div>';
+
+      // 保证 DOM 渲染完成后，初始化转动引擎
+      setTimeout(() => {
+          if (typeof initBigTaiji === 'function') initBigTaiji();
+      }, 50);
     }
     
     renderDefaultBoard();
@@ -433,6 +527,9 @@
     // ==========================================
     function generateChart() {
       try {
+        // 在生成新局前，停止大太极的动画和拖拽监听
+        if (typeof stopBigTaiji === 'function') stopBigTaiji();
+
         isChartGenerated = true; 
 
         const grid = document.getElementById('chartGrid');
