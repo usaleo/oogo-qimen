@@ -163,13 +163,13 @@
     .corner { position: absolute; font-size: 13px; }
     
     /* 宫位内部元素的绝对定位与排列 */
-    .hidden-stem-text { color: var(--dark-stem-color); font-weight: bold; font-size: 13px; }
+    .hidden-stem-text { color: var(--dark-stem-color); font-weight: bold; font-size: 13px; position: absolute; right: 0; }
     .top-right { position: absolute; top: 1px; right: 1px; display: flex; gap: 3px; align-items: center; font-weight: bold; z-index: 10; }
-    .palace-row { position: absolute; bottom: 6px; left: 14px; right: 14px; border-top: 1px dashed var(--border-color); padding-top: 4px; display: flex; justify-content: space-between; align-items: center; color: var(--palace-text); font-size: 13px; z-index: 10; }
+    .palace-row { position: absolute; bottom: 6px; left: 14px; right: 14px; border-top: 1px dashed var(--border-color); padding-top: 4px; display: flex; justify-content: center; align-items: center; color: var(--palace-text); font-size: 13px; z-index: 10; }
     .inner-content { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: calc(100% - 28px); display: flex; flex-direction: column; gap: 9px; z-index: 10; }
     
     /* 神、星、门、干的字号设置（想改字大小改这里） */
-    .deity-text { font-size: 21px; }
+    .deity-text { font-size: 23px; }
     .star-text  { font-size: 18px; }
     .gate-text  { font-size: 18px; }
     .taichi-svg { width: 115px; height: 115px; filter: drop-shadow(0 0 8px rgba(0,0,0,0.4)); }
@@ -734,9 +734,11 @@
         let cE = Array.isArray(centerP.earthlyStem) ? centerP.earthlyStem[0] : (centerP.earthlyStem || '');
         let gridHtml = '';
 
-        // 定义界面渲染的九宫格顺序（按显示位置排列：巽4, 离9, 坤2 ...）
-        const displayOrder = [4, 9, 2, 3, 5, 7, 8, 1, 6];
-        displayOrder.forEach(function(pos) {
+        // 增加一个八卦对应字典
+const guaMap = { 1:'坎', 2:'坤', 3:'震', 4:'巽', 5:'中', 6:'乾', 7:'兑', 8:'艮', 9:'离' };
+const displayOrder = [4, 9, 2, 3, 5, 7, 8, 1, 6];
+displayOrder.forEach(function(pos) {
+
           const p = chart.palaces.find(x => x.position === pos) || {};
           
           let tDeity = simplifyDeity(Array.isArray(p.deity) ? p.deity[0] : (p.deity || ''));
@@ -792,9 +794,11 @@
             } else { // 转盘中宫一般寄宫，显示太极和天干地支
               gridHtml += '<div class="cell center-cell"><svg class="taichi-svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#fff" stroke="var(--border-color)" stroke-width="1"/><path d="M 50 2 A 48 48 0 0 1 50 98 C 18 98, 18 50, 50 50 C 82 50, 82 2, 50 2 Z" fill="#000"/><text x="50" y="26" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="25" font-weight="bold" fill="#000" text-anchor="middle">' + cH + '</text><text x="50" y="74" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="25" font-weight="bold" fill="#fff" text-anchor="middle">' + cE + '</text></svg></div>';
             }
-          } else { // 其他 8 个普通宫位
-            gridHtml += '<div class="cell"><div class="corner top-right">' + rightCornerHtml + '</div><div class="inner-content">' + innerHtml + '</div><div class="palace-row"><span>' + (p.trigram || '') + pos + '宫</span><span class="hidden-stem-text">' + hiddenStem + '</span></div></div>';
+                    } else { // 其他 8 个普通宫位
+            // 这里用 guaMap[pos] 强行拼接出 坎1宫、坤2宫 的格式
+            gridHtml += '<div class="cell"><div class="corner top-right">' + rightCornerHtml + '</div><div class="inner-content">' + innerHtml + '</div><div class="palace-row"><span>' + guaMap[pos] + pos + '宫</span><span class="hidden-stem-text">' + hiddenStem + '</span></div></div>';
           }
+
         });
         
         // 7. 将生成的 9 个 div 写入 DOM
