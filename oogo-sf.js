@@ -712,14 +712,15 @@ const OogoFuFan = {
     for (const p of palaces) {
       if (p.position === 5) continue;
       let star = Array.isArray(p.star) ? p.star[0] : p.star;
-// 兼容处理：将 "天芮/天禽" 统一截断或替换为 "天芮" 参与比对
-if (star === "天芮/天禽") {
-  star = "天芮";
-}
-const gate = p.gate || "";
+      
+      // ★ 修改：通用兼容处理，无论是"天芮/天禽"还是"天任/天禽"，都砍掉"/天禽"只留主星比对
+      if (star && star.includes("/天禽")) {
+        star = star.replace("/天禽", "");
+      }
+      
+      const gate = p.gate || "";
 
-if (star !== this.starBase[p.position]) starFu = false;
-
+      if (star !== this.starBase[p.position]) starFu = false;
       if (gate && gate !== this.gateBase[p.position]) gateFu = false;
 
       const opposite = this.opposite[p.position];
@@ -914,7 +915,7 @@ const OogoDiShen = {
 };
 
 const OogoZhuanPan = {
-  calculate(year, month, day, hour, min, sec = 0, method = "zhirun") {
+  calculate(year, month, day, hour, min, sec = 0, method = "zhirun", jigong = "ji2") {
     const juInfo = method === "chaibu"
       ? OogoChaiBu.calculate(year, month, day, hour, min, sec)
       : OogoZhiRun.calculate(year, month, day, hour, min, sec);
@@ -922,6 +923,15 @@ const OogoZhuanPan = {
     const chart = juInfo.chart;
     const juNumber = juInfo.juNumber;
     const isYang = juInfo.isYangdun;
+
+    // ========================================================
+    // ★ 新增：动态寄宫拦截 (不修改底层函数，只在本次排盘生效)
+    // ========================================================
+    const originalResolveJiGong = QimenUtil.resolveJiGong;
+    const targetJiGong = (isYang && jigong === "y8y2") ? 8 : 2;
+    QimenUtil.resolveJiGong = function(palace) {
+      return palace === 5 ? targetJiGong : palace;
+    };
 
     const timeStem = chart.fourPillars.hour.stem;
     const timeBranch = chart.fourPillars.hour.branch;
@@ -939,6 +949,15 @@ const OogoZhuanPan = {
     if (!origXunPalace) throw new Error(`找不到旬首地盘宫：${xun.stem}`);
 
     const starInfo = OogoZhuanXing.build(earthStems, timeStem, xun.stem, origXunPalace, isYang);
+
+    // ★ 新增：如果寄8宫，手动把天禽星从天芮剥离，重新绑给天任
+    if (targetJiGong === 8) {
+      for (let p in starInfo.stars) {
+        if (starInfo.stars[p] === "天芮/天禽") starInfo.stars[p] = "天芮";
+        if (starInfo.stars[p] === "天任") starInfo.stars[p] = "天任/天禽";
+      }
+      if (starInfo.zhiFuStar === "天芮/天禽" || starInfo.zhiFuStar === "天芮") starInfo.zhiFuStar = "天任/天禽";
+    }
     const gateInfo = OogoZhuanMen.build(origXunPalace, xun.branch, timeBranch, isYang);
     const heavenDeities = OogoTianShen.build(starInfo.zhiFuPalace, isYang);
     const earthDeities = OogoDiShen.build(origXunPalace, isYang);
@@ -1004,21 +1023,21 @@ const OogoZhuanPan = {
       const targetPalace = ring[QimenUtil.mod(xunRingIndex + i + starShift, 8)];
       heavenStems[targetPalace] = earthStems[sourcePalace];
     }
-    heavenStems[5] = heavenStems[2];
+    // ★ 修改：天干跟随动态目标寄宫 (之前写死了2)
+    heavenStems[5] = heavenStems[targetJiGong];
 
     palaces.forEach(p => {
       p.heavenlyStem = heavenStems[p.position] || "";
 
       // ==========================================
-      // ★ 补全丢失的：天盘、地盘寄宫数组显示逻辑
-      // 匹配前端 index.html 的 small-stem 缩放类名
+      // ★ 修改：天盘、地盘寄宫数组显示逻辑
       // ==========================================
-      if (p.position === 2) {
-        // 坤2宫地盘：[原坤2地干, 中5宫地干]
+      if (p.position === targetJiGong) {
+        // 目标宫地盘：[原宫地干, 中5宫地干]
         p.earthlyStem = [p.earthlyStem, earthStems[5]];
       }
-      if (p.star === "天芮/天禽" || p.star === "天芮") {
-        // 天芮星所在宫天盘：[原天干, 中5宫地干]
+      // ★ 修改：只要名字里包含天禽星，中五宫天干就跟过去
+      if (p.star && p.star.includes("天禽")) {
         p.heavenlyStem = [p.heavenlyStem, earthStems[5]];
       }
     });
@@ -1037,6 +1056,9 @@ const OogoZhuanPan = {
       palaces,
       debugInfo: juInfo.debugInfo
     };
+
+    // ★ 新增：恢复引擎原本的寄宫函数，防止污染其他排盘
+    QimenUtil.resolveJiGong = originalResolveJiGong;
 
     return OogoTagEnhancer.enhance(result);
   }
