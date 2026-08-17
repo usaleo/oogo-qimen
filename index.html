@@ -327,13 +327,16 @@
         <div class="sub-ctrl">
           <div class="sub-text" style="cursor: pointer; font-weight: 900; font-size: 16px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px;" onclick="isChartGenerated = false; renderDefaultBoard();" title="返回初始画面"> 
   
-  <!-- 用 SVG 绘制的纯黑白太极，绝对不会变成紫色 emoji -->
+    <!-- 用 SVG 绘制的纯黑白太极，绝对不会变成紫色 emoji -->
   <svg viewBox="0 0 200 200" style="width: 17px; height: 17px; flex-shrink: 0;">
     <circle cx="100" cy="100" r="98" fill="#ffffff" stroke="#9ca3af" stroke-width="4"/>
     <path d="M 100 2 A 98 98 0 0 1 100 198 C 49 198, 49 100, 100 100 C 151 100, 151 2, 100 2 Z" fill="#000000"/>
-    <circle cx="100" cy="51" r="24" fill="#ffffff"/>
-    <circle cx="100" cy="149" r="24" fill="#000000"/>
+    
+    <!-- 改动就在下面这两行：黑色画在白区(cy="51")，白色画在黑区(cy="149")，半径r改成15 -->
+    <circle cx="100" cy="51" r="15" fill="#000000"/>
+    <circle cx="100" cy="149" r="15" fill="#ffffff"/>
   </svg>
+
 
   <!-- 彩虹色 OOGO -->
   <div>
