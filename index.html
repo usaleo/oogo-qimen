@@ -259,28 +259,61 @@
               <span style="color:var(--text-gray); font-size:13px; white-space:nowrap;">太阳时</span>
             </label>
             <div class="zhen-item" style="flex: 1;">
-              <!-- 城市列表配置，如果想改默认城市，把 selected 挪到对应 option 上 -->
+              <!-- 城市列表配置，补全了全国主要省会及城市 -->
               <select id="citySelect" onchange="document.getElementById('longitude').value = this.value; updateDynamicInfo()">
                 <optgroup label="华北地区">
                   <option value="116.40">北京</option>
-                  <option value="117.20" selected>天津</option> <!-- 默认选中的是天津 -->
+                  <option value="117.20" selected>天津</option>
                   <option value="114.48">石家庄</option>
                   <option value="112.53">太原</option>
+                  <option value="111.65">呼和浩特</option>
+                </optgroup>
+                <optgroup label="东北地区">
+                  <option value="123.38">沈阳</option>
+                  <option value="125.35">长春</option>
+                  <option value="126.63">哈尔滨</option>
+                  <option value="121.62">大连</option>
                 </optgroup>
                 <optgroup label="华东地区">
                   <option value="121.47">上海</option>
                   <option value="118.78">南京</option>
                   <option value="120.19">杭州</option>
+                  <option value="117.27">合肥</option>
                   <option value="119.30">福州</option>
+                  <option value="115.89">南昌</option>
+                  <option value="117.00">济南</option>
+                  <option value="120.33">青岛</option>
+                  <option value="118.10">厦门</option>
+                </optgroup>
+                <optgroup label="华中地区">
+                  <option value="113.62">郑州</option>
+                  <option value="114.31">武汉</option>
+                  <option value="113.00">长沙</option>
                 </optgroup>
                 <optgroup label="华南地区">
-                  <option value="113.26">广州</option>
+                  <option value="113.23">广州</option>
                   <option value="114.05">深圳</option>
+                  <option value="108.33">南宁</option>
+                  <option value="110.35">海口</option>             
                 </optgroup>
-                <optgroup label="西南西北">
-                  <option value="106.55">重庆</option>
+                <optgroup label="西南地区">
+                  <option value="106.50">重庆</option>
                   <option value="104.06">成都</option>
-                  <option value="108.94">西安</option>
+                  <option value="106.71">贵阳</option>
+                  <option value="102.73">昆明</option>
+                  <option value="91.11">拉萨</option>
+                </optgroup>
+                <optgroup label="西北地区">
+                  <option value="108.95">西安</option>
+                  <option value="103.73">兰州</option>
+                  <option value="101.74">西宁</option>
+                  <option value="106.27">银川</option>
+                  <option value="87.68">乌鲁木齐</option>
+                </optgroup>
+                <optgroup label="港澳台">
+                  <option value="121.50">台北</option>
+                  <option value="114.17">香港</option>
+                  <option value="113.33">澳门</option>
                 </optgroup>
               </select>
             </div>
@@ -292,24 +325,30 @@
 
         <!-- 底部排盘选项栏 -->
         <div class="sub-ctrl">
-          <!-- 点击 Logo 返回初始的太极界面 -->
-          <div class="sub-text" style="cursor: pointer;" onclick="isChartGenerated = false; renderDefaultBoard();" title="返回初始画面"> ☯️ OOGO 奇门遁甲</div>
+          <div class="sub-text" style="cursor: pointer;" onclick="isChartGenerated = false; renderDefaultBoard();" title="返回初始画面"> ☯️ OOGO</div>
+          
           <div class="select-group">
-            <select id="methodSelect">
+            <!-- 加上 onchange="saveSettings()" -->
+            <select id="methodSelect" onchange="saveSettings()">
               <option value="zhirun" selected>置闰法</option>
               <option value="chaibu">拆补法</option>
             </select>
             
-            <select id="panSelect">
+            <select id="panSelect" onchange="saveSettings()">
               <option value="zhuan" selected>转盘</option>
               <option value="fei">飞盘</option>
+            </select>
+            
+            <select id="jigongSelect" onchange="saveSettings()">
+              <option value="ji2" selected>寄2宫</option>
+              <option value="y8y2">阳8阴2</option>
             </select>
             
             <button class="btn-theme" onclick="toggleTheme()">☀️ 主题</button>
           </div>
         </div>
 
-      </div>
+    </div>
       <!-- 最右侧的“起局”大按钮，点击触发 generateChart() 函数 -->
       <button class="btn-big-start" onclick="generateChart()">起局</button>
     </div>
@@ -537,7 +576,29 @@
       }
     }
     initTheme();
+    // ==========================================
+    // 选项记忆保存与读取逻辑
+    // ==========================================
+    // 1. 保存当前的选择到 localStorage
+    function saveSettings() {
+      localStorage.setItem('oogo_method', document.getElementById('methodSelect').value);
+      localStorage.setItem('oogo_pan', document.getElementById('panSelect').value);
+      localStorage.setItem('oogo_jigong', document.getElementById('jigongSelect').value);
+    }
 
+    // 2. 页面加载时读取并恢复设置
+    function initSettings() {
+      const savedMethod = localStorage.getItem('oogo_method');
+      const savedPan = localStorage.getItem('oogo_pan');
+      const savedJigong = localStorage.getItem('oogo_jigong');
+
+      if (savedMethod) document.getElementById('methodSelect').value = savedMethod;
+      if (savedPan) document.getElementById('panSelect').value = savedPan;
+      if (savedJigong) document.getElementById('jigongSelect').value = savedJigong;
+    }
+    
+    // 执行初始化
+    initSettings();
     // 切换主题模式
     function toggleTheme() { 
       document.body.classList.toggle('light-theme');
@@ -628,6 +689,10 @@
 
         let method = document.getElementById('methodSelect').value;
         let panType = document.getElementById('panSelect').value;
+        // 获取前端下拉框的寄宫选项
+        let jigong = document.getElementById('jigongSelect').value;
+        // 传给转盘引擎
+        let zhuanResult = OogoZhuanPan.calculate(y, m, d, h, min, 0, method, jigong);
         
         let chart;
         let isRun = false;
@@ -651,7 +716,8 @@
             chart.solarTerm = juInfo.termName;
             chart = OogoFeiPan.fly(chart); // 调用飞盘引擎
         } else { // 转盘逻辑
-            let zhuanResult = OogoZhuanPan.calculate(y, m, d, h, min, 0, method);
+            // 修改这里：增加 jigong 参数
+            let zhuanResult = OogoZhuanPan.calculate(y, m, d, h, min, 0, method, jigong);
             
             // 数据映射封装给前端变量
             chart = zhuanResult.chart;
