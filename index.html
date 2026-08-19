@@ -116,7 +116,7 @@
     .sub-ctrl { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-color); padding-top: 8px; margin-top: 0; gap: 4px; }
     .sub-text { color: var(--text-gray); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; }
     .select-group { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
-    .select-group select { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-blue); padding: 0 6px; height: 26px; line-height: 24px; border-radius: 4px; font-size: 13px; outline: none; -webkit-appearance: none; appearance: none; text-align: center; }
+    .select-group select { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-blue); padding: 0 6px; height: 26px; line-height: 24px; border-radius: 4px; font-size: 13px; outline: none; -webkit-appearance: none; appearance: none; text-align: center; text-align-last: center; }
     .btn-theme { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 0 6px; height: 26px; line-height: 24px; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     
     /* ========================================================= */
@@ -340,8 +340,8 @@
             </select>
             
             <select id="jigongSelect" onchange="saveSettings()">
-              <option value="ji2" selected>寄2宫</option>
-              <option value="y8y2">阳8阴2</option>
+              <option value="ji2" selected>寄坤宫</option>
+              <option value="y8y2">阳艮阴坤</option>
             </select>
             
             <button class="btn-theme" onclick="toggleTheme()">🎨 主题</button>
