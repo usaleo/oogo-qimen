@@ -1,61 +1,53 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!-- 网页编码与适配移动端的视口设置 -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>OOGO 奇门遁甲</title>
   
-  <!-- 网页图标与 PWA 应用配置（如果你不需要可以删掉） -->
   <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=9">
   <link rel="icon" type="image/png" href="./apple-touch-icon.png?v=9">
   <link rel="manifest" href="./manifest.json">
   
   <style>
     /* ========================================================= */
-    /* 1. 颜色与主题变量配置区（想改颜色优先找这里）             */
+    /* 1. 颜色与主题变量配置区 */
     /* ========================================================= */
-    
-    /* 暗黑主题 (默认主题) */
     :root {
-      --bg-main: #131520;      /* 页面最底层背景色 */
-      --panel-bg: #161824;     /* 面板/卡片的背景色 */
-      --border-color: #2e3048; /* 边框颜色 */
-      --gold-line: #c59b47;    /* 九宫格的金色分割线 */
-      --cell-bg: #10111a;      /* 九宫格每个小格子的背景色 */
+      --bg-main: #131520;      
+      --panel-bg: #161824;     
+      --border-color: #2e3048; 
+      --gold-line: #c59b47;    
+      --cell-bg: #10111a;      
       
-      --text-main: #ffffff;    /* 主文本颜色（白色） */
-      --text-gray: #b0b7c3;    /* 次要文本颜色（灰色） */
-      --text-blue: #60a5fa;    /* 强调文本颜色（蓝色） */
-      --text-gold: #fbbf24;    /* 强调文本颜色（金色） */
+      --text-main: #ffffff;    
+      --text-gray: #b0b7c3;    
+      --text-blue: #60a5fa;    
+      --text-gold: #fbbf24;    
       
-      /* 奇门专用元素颜色（八神、九星、八门） */
-      --c-deity: #f97316;      /* 神（如值符、腾蛇）：橙色 */
-      --c-star: #60a5fa;       /* 星（如天蓬、天任）：蓝色 */
-      --c-gate-g: #22c55e;     /* 吉门（开休生）：绿色 */
-      --c-gate-r: #dc2626;     /* 凶门（死惊伤）：红色 */
-      --c-gate-n: #b45309;     /* 平门（杜景）：棕/橙色 */
-      --c-stem-h: #f472b6;     /* 天盘天干：粉色 */
-      --c-stem-e: #ffffff;     /* 地盘天干：白色 */
+      --c-deity: #f97316;      
+      --c-star: #60a5fa;       
+      --c-gate-g: #22c55e;     
+      --c-gate-r: #dc2626;     
+      --c-gate-n: #b45309;     
+      --c-stem-h: #f472b6;     
+      --c-stem-e: #ffffff;     
       
-      /* 小标签背景色（马、空、刑、墓、迫） */
       --tag-ma-bg: #d34e55;
       --tag-kong-bg: #7a7a90;
       
-      --palace-text: #7a7a90;      /* 宫位文字颜色（如 坎1宫） */
-      --edeity-text: #c4b5a2;      /* 地盘八神颜色 */
-      --dark-stem-color: #ba4a00;  /* 暗干颜色 */
+      --palace-text: #7a7a90;      
+      --edeity-text: #c4b5a2;      
+      --dark-stem-color: #ba4a00;  
       --dark-stem-bg: rgba(129, 140, 248, 0.1);
       
-      /* 五行颜色（主要用于八字排盘的文字颜色） */
-      --wx-wood: #4ade80;   /* 木：绿 */
-      --wx-fire: #dc2626;   /* 火：红 */
-      --wx-earth: #b45309;  /* 土：棕 */
-      --wx-metal: #fde047;  /* 金：黄 */
-      --wx-water: #60a5fa;  /* 水：蓝 */
+      --wx-wood: #4ade80;   
+      --wx-fire: #dc2626;   
+      --wx-earth: #b45309;  
+      --wx-metal: #fde047;  
+      --wx-water: #60a5fa;  
     }
 
-    /* 白色主题（当 body 标签加上 light-theme 类时生效） */
     body.light-theme {
       --bg-main: #f0f2f5;
       --panel-bg: #ffffff;
@@ -78,7 +70,6 @@
       --dark-stem-color: #ba4a00;
       --dark-stem-bg: rgba(79, 70, 229, 0.08);
 
-      /* 白天模式的五行颜色 */
       --wx-wood: #16a34a;   
       --wx-fire: #dc2626;   
       --wx-earth: #b45309;  
@@ -86,7 +77,6 @@
       --wx-water: #2563eb;  
     }
     
-    /* 暗黑模式下，给文字加上发光效果 */
     body:not(.light-theme) .deity-text,
     body:not(.light-theme) .star-text,
     body:not(.light-theme) .gate-text,
@@ -96,40 +86,33 @@
     }
     
     /* ========================================================= */
-    /* 2. 全局样式与顶部控制台样式                               */
+    /* 2. 全局样式与顶部控制台样式 */
     /* ========================================================= */
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; padding: 3px; background: var(--bg-main); color: var(--text-main); margin: 0 auto; max-width: 100%; transition: background 0.3s, color 0.3s; box-sizing: border-box; }
     
-    /* 顶部控制面板总容器 */
     .top-ctrl { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; transition: all 0.3s; }
     .ctrl-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; width: 100%; box-sizing: border-box; }
     
-    /* "公"、"节"、"真" 等小徽标 */
     .badge { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; }
     .badge-gong, .badge-nong, .badge-zhen { background: rgba(91, 146, 214, 0.15); color: var(--text-blue); }
     
-    /* 年月日时分选择器样式 */
     .date-group { display: flex; align-items: center; flex: 1; justify-content: space-between; gap: 2px; min-width: 0; }
     .date-item { display: flex; align-items: center; flex: 1; min-width: 0; }
     .date-item.year-item { flex: 1.3; } 
     select.date-input { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); height: 26px; border-radius: 4px; font-size: 13px; font-weight: bold; outline: none; appearance: none; -webkit-appearance: none; padding: 0; text-align: center; text-align-last: center; cursor: pointer; width: 100%; min-width: 0; }
     .date-text { color: var(--text-gray); font-size: 13px; margin: 0 1px 0 2px; flex-shrink: 0; }
     
-    /* "现在" 按钮 */
     .btn-red { background: #d34e55; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; width: 52px; height: 28px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; }
     
-    /* "起局" 大按钮 */
     .btn-big-start { background: var(--text-gold); color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.2); width: 52px; cursor: pointer; display: flex; align-items: center; justify-content: center; letter-spacing: 2px; transition: 0.2s; flex-shrink: 0; padding: 0; }
     .btn-big-start:active { transform: scale(0.95); opacity: 0.9; }
     
-    /* 经度与真太阳时区域 */
     .zhen-group { display: flex; flex: 1; gap: 4px; min-width: 0; }
     .zhen-item { background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 0 4px; display: flex; align-items: center; justify-content: center; height: 30px; box-sizing: border-box; min-width: 0; }
     .zhen-item input[type="checkbox"] { margin-right: 4px; accent-color: var(--text-blue); }
     .zhen-item select, .zhen-item input[type="number"] { background: transparent; border: none; color: var(--text-main); width: 100%; height: 100%; line-height: normal; text-align: center; outline: none; font-size: 13px; -webkit-appearance: none; appearance: none; padding: 0; margin: 0; vertical-align: middle; }
     .zhen-item select { color: var(--text-blue); text-align-last: center; }
     
-    /* 排盘方式选项栏 (拆补/置闰，转盘/飞盘，主题) */
     .sub-ctrl { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-color); padding-top: 8px; margin-top: 0; gap: 4px; }
     .sub-text { color: var(--text-gray); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; }
     .select-group { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
@@ -137,7 +120,7 @@
     .btn-theme { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 0 6px; height: 26px; line-height: 24px; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     
     /* ========================================================= */
-    /* 3. 中间信息展示区（八字、值符值使等）                     */
+    /* 3. 中间信息展示区 */
     /* ========================================================= */
     .info-board { margin-bottom: 15px; }
     .bazi-row { display: flex; justify-content: space-between; margin-bottom: 12px; }
@@ -148,47 +131,57 @@
     .zhifu-row { margin: 12px 0; }
     .pill-green { background: rgba(37, 185, 85, 0.1); color: var(--c-gate-g); border: 1px solid var(--c-gate-g); padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
     
-    /* 截图分享按钮（中间那个“历”字圆形按钮） */
     .circle-logo { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--text-gold); background: var(--panel-bg); color: var(--text-main); display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 20px; line-height: 1; cursor: pointer; transition: 0.2s; box-shadow: 0 0 8px rgba(226,180,95,0.2); }
     .circle-logo:active { transform: scale(0.9); background: var(--text-gold); color: #000; }
     
     /* ========================================================= */
-    /* 4. 九宫格核心样式区（排版，神星门干的布局）               */
+    /* 4. 九宫格核心样式区 */
     /* ========================================================= */
     .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--gold-line); border: 1px solid var(--gold-line); border-radius: 4px; padding: 1px; }
     
-    /* 单个宫位格子 */
     .cell { background: var(--cell-bg); position: relative; height: 125px; box-sizing: border-box; transition: background 0.3s; overflow: hidden; transform: translateZ(0); backface-visibility: hidden; }
     .center-cell { background: var(--cell-bg); display: flex; justify-content: center; align-items: center; position: relative; transition: background 0.3s; overflow: hidden; transform: translateZ(0); backface-visibility: hidden; }
     .corner { position: absolute; font-size: 13px; }
     
-    /* 宫位内部元素的绝对定位与排列 */
     .hidden-stem-text { color: var(--dark-stem-color); font-weight: bold; font-size: 13px; }
-    .top-right { position: absolute; top: 1px; right: 1px; display: flex; gap: 3px; align-items: center; font-weight: bold; z-index: 10; }
     .palace-row { position: absolute; bottom: 6px; left: 13px; right: 20px; border-top: 1px dashed var(--border-color); padding-top: 4px; display: flex; justify-content: space-between; align-items: center; color: var(--palace-text); font-size: 13px; z-index: 10; }
     .inner-content { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: calc(100% - 40px); display: flex; flex-direction: column; gap: 9px; z-index: 10; }
     
-    /* 神、星、门、干的字号设置（想改字大小改这里） */
     .deity-text { font-size: 23px; }
     .star-text  { font-size: 18px; }
     .gate-text  { font-size: 18px; }
     .taichi-svg { width: 115px; height: 115px; filter: drop-shadow(0 0 8px rgba(0,0,0,0.4)); }
     
-    /* 特殊神煞标签样式（马、空、刑、墓、迫） */
+    /* --------------------------------------------------------- */
+    /* 新增：十二地支固定位置样式 */
+    /* --------------------------------------------------------- */
+    .dz-top, .dz-bottom, .dz-left, .dz-right {
+      position: absolute;
+      color: var(--palace-text); /* 使用不突兀的宫位字体色 */
+      font-size: 13px;
+      font-weight: bold;
+      opacity: 0.6;
+      z-index: 5;
+      pointer-events: none;
+    }
+    .dz-top { top: 1px; left: 50%; transform: translateX(-50%); }
+    .dz-bottom { bottom: 6px; left: 50%; transform: translateX(-50%); } /* 贴合底部宫位横线文字间隙 */
+    .dz-left { left: 2px; top: 46%; transform: translateY(-50%); }
+    .dz-right { right: 2px; top: 46%; transform: translateY(-50%); }
+    
+    /* 特殊神煞标签样式 */
     .tag-ma { color: #ffffff; background: #d34e55; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; }
     .tag-kong { color: #ffffff; background: #7a7a90; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; }
     .tag-jx { color: #ffffff; background: #8b5cf6; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; }
     .tag-mu { color: #ffffff; background: #374151; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; }
     .tag-po { color: #ffffff; background: #d97706; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; }
     
-    /* 九宫格内每一行（左右对齐）的结构 */
     .row { display: flex; justify-content: space-between; align-items: flex-end; }
     .left-item { text-align: left; font-weight: bold; line-height: 1; white-space: nowrap; letter-spacing: 1px; }
     .right-item { text-align: right; font-size: 14px; font-weight: bold; line-height: 1; white-space: nowrap; }
     .small-stem-h { font-size: 17px !important; letter-spacing: -1px; }
     .small-stem-e { font-size: 12px !important; letter-spacing: -1px; }
     
-    /* 将上面定义的颜色变量应用到文字上 */
     .edeity-text { font-size: 13px; color: var(--edeity-text); font-weight: bold; }
     .deity { color: var(--c-deity); }
     .star { color: var(--c-star); }
@@ -198,7 +191,6 @@
     .stem-h { color: var(--c-stem-h); font-size: 17px; } 
     .stem-e { color: var(--c-stem-e); font-size: 14px; } 
 
-    /* 大屏/电脑端适配：拉宽、放大字体 */
     @media (min-width: 600px) {
       body { max-width: 520px; padding: 16px; }
       .cell { height: 145px; }
@@ -209,21 +201,17 @@
     }
   </style>
 
-  <!-- ========================================================= -->
-  <!-- 引入外部 JavaScript 文件（排盘核心引擎与截图工具）        -->
-  <!-- ========================================================= -->
-  <script src="./oogo-lf.js"></script>    <!-- 可能包含历法计算引擎 -->
-  <script src="./oogo-image.js"></script> <!-- 可能包含 html2canvas 截图引擎 -->
-  <script src="./oogo-sf.js"></script>    <!-- 可能包含奇门排盘算法引擎 -->
+  <script src="./oogo-lf.js"></script>
+  <script src="./oogo-image.js"></script>
+  <script src="./oogo-sf.js"></script>
 </head>
   
 <body>
 
   <!-- ========================================================= -->
-  <!-- HTML结构: 顶部控制面板区 (选择时间、地点、排盘方式)       -->
+  <!-- 顶部控制面板区 -->
   <!-- ========================================================= -->
   <div class="top-ctrl">
-    <!-- 第1行：公历时间选择 -->
     <div class="ctrl-row">
       <div class="badge badge-gong">公</div>
       <div class="date-group">
@@ -236,7 +224,6 @@
       <button class="btn-red" onclick="setNowTime()">现在</button>
     </div>
 
-    <!-- 第2行：动态联动的节气时间段 -->
     <div class="ctrl-row">
       <div class="badge badge-nong">节</div>
       <div style="flex: 1; background: var(--bg-main); border: 1px solid var(--border-color); height: 26px; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 0 2px; box-sizing: border-box;">
@@ -246,11 +233,9 @@
       </div>
     </div>
 
-    <!-- 第3行：起局参数区域（包含真太阳时、经纬度、排盘方式） -->
     <div class="ctrl-row" style="align-items: stretch; margin-bottom: 0;">
       <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; gap: 8px;">
         
-        <!-- 真太阳时与经度选择 -->
         <div style="display: flex; gap: 8px; align-items: center; min-width: 0;">
           <div class="badge badge-zhen">真</div>
           <div class="zhen-group">
@@ -259,7 +244,6 @@
               <span style="color:var(--text-gray); font-size:13px; white-space:nowrap;">太阳时</span>
             </label>
             <div class="zhen-item" style="flex: 1;">
-              <!-- 城市列表配置，补全了全国主要省会及城市 -->
               <select id="citySelect" onchange="document.getElementById('longitude').value = this.value; updateDynamicInfo()">
                 <optgroup label="华北地区">
                   <option value="116.40">北京</option>
@@ -323,28 +307,21 @@
           </div>
         </div>
 
-        <!-- 底部排盘选项栏 -->
         <div class="sub-ctrl">
           <div class="sub-text" style="cursor: pointer; font-weight: 900; font-size: 16px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px;" onclick="isChartGenerated = false; renderDefaultBoard();" title="返回初始画面"> 
   
-    <!-- 用 SVG 绘制的纯黑白太极，绝对不会变成紫色 emoji -->
   <svg viewBox="0 0 200 200" style="width: 17px; height: 17px; flex-shrink: 0;">
     <circle cx="100" cy="100" r="98" fill="#ffffff" stroke="#9ca3af" stroke-width="4"/>
     <path d="M 100 2 A 98 98 0 0 1 100 198 C 49 198, 49 100, 100 100 C 151 100, 151 2, 100 2 Z" fill="#000000"/>
-    
-    <!-- 改动就在下面这两行：黑色画在白区(cy="51")，白色画在黑区(cy="149")，半径r改成15 -->
     <circle cx="100" cy="51" r="15" fill="#000000"/>
     <circle cx="100" cy="149" r="15" fill="#ffffff"/>
   </svg>
 
-
-  <!-- 彩虹色 OOGO -->
   <div>
     <span style="color: #4dc2c6;">O</span><span style="color: #a5d054;">O</span><span style="color: #f5ae56;">G</span><span style="color: #ea7773;">O</span>
   </div>
 </div>         
           <div class="select-group">
-            <!-- 加上 onchange="saveSettings()" -->
             <select id="methodSelect" onchange="saveSettings()">
               <option value="zhirun" selected>置闰法</option>
               <option value="chaibu">拆补法</option>
@@ -365,36 +342,22 @@
         </div>
 
     </div>
-      <!-- 最右侧的“起局”大按钮，点击触发 generateChart() 函数 -->
       <button class="btn-big-start" onclick="generateChart()">起局</button>
     </div>
   </div>
 
-  <!-- ========================================================= -->
-  <!-- HTML结构: 排盘结果展示区                                  -->
-  <!-- ========================================================= -->
-  
-  <!-- 八字信息、节气信息、值符值使显示区域 (由 JS 动态注入) -->
   <div class="info-board" id="infoBoard"></div>
-
-  <!-- 九宫格显示区域 (由 JS 动态注入 div) -->
   <div class="grid" id="chartGrid"></div>
 
-  <!-- ========================================================= -->
-  <!-- 核心逻辑脚本 (JavaScript)                                 -->
-  <!-- ========================================================= -->
   <script>
-    // 捕获全局报错并在控制台输出
     window.onerror = function(msg, url, line) {
        console.error("系统错误: " + msg + " (行: " + line + ")");
     };
 
-    let isChartGenerated = false; // 记录当前是否已经排盘
+    let isChartGenerated = false;
 
-    // 辅助函数：个位数补零 (如把 9 变成 '09')
     function pad(n) { return n < 10 ? '0' + n : n; }
 
-    // 初始化年月日时分的下拉菜单
     function initDateSelects() {
       try {
           const y = document.getElementById('selY'); for(let i=1900; i<=2100; i++) y.add(new Option(i, i));
@@ -406,7 +369,6 @@
     }
     initDateSelects();
 
-    // 获取经过【真太阳时】修正后的时间
     function getEffectiveDate() {
       let yIn = parseInt(document.getElementById('selY').value);
       let mIn = parseInt(document.getElementById('selM').value);
@@ -417,14 +379,12 @@
       let dDate = new Date(yIn, mIn - 1, dIn, hIn, minIn, 0);
       let lng = parseFloat(document.getElementById('longitude').value);
       
-      // 如果勾选了真太阳时，经度每差 1 度（以 120 度为基准），相差 4 分钟
       if (document.getElementById('useTrueSolar').checked && !isNaN(lng)) { 
         dDate.setMinutes(dDate.getMinutes() + (lng - 120) * 4); 
       }
       return dDate;
     }
 
-    // 根据天干地支获取对应的五行颜色（用于八字变色）
     function getWuxingColor(char) {
       if (['甲', '乙', '寅', '卯'].includes(char)) return 'var(--wx-wood)';   
       if (['丙', '丁', '巳', '午'].includes(char)) return 'var(--wx-fire)';   
@@ -434,7 +394,6 @@
       return 'inherit';
     }
 
-    // 格式化八字（加上五行颜色）
     function formatPillar(pillarStr) {
       if (!pillarStr) return '';
       let stem = pillarStr[0] || '';
@@ -442,9 +401,6 @@
       return `<span style="color: ${getWuxingColor(stem)}">${stem}</span><span style="color: ${getWuxingColor(branch)}">${branch}</span>`;
     }
 
-    // ==========================================
-    // 大太极自动旋转与手动拨动引擎 (未排盘前的初始画面)
-    // ==========================================
     let taijiAngle = 0;
     let isTaijiDragging = false;
     let taijiOffsetAngle = 0;
@@ -452,7 +408,6 @@
     let bigTaijiElem = null;
     let taijiWrapper = null;
 
-    // 初始化太极动画
     function initBigTaiji() {
         bigTaijiElem = document.getElementById('bigTaiji');
         taijiWrapper = document.getElementById('taijiWrapper');
@@ -461,16 +416,14 @@
         if(taijiReqFrame) cancelAnimationFrame(taijiReqFrame);
         isTaijiDragging = false;
         
-        animateBigTaiji(); // 开启自动旋转
+        animateBigTaiji(); 
 
-        // 绑定鼠标/触摸拖拽事件
         taijiWrapper.addEventListener('pointerdown', startDrag);
         document.addEventListener('pointermove', doDrag, { passive: false });
         document.addEventListener('pointerup', endDrag);
         document.addEventListener('pointercancel', endDrag);
     }
 
-    // 停止并清理太极动画（排盘时调用）
     function stopBigTaiji() {
         if(taijiReqFrame) {
             cancelAnimationFrame(taijiReqFrame);
@@ -486,10 +439,9 @@
         taijiWrapper = null;
     }
 
-    // 帧动画：处理自转
     function animateBigTaiji() {
         if (!isTaijiDragging && bigTaijiElem) {
-            taijiAngle += 0.8; // 每次旋转的角度增量（改大转得快）
+            taijiAngle += 0.8; 
             if (taijiAngle >= 360) taijiAngle -= 360;
             bigTaijiElem.style.transform = `rotate(${taijiAngle}deg)`;
         }
@@ -498,7 +450,6 @@
         }
     }
 
-    // 计算鼠标/手指相对中心的角度
     function getAngle(x, y) {
         if(!bigTaijiElem) return 0;
         let rect = bigTaijiElem.getBoundingClientRect();
@@ -507,7 +458,6 @@
         return Math.atan2(y - cy, x - cx) * 180 / Math.PI;
     }
 
-    // 拖拽开始
     function startDrag(e) {
         isTaijiDragging = true;
         let angle = getAngle(e.clientX, e.clientY);
@@ -515,24 +465,19 @@
         taijiWrapper.style.cursor = 'grabbing';
     }
 
-    // 拖拽中
     function doDrag(e) {
         if (!isTaijiDragging || !bigTaijiElem) return;
-        if (e.cancelable) e.preventDefault(); // 防止滚动页面
+        if (e.cancelable) e.preventDefault(); 
         let angle = getAngle(e.clientX, e.clientY);
         taijiAngle = angle + taijiOffsetAngle;
         bigTaijiElem.style.transform = `rotate(${taijiAngle}deg)`;
     }
 
-    // 拖拽结束
     function endDrag(e) {
         isTaijiDragging = false;
         if(taijiWrapper) taijiWrapper.style.cursor = 'grab';
     }
 
-    // ==========================================
-    // 渲染排盘前的初始欢迎界面
-    // ==========================================
     function renderDefaultBoard() {
       if (typeof stopBigTaiji === 'function') stopBigTaiji();
 
@@ -544,7 +489,6 @@
       grid.style.alignItems = 'center';
       grid.style.padding = '10px';
 
-      // 注入 SVG 绘制的太极图
       grid.innerHTML = `
         <div id="taijiWrapper" style="width: 100%; max-width: 420px; aspect-ratio: 1/1; display: flex; justify-content: center; align-items: center; cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent;">
           <svg id="bigTaiji" viewBox="0 0 200 200" style="width: 100%; height: 100%; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.35));">
@@ -556,7 +500,6 @@
         </div>
       `;
 
-      // 欢迎文字
       document.getElementById('infoBoard').innerHTML = 
         '<div class="info-row" style="justify-content: center; color: var(--text-gold); font-size: 15px; font-weight: bold; margin-bottom: 8px;"><span>👑 OOGO奇门遁甲 👑</span></div>' +
         '<div class="info-row" style="justify-content: center; margin-bottom: 5px;"><span>太极生两仪，两仪生四象，四象生八卦</span></div>' +
@@ -567,11 +510,8 @@
       }, 50);
     }
     
-    renderDefaultBoard(); // 页面加载时立刻执行一次
+    renderDefaultBoard(); 
 
-    // ==========================================
-    // 实用功能：获取当前系统时间并填充到下拉框
-    // ==========================================
     function setNowTime() {
       const now = new Date();
       document.getElementById('selY').value = now.getFullYear();
@@ -582,7 +522,6 @@
       updateDynamicInfo(); 
     }
 
-    // 主题初始化（从 localStorage 读取历史设置）
     function initTheme() {
       const savedTheme = localStorage.getItem('oogo_theme');
       if (savedTheme === 'light') {
@@ -592,17 +531,13 @@
       }
     }
     initTheme();
-    // ==========================================
-    // 选项记忆保存与读取逻辑
-    // ==========================================
-    // 1. 保存当前的选择到 localStorage
+
     function saveSettings() {
       localStorage.setItem('oogo_method', document.getElementById('methodSelect').value);
       localStorage.setItem('oogo_pan', document.getElementById('panSelect').value);
       localStorage.setItem('oogo_jigong', document.getElementById('jigongSelect').value);
     }
 
-    // 2. 页面加载时读取并恢复设置
     function initSettings() {
       const savedMethod = localStorage.getItem('oogo_method');
       const savedPan = localStorage.getItem('oogo_pan');
@@ -613,9 +548,8 @@
       if (savedJigong) document.getElementById('jigongSelect').value = savedJigong;
     }
     
-    // 执行初始化
     initSettings();
-    // 切换主题模式
+
     function toggleTheme() { 
       document.body.classList.toggle('light-theme');
       if (document.body.classList.contains('light-theme')) {
@@ -625,7 +559,6 @@
       }
     }
 
-    // 轮询检测外部脚本 (OogoCalendar 等) 是否加载完毕，加载完了就填充当前时间
     let checkEngine = setInterval(function() {
       if (typeof OogoCalendar !== 'undefined' && typeof OogoQimen !== 'undefined') {
         clearInterval(checkEngine);
@@ -633,7 +566,6 @@
       }
     }, 200);
 
-    // 动态更新显示栏中的“节气交接范围”
     function updateDynamicInfo() {
       if (typeof OogoCalendar === 'undefined') return;
       try {
@@ -648,7 +580,6 @@
         let currentJQName = currentJQInfo.getName();
         let startSolar = currentJQInfo.getSolar();
         
-        // 往后推16天算下一个节气
         let nextD = new Date(dDate.getTime() + 16 * 24 * 3600 * 1000);
         let nextSolarObj = OogoCalendar.Solar.fromYmdHms(
           nextD.getFullYear(), nextD.getMonth() + 1, nextD.getDate(),
@@ -661,7 +592,6 @@
           return s.getYear() + '.' + pad(s.getMonth()) + '.' + pad(s.getDay()) + ' ' + pad(s.getHour()) + ':' + pad(s.getMinute()); 
         }
         
-        // 渲染到界面上
         document.getElementById('jieqiRange').innerHTML = 
           currentJQName + ' ' + formatS(startSolar) + 
           '<span style="color:var(--text-gray); margin:0 3px;">~</span>' + 
@@ -672,25 +602,19 @@
       }
     }
 
-    // 常量：十天干与十二地支
     const stems = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
     const branches = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
 
-    // 简化八神名称显示（例如 "值符" 缩写为 "符"）
     function simplifyDeity(name) {
       if (!name) return '';
       return name.replace('值符','符').replace('腾蛇','螣').replace('太阴','阴').replace('六合','合').replace('白虎','白').replace('玄武','玄').replace('九地','地').replace('九天','天').replace('勾陈','勾').replace('太常','常').replace('朱雀','雀');
     }
 
-    // =========================================================
-    // 【核心排盘入口】读取参数 -> 调用引擎 -> 渲染九宫格
-    // =========================================================
     function generateChart() {
       try {
         if (typeof stopBigTaiji === 'function') stopBigTaiji();
         isChartGenerated = true; 
 
-        // 恢复九宫格的网格样式
         const grid = document.getElementById('chartGrid');
         grid.style.background = 'var(--gold-line)';
         grid.style.border = '1px solid var(--gold-line)';
@@ -699,43 +623,35 @@
         grid.style.alignItems = '';
         grid.style.padding = '1px';
         
-        // 1. 获取用户输入的时间、排盘法、转盘飞盘
         let dDate = getEffectiveDate();
         const y = dDate.getFullYear(), m = dDate.getMonth() + 1, d = dDate.getDate(), h = dDate.getHours(), min = dDate.getMinutes();
 
         let method = document.getElementById('methodSelect').value;
         let panType = document.getElementById('panSelect').value;
-        // 获取前端下拉框的寄宫选项
         let jigong = document.getElementById('jigongSelect').value;
-        // 传给转盘引擎
-        let zhuanResult = OogoZhuanPan.calculate(y, m, d, h, min, 0, method, jigong);
         
         let chart;
         let isRun = false;
         let superShenDays = 0; 
         
-        // 2. 调用外部的历法/奇门引擎获取基础局信息
         let juInfo;
-        if (method === 'zhirun') { // 置闰法
+        if (method === 'zhirun') { 
             juInfo = OogoZhiRun.calculate(y, m, d, h, min, 0);
             isRun = juInfo.isTrueRun;
             superShenDays = juInfo.superShenDays || 0;
-        } else { // 拆补法
+        } else { 
             juInfo = OogoChaiBu.calculate(y, m, d, h, min, 0);
         }
 
-        // 3. 根据飞盘/转盘执行不同的排布算法
-        if (panType === 'fei') { // 飞盘逻辑
+        if (panType === 'fei') { 
             chart = juInfo.chart;
             chart.ju = { number: juInfo.juNumber, type: juInfo.isYangdun ? "阳遁" : "阴遁" };
             chart.yuan = juInfo.yuanName || "中元";
             chart.solarTerm = juInfo.termName;
-            chart = OogoFeiPan.fly(chart); // 调用飞盘引擎
-        } else { // 转盘逻辑
-            // 修改这里：增加 jigong 参数
+            chart = OogoFeiPan.fly(chart); 
+        } else { 
             let zhuanResult = OogoZhuanPan.calculate(y, m, d, h, min, 0, method, jigong);
             
-            // 数据映射封装给前端变量
             chart = zhuanResult.chart;
             chart.palaces = zhuanResult.palaces;
             chart.fourPillars = zhuanResult.fourPillars;
@@ -749,19 +665,16 @@
             chart.postHorse = zhuanResult.yiMa;
             chart.uiTagFuYin = zhuanResult.uiTagFuYinFanYin ? zhuanResult.uiTagFuYinFanYin.text : '';
             
-            // 地盘八神挂载
             let xunDun = {"甲子":"戊", "甲戌":"己", "甲申":"庚", "甲午":"辛", "甲辰":"壬", "甲寅":"癸"}[chart.xun.name || "甲子"];
             let isYang = chart.ju.type.indexOf('阳') !== -1;
             chart = OogoZhuanPanEnhancer.enhance(chart, xunDun, isYang);
         }
 
-        // 4. 从引擎返回的 chart 对象中提取用于展示的字符串
         let bY = chart.fourPillars.year.stem + chart.fourPillars.year.branch;
         let bM = chart.fourPillars.month.stem + chart.fourPillars.month.branch;
         let bD = chart.fourPillars.day.stem + chart.fourPillars.day.branch;
         let bH = chart.fourPillars.hour.stem + chart.fourPillars.hour.branch;
 
-        // 计算符头
         let dSIdx = stems.indexOf(chart.fourPillars.day.stem); 
         let dBIdx = branches.indexOf(chart.fourPillars.day.branch);
         let fuOffset = dSIdx >= 0 ? dSIdx % 5 : 0;
@@ -773,7 +686,6 @@
         let kong1 = voidnessArr[0] || '';
         let kong2 = voidnessArr[1] || '';
 
-        // 提取值符、值使落宫与名称
         let zfPalace = chart.zhiFu.position;
         let zsPalace = chart.zhiShi.position;
         let zfPalaceObj = chart.palaces.find(p => p.position === zfPalace) || {};
@@ -790,13 +702,11 @@
         let xunName = chart.xun ? chart.xun.name : "";
         let xunDun = chart.xun ? chart.xun.stem : "";
 
-        // 特殊格局（伏吟/反吟）
         let fyText = chart.uiTagFuYin || '';
         if (fyText) {
           fyText = '<span style="color:#d34e55; font-weight:bold; margin-left:8px; border:1px solid #d34e55; padding:1px 4px; border-radius:4px; font-size:13px;">' + fyText + '</span>';
         }
 
-        // 5. 组装中间面板的 HTML 字符串
         let boardHtml =
           '<div class="bazi-row">' +
             '<div class="bazi-box"><div class="bazi-title">年柱</div><div class="bazi-value">' + formatPillar(bY) + '</div></div>' +
@@ -810,16 +720,27 @@
         
         document.getElementById('infoBoard').innerHTML = boardHtml;
 
-        // 6. 开始组装九宫格数据
         let centerP = chart.palaces.find(x => x.position === 5) || {};
         let cH = Array.isArray(centerP.heavenlyStem) ? centerP.heavenlyStem[0] : (centerP.heavenlyStem || '');
         let cE = Array.isArray(centerP.earthlyStem) ? centerP.earthlyStem[0] : (centerP.earthlyStem || '');
         let gridHtml = '';
 
-        // 增加一个八卦对应字典
-const guaMap = { 1:'坎', 2:'坤', 3:'震', 4:'巽', 5:'中', 6:'乾', 7:'兑', 8:'艮', 9:'离' };
-const displayOrder = [4, 9, 2, 3, 5, 7, 8, 1, 6];
-displayOrder.forEach(function(pos) {
+        const guaMap = { 1:'坎', 2:'坤', 3:'震', 4:'巽', 5:'中', 6:'乾', 7:'兑', 8:'艮', 9:'离' };
+        
+        // 用于映射各个宫位的地支HTML
+        const branchHtmlMap = {
+            1: '<div class="dz-bottom">子</div>',
+            2: '<div class="dz-top">未</div><div class="dz-right">申</div>',
+            3: '<div class="dz-left">卯</div>',
+            4: '<div class="dz-top">巳</div><div class="dz-left">辰</div>',
+            6: '<div class="dz-right">戌</div><div class="dz-bottom">亥</div>',
+            7: '<div class="dz-right">酉</div>',
+            8: '<div class="dz-bottom">丑</div><div class="dz-left">寅</div>',
+            9: '<div class="dz-top">午</div>'
+        };
+
+        const displayOrder = [4, 9, 2, 3, 5, 7, 8, 1, 6];
+        displayOrder.forEach(function(pos) {
 
           const p = chart.palaces.find(x => x.position === pos) || {};
           
@@ -842,65 +763,76 @@ displayOrder.forEach(function(pos) {
           let hStem = Array.isArray(p.heavenlyStem) ? p.heavenlyStem.join('/') : (p.heavenlyStem || '');
           let eStem = Array.isArray(p.earthlyStem) ? p.earthlyStem.join('/') : (p.earthlyStem || '');
           
-          // 若天干等于日干，标出特殊颜色
           let dayStem = chart.fourPillars.day.stem; 
           let dColor = getWuxingColor(dayStem);
           let showHStem = hStem.replace(new RegExp(dayStem, 'g'), `<span style="color:${dColor};">${dayStem}</span>`);
           let showEStem = eStem; 
 
-          // 门颜色分配
           let origGate = p.gate || ''; 
           let gateName = origGate.replace('门', '');
           let gateClass = (origGate === '生门' || origGate === '休门' || origGate === '开门') ? 'gate-g' : ((origGate === '杜门' || origGate === '景门') ? 'gate-n' : 'gate-r');
           if (origGate === '中门') gateClass = 'gate-g';
 
-          // 组装右上角神煞标签
-          let rightCornerHtml = '';
-          if (p.uiTagJx) rightCornerHtml += '<span class="tag-jx">刑</span>';
-          if (p.uiTagPo) rightCornerHtml += '<span class="tag-po">迫</span>';
-          if (p.uiTagMu) rightCornerHtml += '<span class="tag-mu">墓</span>';
-          if (p.uiTagMa) rightCornerHtml += '<span class="tag-ma">马</span>';
-          if (p.uiTagKong) rightCornerHtml += '<span class="tag-kong">空</span>';
+          // ==========================================
+          // 新增：自动跨越地支的标签逻辑计算
+          // ==========================================
+          let tagsArr = [];
+          if (p.uiTagJx) tagsArr.push('<span class="tag-jx">刑</span>');
+          if (p.uiTagPo) tagsArr.push('<span class="tag-po">迫</span>');
+          if (p.uiTagMu) tagsArr.push('<span class="tag-mu">墓</span>');
+          if (p.uiTagMa) tagsArr.push('<span class="tag-ma">马</span>');
+          if (p.uiTagKong) tagsArr.push('<span class="tag-kong">空</span>');
 
-          // 根据天干是否为多个（有/分隔符），应用不同的字号class
+          let tagsHtml = '';
+          if (tagsArr.length > 0) {
+              // 自动切分：最多2个放在右边，超出的挤到地支左侧去
+              let rightTags = tagsArr.slice(0, 2).join('');
+              let leftTags = tagsArr.slice(2).join('');
+              
+              if (rightTags) {
+                  tagsHtml += `<div style="position:absolute; top:1px; right:1px; display:flex; gap:3px; flex-direction:row-reverse; z-index:10;">${rightTags}</div>`;
+              }
+              if (leftTags) {
+                  // 往左位移刚好跨越中间的地支 (50%宽度+14px安全距离)
+                  tagsHtml += `<div style="position:absolute; top:1px; right:calc(50% + 14px); display:flex; gap:3px; flex-direction:row-reverse; z-index:10;">${leftTags}</div>`;
+              }
+          }
+
           let hClass = hStem.indexOf('/') !== -1 ? 'right-item stem-h small-stem-h' : 'right-item stem-h';
           let eClass = eStem.indexOf('/') !== -1 ? 'right-item stem-e small-stem-e' : 'right-item stem-e';
           
-          // 组装单个宫位的内部 HTML (神星门干)
           let innerHtml = '<div class="row"><div class="left-item deity deity-text">' + tDeity + '</div><div class="' + hClass + '">' + showHStem + '</div></div><div class="row"><div class="left-item star star-text">' + starName + '</div><div class="' + eClass + '">' + showEStem + '</div></div><div class="row"><div class="left-item ' + gateClass + ' gate-text">' + gateName + '</div><div class="right-item edeity-text">' + eDeity + '</div></div>';
 
-          // 对中五宫(5)进行特殊处理
+          // 获取该宫位的地支HTML (中5宫没有)
+          let dzHtml = branchHtmlMap[pos] || '';
+
           if (pos === 5) {
-            if (panType === 'fei') { // 飞盘有独立的中五宫数据展示
-              gridHtml += '<div class="cell"><svg class="taichi-svg" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.06;z-index:0;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#fff" stroke="var(--border-color)" stroke-width="1"/><path d="M 50 2 A 48 48 0 0 1 50 98 C 18 98, 18 50, 50 50 C 82 50, 82 2, 50 2 Z" fill="#000"/></svg><div class="corner top-right">' + rightCornerHtml + '</div><div class="inner-content" style="z-index:1;">' + innerHtml + '</div><div class="palace-row" style="z-index:1;"><span>中5宫</span><span class="hidden-stem-text">' + hiddenStem + '</span></div></div>';
-            } else { // 转盘中宫一般寄宫，显示太极和天干地支
+            if (panType === 'fei') { 
+              gridHtml += '<div class="cell"><svg class="taichi-svg" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.06;z-index:0;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#fff" stroke="var(--border-color)" stroke-width="1"/><path d="M 50 2 A 48 48 0 0 1 50 98 C 18 98, 18 50, 50 50 C 82 50, 82 2, 50 2 Z" fill="#000"/></svg>' + tagsHtml + dzHtml + '<div class="inner-content" style="z-index:1;">' + innerHtml + '</div><div class="palace-row" style="z-index:1;"><span>中5宫</span><span class="hidden-stem-text">' + hiddenStem + '</span></div></div>';
+            } else { 
               gridHtml += '<div class="cell center-cell"><svg class="taichi-svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#fff" stroke="var(--border-color)" stroke-width="1"/><path d="M 50 2 A 48 48 0 0 1 50 98 C 18 98, 18 50, 50 50 C 82 50, 82 2, 50 2 Z" fill="#000"/><text x="50" y="26" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="25" font-weight="bold" fill="#000" text-anchor="middle">' + cH + '</text><text x="50" y="74" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="25" font-weight="bold" fill="#fff" text-anchor="middle">' + cE + '</text></svg></div>';
             }
-                    } else { // 其他 8 个普通宫位
-            // 这里用 guaMap[pos] 强行拼接出 坎1宫、坤2宫 的格式
-            gridHtml += '<div class="cell"><div class="corner top-right">' + rightCornerHtml + '</div><div class="inner-content">' + innerHtml + '</div><div class="palace-row"><span>' + guaMap[pos] + pos + '宫</span><span class="hidden-stem-text">' + hiddenStem + '</span></div></div>';
+          } else { 
+            // 普通宫位注入 tagsHtml (替换了旧的 corner top-right) 和 dzHtml
+            gridHtml += '<div class="cell">' + tagsHtml + dzHtml + '<div class="inner-content">' + innerHtml + '</div><div class="palace-row"><span>' + guaMap[pos] + pos + '宫</span><span class="hidden-stem-text">' + hiddenStem + '</span></div></div>';
           }
 
         });
         
-        // 7. 将生成的 9 个 div 写入 DOM
         document.getElementById('chartGrid').innerHTML = gridHtml;
       } catch (err) { alert("排盘错误：" + err.message); }
     }
 
-    // =========================================================
-    // 图片生成导出与分享逻辑 (基于 html2canvas)
-    // =========================================================
     function exportImage() {
       const logo = document.querySelector('.circle-logo');
       if (logo) { logo.innerText = '生成..'; logo.style.fontSize = '12px'; }
-      window.scrollTo(0, 0); // 必须滚到顶部，否则截图会缺失
+      window.scrollTo(0, 0); 
 
       const body = document.body;
       const originalOverflow = body.style.overflow;
-      body.style.overflow = 'visible'; // 截取完整高度
+      body.style.overflow = 'visible'; 
       
-      const scale = 4; // 截图清晰度倍数 (4倍高清)
+      const scale = 4; 
       const bg = getComputedStyle(body).backgroundColor || '#131520';
 
       setTimeout(function () {
@@ -911,7 +843,6 @@ displayOrder.forEach(function(pos) {
           return;
         }
 
-        // 调用 html2canvas 渲染页面为图片
         html2canvas(body, {
           backgroundColor: bg, 
           scale: scale, 
@@ -927,7 +858,6 @@ displayOrder.forEach(function(pos) {
           x: 0, 
           y: 0,
           onclone: function(clonedDoc) {
-            // 在克隆的用于截图的虚拟 DOM 中进行样式微调，防止截图错位
             const clonedLogo = clonedDoc.querySelector('.circle-logo');
             if (clonedLogo) {
               clonedLogo.innerText = '历';
@@ -954,12 +884,10 @@ displayOrder.forEach(function(pos) {
             const fileName = 'OOGO_' + new Date().toLocaleString().replace(/[\/:]/g, '-') + '.png';
             const url = URL.createObjectURL(blob);
             
-            // 区分移动端和 PC 端
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             const isWechat = /MicroMessenger/i.test(navigator.userAgent);
 
             if (isMobile) {
-              // 移动端处理：尝试原生分享或弹窗引导长按保存
               const file = new File([blob], fileName, { type: 'image/png' });
               
               if (!isWechat && navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -975,7 +903,6 @@ displayOrder.forEach(function(pos) {
                 return; 
               }
 
-              // 创建移动端全屏弹窗预览图，让用户长按保存
               const overlay = document.createElement('div');
               overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;';
 
@@ -1002,7 +929,6 @@ displayOrder.forEach(function(pos) {
               
               showToast('✅ 图片生成成功，请长按保存');
             } else {
-              // 电脑端：直接触发文件下载
               const a = document.createElement('a');
               a.href = url;
               a.download = fileName;
@@ -1024,7 +950,6 @@ displayOrder.forEach(function(pos) {
       }, 150);
     }
 
-    // 界面底部轻提示组件
     function showToast(msg) {
       const old = document.getElementById('qimenToast');
       if (old) old.remove();
