@@ -1,11 +1,9 @@
 // ============================================================
-// OOGO 奇门遁甲核心引擎 (含完美置闰、拆补、传统转盘与原生飞盘)
-// 全量修正版 2026-08-15 - 补全转盘天/地盘干寄宫数组显示逻辑
-// ============================================================
+// OOGO 奇门遁甲核心引擎 (含完美置闰、拆补、茅山、传统转盘与原生飞盘) ============================================================
 // 主体系：
 //   时家奇门
 //   传统转盘 / 原生飞盘
-//   置闰法 / 拆补法
+//   置闰法 / 拆补法 / 茅山法
 //
 // 辅助体系：
 //   空亡
@@ -390,9 +388,6 @@ const CalendarAdapter = {
   }
 };
 
-
-
-
 // ============================================================
 // 四、符头系统与节气扫描器
 // ============================================================
@@ -476,7 +471,7 @@ const QimenSolarTerm = {
 };
 
 // ============================================================
-// 五、置闰法与拆补法 (彻底修复子时跨日引擎割裂BUG)
+// 五、置闰法、拆补法与茅山法 
 // ============================================================
 
 const OogoZhiRun = {
@@ -656,6 +651,70 @@ const OogoChaiBu = {
   }
 };
 
+const OogoMaoShan = {
+  calculate(year, month, day, hour, min, sec = 0) {
+    // 1. 获取基础四柱与图表底座
+    const fullChart = CalendarAdapter.getFullChart(year, month, day, hour, min, sec);
+    
+    // 2. 跨日处理 (与置闰/拆补保持一致)
+    let tYear = year, tMonth = month, tDay = day, tHour = hour;
+    if (hour >= 23) {
+        let nextD = new Date(year, month - 1, day + 1);
+        tYear = nextD.getFullYear();
+        tMonth = nextD.getMonth() + 1;
+        tDay = nextD.getDate();
+        tHour = 0; // 跨日后时间按早子时算，用于计算距离交节的精确时差
+    }
+    
+    const targetDate = new Date(tYear, tMonth - 1, tDay, tHour, min, sec);
+    
+    // 3. 茅山法必须使用“精确到时分秒”的交节时间
+    // 直接通过 Lunar 库获取当前时间所处的真实节气和交节时刻
+    const solar = OogoCalendar.Solar.fromYmdHms(tYear, tMonth, tDay, tHour, min, sec);
+    const lunar = OogoCalendar.Lunar.fromSolar(solar);
+    const jq = lunar.getPrevJieQi(); // 获取当前所处的节气
+    const termName = jq.getName();
+    
+    // 获取该节气的确切交接时间点 (精确到秒)
+    const jqSolar = jq.getSolar();
+    const termExactDate = new Date(
+        jqSolar.getYear(), 
+        jqSolar.getMonth() - 1, 
+        jqSolar.getDay(), 
+        jqSolar.getHour(), 
+        jqSolar.getMinute(), 
+        jqSolar.getSecond()
+    );
+
+    // 4. 茅山法核心逻辑：完全不看符头甲己，只算“距离交节气那一刻过去了多久”
+    // 计算时间差（毫秒）转为天数（带有小数，非常精确）
+    const diffMs = targetDate.getTime() - termExactDate.getTime();
+    const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+    // 5. 划分三元：交节起算，严格每满 5 天（120小时）换一元
+    // 0-4.999天为上元，5-9.999天为中元，10天以上全为下元（下元可能会超过5天，直到下个节气到来）
+    let yuanIndex = Math.floor(diffDays / 5);
+    if (yuanIndex < 0) yuanIndex = 0; // 容错防御
+    if (yuanIndex > 2) yuanIndex = 2; // 满10天后，全部兜底为下元
+
+    // 6. 查表定局
+    const isYang = QimenSolarTerm.isYangDun(termName);
+    const table = QimenSolarTerm.getJuTable(termName, isYang);
+    if (!table) throw new Error(`茅山法没有找到局数表：${termName}`);
+
+    return {
+      chart: fullChart,
+      method: "茅山法",
+      juNumber: table[yuanIndex],
+      isYangdun: isYang,
+      termName: termName,
+      termDate: termExactDate, // 这里返回的是带时分秒的精确交节时间
+      yuanIndex,
+      yuanName: ["上元", "中元", "下元"][yuanIndex],
+      debugInfo: { diffDays: diffDays } // 方便调试时查看已走天数
+    };
+  }
+};
 
 // ============================================================
 // 六、空亡、驿马与标签增强
@@ -916,9 +975,14 @@ const OogoDiShen = {
 
 const OogoZhuanPan = {
   calculate(year, month, day, hour, min, sec = 0, method = "zhirun", jigong = "ji2") {
-    const juInfo = method === "chaibu"
-      ? OogoChaiBu.calculate(year, month, day, hour, min, sec)
-      : OogoZhiRun.calculate(year, month, day, hour, min, sec);
+    let juInfo;
+    if (method === "chaibu") {
+      juInfo = OogoChaiBu.calculate(year, month, day, hour, min, sec);
+    } else if (method === "maoshan") {
+      juInfo = OogoMaoShan.calculate(year, month, day, hour, min, sec);
+    } else {
+      juInfo = OogoZhiRun.calculate(year, month, day, hour, min, sec);
+    }
 
     const chart = juInfo.chart;
     const juNumber = juInfo.juNumber;
@@ -1143,8 +1207,8 @@ const OogoFeiPan = {
       flyGates[landPalace] = origGates[i];
     }
 
-    const deitiesYang = ["符", "螣", "阴", "合", "勾", "常", "朱", "地", "天"];
-    const deitiesYin  = ["符", "螣", "阴", "合", "白", "常", "玄", "地", "天"];
+    const deitiesYang = ["符", "螣", "阴", "六", "勾", "常", "朱", "地", "天"];
+    const deitiesYin  = ["符", "螣", "阴", "六", "白", "常", "玄", "地", "天"];
     const deitiesList = isYang ? deitiesYang : deitiesYin;
 
     const flyDeities = {};
@@ -1236,6 +1300,10 @@ const OogoQimen = {
     return OogoZhuanPan.calculate(year, month, day, hour, min, sec, "chaibu");
   },
 
+  calculateMaoShan(year, month, day, hour, min, sec = 0) {
+    return OogoZhuanPan.calculate(year, month, day, hour, min, sec, "maoshan");
+  },
+
   calculateZhiRun(year, month, day, hour, min, sec = 0) {
     return OogoZhiRun.calculate(year, month, day, hour, min, sec);
   }
@@ -1244,7 +1312,7 @@ const OogoQimen = {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = {
     QimenConst, QimenUtil, CalendarAdapter, QimenFuTou, QimenSolarTerm,
-    OogoZhiRun, OogoChaiBu, OogoDiPan, OogoZhuanXing, OogoZhuanMen,
+    OogoZhiRun, OogoChaiBu, OogoMaoShan, OogoDiPan, OogoZhuanXing, OogoZhuanMen,
     OogoTianShen, OogoDiShen, OogoKongWang, OogoYiMa, OogoFuFan,
     OogoTagEnhancer, OogoZhuanPan, OogoZhuanPanEnhancer, OogoFeiPan, OogoQimen
   };
@@ -1254,6 +1322,7 @@ if (typeof window !== "undefined") {
   window.OogoQimen = OogoQimen;
   window.OogoZhiRun = OogoZhiRun;
   window.OogoChaiBu = OogoChaiBu;
+  window.OogoMaoShan = OogoMaoShan;
   window.OogoZhuanPan = OogoZhuanPan;
   window.OogoFeiPan = OogoFeiPan;
   window.OogoZhuanPanEnhancer = OogoZhuanPanEnhancer;
