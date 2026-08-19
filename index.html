@@ -137,10 +137,10 @@
     /* ========================================================= */
     /* 4. 九宫格核心样式区 */
     /* ========================================================= */
-    /* 九宫格增加了上下外边距，防止地支破框后被截断 */
-    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--gold-line); border: 1px solid var(--gold-line); border-radius: 4px; padding: 1px; margin: 24px 12px; }
+    /* 恢复原版大小，取消外边距 */
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--gold-line); border: 1px solid var(--gold-line); border-radius: 4px; padding: 1px; margin: 0; }
     
-    /* 取消了原有的 overflow: hidden，让内部元素可以突破边框限制 */
+    /* 取消 overflow: hidden，让内部元素可以突破顶部边框限制 */
     .cell { background: var(--cell-bg); position: relative; height: 125px; box-sizing: border-box; transition: background 0.3s; }
     .center-cell { background: var(--cell-bg); display: flex; justify-content: center; align-items: center; position: relative; transition: background 0.3s; }
     
@@ -173,11 +173,8 @@
     .dz-left { left: 2px; top: 46%; transform: translateY(-50%); }
     .dz-right { right: 2px; top: 46%; transform: translateY(-50%); }
     
-    /* 拥挤时，出框的位置偏移 */
+    /* 拥挤时，顶部巳、午、未出框的位置偏移 */
     .dz-out-top { top: -20px; }
-    .dz-out-bottom { bottom: -24px; }
-    .dz-out-left { left: -18px; }
-    .dz-out-right { right: -18px; }
     
     /* 特殊神煞标签样式 */
     .tag-ma { color: #ffffff; background: #d34e55; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; }
@@ -781,10 +778,9 @@
           if (p.uiTagMa) tagsArr.push('<span class="tag-ma">马</span>');
           if (p.uiTagKong) tagsArr.push('<span class="tag-kong">空</span>');
 
-          // 【核心逻辑】只要出现 >=3 个标签，该宫位的地支就会被应用“out”出框类名
+          // 【核心逻辑】只要出现 >=3 个标签，标记为拥挤
           let isCrowded = tagsArr.length >= 3; 
 
-          // 恢复原版标签排列方式（全部在右上角，不再分开）
           let tagsHtml = '';
           if (tagsArr.length > 0) {
               tagsHtml = `<div style="position:absolute; top:1px; right:1px; display:flex; gap:3px; flex-direction:row-reverse; z-index:10;">${tagsArr.join('')}</div>`;
@@ -795,18 +791,20 @@
           
           let innerHtml = '<div class="row"><div class="left-item deity deity-text">' + tDeity + '</div><div class="' + hClass + '">' + showHStem + '</div></div><div class="row"><div class="left-item star star-text">' + starName + '</div><div class="' + eClass + '">' + showEStem + '</div></div><div class="row"><div class="left-item ' + gateClass + ' gate-text">' + gateName + '</div><div class="right-item edeity-text">' + eDeity + '</div></div>';
 
-          // 动态分配位置类名
-          let tC = isCrowded ? 'dz-top dz-out-top' : 'dz-top';
-          let bC = isCrowded ? 'dz-bottom dz-out-bottom' : 'dz-bottom';
-          let lC = isCrowded ? 'dz-left dz-out-left' : 'dz-left';
-          let rC = isCrowded ? 'dz-right dz-out-right' : 'dz-right';
+          // 初始化普通状态的基础类名
+          let tC = 'dz-top', bC = 'dz-bottom', lC = 'dz-left', rC = 'dz-right';
+          
+          // 【精准出框判定】如果拥挤，并且当前是 巽4、离9、坤2 这三个上排宫位，才给顶部加上出框效果
+          if (isCrowded && (pos === 4 || pos === 9 || pos === 2)) {
+            tC = 'dz-top dz-out-top'; // 只有这三个宫位的顶部元素（巳、午、未）出框
+          }
 
           // 生成当前宫位的地支HTML
           let dzHtml = '';
           if (pos === 1) dzHtml = `<div class="${bC}">子</div>`;
-          else if (pos === 2) dzHtml = `<div class="${tC}">未</div><div class="${rC}">申</div>`;
+          else if (pos === 2) dzHtml = `<div class="${tC}">未</div><div class="${rC}">申</div>`; // 申永远不跳，未符合条件跳
           else if (pos === 3) dzHtml = `<div class="${lC}">卯</div>`;
-          else if (pos === 4) dzHtml = `<div class="${tC}">巳</div><div class="${lC}">辰</div>`;
+          else if (pos === 4) dzHtml = `<div class="${tC}">巳</div><div class="${lC}">辰</div>`; // 辰永远不跳，巳符合条件跳
           else if (pos === 6) dzHtml = `<div class="${rC}">戌</div><div class="${bC}">亥</div>`;
           else if (pos === 7) dzHtml = `<div class="${rC}">酉</div>`;
           else if (pos === 8) dzHtml = `<div class="${bC}">丑</div><div class="${lC}">寅</div>`;
