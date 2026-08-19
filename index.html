@@ -137,11 +137,12 @@
     /* ========================================================= */
     /* 4. 九宫格核心样式区 */
     /* ========================================================= */
-    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--gold-line); border: 1px solid var(--gold-line); border-radius: 4px; padding: 1px; }
+    /* 九宫格增加了上下外边距，防止地支破框后被截断 */
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--gold-line); border: 1px solid var(--gold-line); border-radius: 4px; padding: 1px; margin: 24px 12px; }
     
-    .cell { background: var(--cell-bg); position: relative; height: 125px; box-sizing: border-box; transition: background 0.3s; overflow: hidden; transform: translateZ(0); backface-visibility: hidden; }
-    .center-cell { background: var(--cell-bg); display: flex; justify-content: center; align-items: center; position: relative; transition: background 0.3s; overflow: hidden; transform: translateZ(0); backface-visibility: hidden; }
-    .corner { position: absolute; font-size: 13px; }
+    /* 取消了原有的 overflow: hidden，让内部元素可以突破边框限制 */
+    .cell { background: var(--cell-bg); position: relative; height: 125px; box-sizing: border-box; transition: background 0.3s; }
+    .center-cell { background: var(--cell-bg); display: flex; justify-content: center; align-items: center; position: relative; transition: background 0.3s; }
     
     .hidden-stem-text { color: var(--dark-stem-color); font-weight: bold; font-size: 13px; }
     .palace-row { position: absolute; bottom: 6px; left: 13px; right: 20px; border-top: 1px dashed var(--border-color); padding-top: 4px; display: flex; justify-content: space-between; align-items: center; color: var(--palace-text); font-size: 13px; z-index: 10; }
@@ -153,21 +154,30 @@
     .taichi-svg { width: 115px; height: 115px; filter: drop-shadow(0 0 8px rgba(0,0,0,0.4)); }
     
     /* --------------------------------------------------------- */
-    /* 新增：十二地支固定位置样式 */
+    /* 新增：十二地支固定位置样式与出框样式 */
     /* --------------------------------------------------------- */
     .dz-top, .dz-bottom, .dz-left, .dz-right {
       position: absolute;
-      color: var(--palace-text); /* 使用不突兀的宫位字体色 */
+      color: var(--palace-text); 
       font-size: 13px;
       font-weight: bold;
       opacity: 0.6;
       z-index: 5;
       pointer-events: none;
+      transition: all 0.3s;
     }
+    
+    /* 正常状态的位置 */
     .dz-top { top: 1px; left: 50%; transform: translateX(-50%); }
-    .dz-bottom { bottom: 6px; left: 50%; transform: translateX(-50%); } /* 贴合底部宫位横线文字间隙 */
+    .dz-bottom { bottom: 6px; left: 50%; transform: translateX(-50%); } 
     .dz-left { left: 2px; top: 46%; transform: translateY(-50%); }
     .dz-right { right: 2px; top: 46%; transform: translateY(-50%); }
+    
+    /* 拥挤时，出框的位置偏移 */
+    .dz-out-top { top: -20px; }
+    .dz-out-bottom { bottom: -24px; }
+    .dz-out-left { left: -18px; }
+    .dz-out-right { right: -18px; }
     
     /* 特殊神煞标签样式 */
     .tag-ma { color: #ffffff; background: #d34e55; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; }
@@ -726,18 +736,6 @@
         let gridHtml = '';
 
         const guaMap = { 1:'坎', 2:'坤', 3:'震', 4:'巽', 5:'中', 6:'乾', 7:'兑', 8:'艮', 9:'离' };
-        
-        // 用于映射各个宫位的地支HTML
-        const branchHtmlMap = {
-            1: '<div class="dz-bottom">子</div>',
-            2: '<div class="dz-top">未</div><div class="dz-right">申</div>',
-            3: '<div class="dz-left">卯</div>',
-            4: '<div class="dz-top">巳</div><div class="dz-left">辰</div>',
-            6: '<div class="dz-right">戌</div><div class="dz-bottom">亥</div>',
-            7: '<div class="dz-right">酉</div>',
-            8: '<div class="dz-bottom">丑</div><div class="dz-left">寅</div>',
-            9: '<div class="dz-top">午</div>'
-        };
 
         const displayOrder = [4, 9, 2, 3, 5, 7, 8, 1, 6];
         displayOrder.forEach(function(pos) {
@@ -774,7 +772,7 @@
           if (origGate === '中门') gateClass = 'gate-g';
 
           // ==========================================
-          // 新增：自动跨越地支的标签逻辑计算
+          // 标签判定与动态计算出框位置
           // ==========================================
           let tagsArr = [];
           if (p.uiTagJx) tagsArr.push('<span class="tag-jx">刑</span>');
@@ -783,19 +781,13 @@
           if (p.uiTagMa) tagsArr.push('<span class="tag-ma">马</span>');
           if (p.uiTagKong) tagsArr.push('<span class="tag-kong">空</span>');
 
+          // 【核心逻辑】只要出现 >=3 个标签，该宫位的地支就会被应用“out”出框类名
+          let isCrowded = tagsArr.length >= 3; 
+
+          // 恢复原版标签排列方式（全部在右上角，不再分开）
           let tagsHtml = '';
           if (tagsArr.length > 0) {
-              // 自动切分：最多2个放在右边，超出的挤到地支左侧去
-              let rightTags = tagsArr.slice(0, 2).join('');
-              let leftTags = tagsArr.slice(2).join('');
-              
-              if (rightTags) {
-                  tagsHtml += `<div style="position:absolute; top:1px; right:1px; display:flex; gap:3px; flex-direction:row-reverse; z-index:10;">${rightTags}</div>`;
-              }
-              if (leftTags) {
-                  // 往左位移刚好跨越中间的地支 (50%宽度+14px安全距离)
-                  tagsHtml += `<div style="position:absolute; top:1px; right:calc(50% + 14px); display:flex; gap:3px; flex-direction:row-reverse; z-index:10;">${leftTags}</div>`;
-              }
+              tagsHtml = `<div style="position:absolute; top:1px; right:1px; display:flex; gap:3px; flex-direction:row-reverse; z-index:10;">${tagsArr.join('')}</div>`;
           }
 
           let hClass = hStem.indexOf('/') !== -1 ? 'right-item stem-h small-stem-h' : 'right-item stem-h';
@@ -803,8 +795,22 @@
           
           let innerHtml = '<div class="row"><div class="left-item deity deity-text">' + tDeity + '</div><div class="' + hClass + '">' + showHStem + '</div></div><div class="row"><div class="left-item star star-text">' + starName + '</div><div class="' + eClass + '">' + showEStem + '</div></div><div class="row"><div class="left-item ' + gateClass + ' gate-text">' + gateName + '</div><div class="right-item edeity-text">' + eDeity + '</div></div>';
 
-          // 获取该宫位的地支HTML (中5宫没有)
-          let dzHtml = branchHtmlMap[pos] || '';
+          // 动态分配位置类名
+          let tC = isCrowded ? 'dz-top dz-out-top' : 'dz-top';
+          let bC = isCrowded ? 'dz-bottom dz-out-bottom' : 'dz-bottom';
+          let lC = isCrowded ? 'dz-left dz-out-left' : 'dz-left';
+          let rC = isCrowded ? 'dz-right dz-out-right' : 'dz-right';
+
+          // 生成当前宫位的地支HTML
+          let dzHtml = '';
+          if (pos === 1) dzHtml = `<div class="${bC}">子</div>`;
+          else if (pos === 2) dzHtml = `<div class="${tC}">未</div><div class="${rC}">申</div>`;
+          else if (pos === 3) dzHtml = `<div class="${lC}">卯</div>`;
+          else if (pos === 4) dzHtml = `<div class="${tC}">巳</div><div class="${lC}">辰</div>`;
+          else if (pos === 6) dzHtml = `<div class="${rC}">戌</div><div class="${bC}">亥</div>`;
+          else if (pos === 7) dzHtml = `<div class="${rC}">酉</div>`;
+          else if (pos === 8) dzHtml = `<div class="${bC}">丑</div><div class="${lC}">寅</div>`;
+          else if (pos === 9) dzHtml = `<div class="${tC}">午</div>`;
 
           if (pos === 5) {
             if (panType === 'fei') { 
@@ -813,7 +819,6 @@
               gridHtml += '<div class="cell center-cell"><svg class="taichi-svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#fff" stroke="var(--border-color)" stroke-width="1"/><path d="M 50 2 A 48 48 0 0 1 50 98 C 18 98, 18 50, 50 50 C 82 50, 82 2, 50 2 Z" fill="#000"/><text x="50" y="26" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="25" font-weight="bold" fill="#000" text-anchor="middle">' + cH + '</text><text x="50" y="74" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="25" font-weight="bold" fill="#fff" text-anchor="middle">' + cE + '</text></svg></div>';
             }
           } else { 
-            // 普通宫位注入 tagsHtml (替换了旧的 corner top-right) 和 dzHtml
             gridHtml += '<div class="cell">' + tagsHtml + dzHtml + '<div class="inner-content">' + innerHtml + '</div><div class="palace-row"><span>' + guaMap[pos] + pos + '宫</span><span class="hidden-stem-text">' + hiddenStem + '</span></div></div>';
           }
 
