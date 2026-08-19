@@ -297,7 +297,6 @@
                 <optgroup label="西北地区">
                   <option value="108.95">西安</option>
                   <option value="103.73">兰州</option>
-                  <option value="101.74">西宁</option>
                   <option value="106.27">银川</option>
                   <option value="87.68">乌鲁木齐</option>
                 </optgroup>
@@ -332,6 +331,7 @@
             <select id="methodSelect" onchange="saveSettings()">
               <option value="zhirun" selected>置闰法</option>
               <option value="chaibu">拆补法</option>
+              <option value="maoshan">茅山法</option>
             </select>
             
             <select id="panSelect" onchange="saveSettings()">
@@ -340,8 +340,8 @@
             </select>
             
             <select id="jigongSelect" onchange="saveSettings()">
-              <option value="ji2" selected>寄2宫</option>
-              <option value="y8y2">阳8阴2</option>
+              <option value="ji2" selected>寄坤宫</option>
+              <option value="y8y2">阳艮阴坤</option>
             </select>
             
             <button class="btn-theme" onclick="toggleTheme()">🎨 主题</button>
@@ -646,6 +646,8 @@
             juInfo = OogoZhiRun.calculate(y, m, d, h, min, 0);
             isRun = juInfo.isTrueRun;
             superShenDays = juInfo.superShenDays || 0;
+        } else if (method === 'maoshan') {
+            juInfo = OogoMaoShan.calculate(y, m, d, h, min, 0);
         } else { 
             juInfo = OogoChaiBu.calculate(y, m, d, h, min, 0);
         }
