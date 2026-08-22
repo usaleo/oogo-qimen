@@ -151,16 +151,13 @@ const QimenUtil = {
     );
   }, 
   // ==========================================
-  // ★ 新增：十天干十二长生法理推算算法
+  // ★ 十天干十二长生算法（支持全称、空格分隔、双地支）
   // ==========================================
-    getChangSheng(stem, palace) {
+  getChangSheng(stem, palace) {
     if (!stem || palace === 5) return "";
     
-    // 采用标准十二长生全称
     const states = ["长生", "沐浴", "冠带", "临官", "帝旺", "衰", "病", "死", "墓", "绝", "胎", "养"];
-    // 九宫对应的地支索引 (子=0, 丑=1... 亥=11)
     const branchesMap = { 1:[0], 8:[1,2], 3:[3], 4:[4,5], 9:[6], 2:[7,8], 7:[9], 6:[10,11] };
-    // 起点地支索引 (阳顺阴逆)
     const startMap = { '甲':11, '乙':6, '丙':2, '丁':9, '戊':2, '己':9, '庚':5, '辛':0, '壬':8, '癸':3 };
 
     const palaceBranches = branchesMap[palace];
@@ -169,12 +166,13 @@ const QimenUtil = {
     const startIdx = startMap[stem];
     const isYin = ['乙', '丁', '己', '辛', '癸'].includes(stem);
 
-    // 四维宫两个地支计算出的长生用空格隔开，如 "衰 病"
     return palaceBranches.map(b => {
       let offset = isYin ? (startIdx - b + 12) % 12 : (b - startIdx + 12) % 12;
       return states[offset];
     }).join(' ');
-  },
+  }
+};
+
 // ============================================================
 // 三、CalendarAdapter
 // ============================================================
@@ -461,6 +459,7 @@ const OogoFuFan = {
     return { starFu, gateFu, starFan, gateFan, text };
   }
 };
+
 const OogoTagEnhancer = {
   enhance(chart) {
     const timeStem = chart.fourPillars.hour.stem;
@@ -468,7 +467,8 @@ const OogoTagEnhancer = {
     const kong = OogoKongWang.get(timeStem, timeBranch);
     const kongPalaces = kong.map(b => OogoKongWang.branchToPalace(b)).filter(Boolean);
     const ma = OogoYiMa.calculate(timeBranch);
-        chart.palaces.forEach(p => {
+
+    chart.palaces.forEach(p => {
       // 提取主天干和主地干（用于神煞判断）
       const hStemList = Array.isArray(p.heavenlyStem) ? p.heavenlyStem : [p.heavenlyStem].filter(Boolean);
       const eStemList = Array.isArray(p.earthlyStem) ? p.earthlyStem : [p.earthlyStem].filter(Boolean);
@@ -484,7 +484,7 @@ const OogoTagEnhancer = {
       p.gatePressure = { hasPressure: p.uiTagPo, text: p.uiTagPo ? "门迫" : "" };
       p.tombInfo = { heavenlyStemInTomb: p.uiTagMu ? [hStem] : [], earthlyStemInTomb: [] };
       
-      // ★ 针对每个干（本宫干 + 天禽寄干）分别计算长生，支持两套寄宫模式
+      // ★ 针对每个干（本宫干 + 天禽寄干）分别计算长生
       p.heavenlyStemDetails = hStemList.map(s => ({
         stem: s,
         cs: QimenUtil.getChangSheng(s, p.position)
@@ -495,6 +495,7 @@ const OogoTagEnhancer = {
         cs: QimenUtil.getChangSheng(s, p.position)
       }));
     });
+
     chart.kongWang = { branches: kong, palaces: kongPalaces };
     chart.yiMa = ma;
     chart.uiTagFuYinFanYin = OogoFuFan.analyze(chart.palaces);
@@ -874,58 +875,25 @@ const OogoZhuanPan = {
     const heavenDeities = OogoTianShen.build(starInfo.zhiFuPalace, isYang);
     const earthDeities = OogoDiShen.build(origXunPalace, isYang);
 
-const hiddenStemsMap = new Map();
+    const hiddenStemsMap = new Map();
+    const qimenStems = ["戊", "己", "庚", "辛", "壬", "癸", "丁", "丙", "乙"];
+    const hiddenTimeStem = timeStem === "甲" ? xun.stem : timeStem;
+    const tsIdx = qimenStems.indexOf(hiddenTimeStem);
 
-const qimenStems = [
-  "戊", "己", "庚", "辛", "壬",
-  "癸", "丁", "丙", "乙"
-];
+    if (tsIdx !== -1) {
+      const zsTargetPalace = gateInfo.zhiShiPalace;
+      const zhiShiEarthStem = earthStems[zsTargetPalace];
+      const hiddenStartPalace = hiddenTimeStem === zhiShiEarthStem ? 5 : zsTargetPalace;
 
-const hiddenTimeStem = timeStem === "甲"
-  ? xun.stem
-  : timeStem;
+      for (let i = 0; i < 9; i++) {
+        let landPalace = isYang ? (hiddenStartPalace + i) : (hiddenStartPalace - i);
+        while (landPalace > 9) landPalace -= 9;
+        while (landPalace < 1) landPalace += 9;
+        hiddenStemsMap.set(landPalace, qimenStems[(tsIdx + i) % 9]);
+      }
+    }
 
-const tsIdx = qimenStems.indexOf(hiddenTimeStem);
-
-if (tsIdx !== -1) {
-
-  // 值使所在宫
-  const zsTargetPalace = gateInfo.zhiShiPalace;
-
-  // 值使宫的地盘干
-  const zhiShiEarthStem = earthStems[zsTargetPalace];
-
-  // ----------------------------------------------------------
-  // 特殊情况：
-  // 如果时干 = 值使宫地盘干
-  // 则时干入中五宫
-  // ----------------------------------------------------------
-  const hiddenStartPalace =
-    hiddenTimeStem === zhiShiEarthStem
-      ? 5
-      : zsTargetPalace;
-
-  // ----------------------------------------------------------
-  // 阳遁顺飞
-  // 阴遁逆飞
-  // ----------------------------------------------------------
-  for (let i = 0; i < 9; i++) {
-
-    let landPalace = isYang
-      ? (hiddenStartPalace + i)
-      : (hiddenStartPalace - i);
-
-    while (landPalace > 9) landPalace -= 9;
-    while (landPalace < 1) landPalace += 9;
-
-    hiddenStemsMap.set(
-      landPalace,
-      qimenStems[(tsIdx + i) % 9]
-    );
-  }
-}
-
-chart.hiddenStems = hiddenStemsMap;
+    chart.hiddenStems = hiddenStemsMap;
 
     const palaces = [];
     for (const position of QimenConst.PALACES) {
@@ -1052,7 +1020,6 @@ const OogoFeiPan = {
     const deitiesYin  = ["符", "螣", "阴", "六", "白", "常", "玄", "地", "天"];
     const deitiesList = isYang ? deitiesYang : deitiesYin;
 
-    // ★ 联动参数生效：传统随星，鸣法随门
     const deityStartPalace = isMingFa ? zsTargetPalace : zfTargetPalace;
 
     const flyDeities = {};
