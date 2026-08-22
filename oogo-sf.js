@@ -459,7 +459,6 @@ const OogoFuFan = {
     return { starFu, gateFu, starFan, gateFan, text };
   }
 };
-
 const OogoTagEnhancer = {
   enhance(chart) {
     const timeStem = chart.fourPillars.hour.stem;
@@ -484,7 +483,7 @@ const OogoTagEnhancer = {
       p.gatePressure = { hasPressure: p.uiTagPo, text: p.uiTagPo ? "门迫" : "" };
       p.tombInfo = { heavenlyStemInTomb: p.uiTagMu ? [hStem] : [], earthlyStemInTomb: [] };
       
-      // ★ 针对每个干（本宫干 + 天禽寄干）分别计算长生
+      // 针对每个干分别计算长生
       p.heavenlyStemDetails = hStemList.map(s => ({
         stem: s,
         cs: QimenUtil.getChangSheng(s, p.position)
@@ -494,6 +493,10 @@ const OogoTagEnhancer = {
         stem: s,
         cs: QimenUtil.getChangSheng(s, p.position)
       }));
+
+      // ★ 核心修复：直接把前端需要的字段拼接赋值出来（多天干自动用 / 隔开）
+      p.heavenlyChangsheng = p.heavenlyStemDetails.map(d => d.cs).filter(Boolean).join('/');
+      p.earthlyChangsheng = p.earthlyStemDetails.map(d => d.cs).filter(Boolean).join('/');
     });
 
     chart.kongWang = { branches: kong, palaces: kongPalaces };
