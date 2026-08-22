@@ -673,7 +673,7 @@ initChangShengSetting();
           
           let hStem = Array.isArray(p.heavenlyStem) ? p.heavenlyStem.join('/') : (p.heavenlyStem || '');
           let eStem = Array.isArray(p.earthlyStem) ? p.earthlyStem.join('/') : (p.earthlyStem || '');
-                    // ====== ★ 修复天干变色、防折行与长生精确对齐（单层干净版） ======
+                    // ====== ★ 还原原版视觉：大字号、保留空格、原版斜杠 ======
           let dayStem = chart.fourPillars.day.stem;
           let dColor = getWuxingColor(dayStem);
 
@@ -684,17 +684,18 @@ initChangShengSetting();
             return stemList.map((stem, idx) => {
               let color = (stem === dayStem) ? dColor : 'inherit';
               let detail = (detailsList && detailsList[idx]) ? detailsList[idx] : null;
-              let csText = (showChangSheng && pos !== 5 && detail && detail.cs) ? detail.cs.replace(/\s+/g, '') : '';
+              // 保留中间原有的空格
+              let csText = (showChangSheng && pos !== 5 && detail && detail.cs) ? detail.cs : '';
               
-              let csHtml = csText ? `<span style="position:absolute; bottom:-11px; left:50%; transform:translateX(-50%) scale(0.75); font-size:9px; color:var(--text-gray); font-weight:normal; line-height:1; white-space:nowrap; z-index:5;">${csText}</span>` : '';
+              // 还原原版字号（10px，scale 0.85）
+              let csHtml = csText ? `<span style="position:absolute; bottom:-12px; left:50%; transform:translateX(-50%) scale(0.85); font-size:10px; color:var(--text-gray); font-weight:normal; letter-spacing:-0.5px; white-space:nowrap; z-index:5;">${csText}</span>` : '';
               
-              return `<span style="position:relative; display:inline-flex; flex-direction:column; align-items:center; vertical-align:baseline; color:${color}; margin:0 1px;">${stem}${csHtml}</span>`;
-            }).join('<span style="color:var(--text-gray); font-size:12px; margin:0 1px;">/</span>');
+              return `<span style="position:relative; display:inline-block; vertical-align:bottom; color:${color};">${stem}${csHtml}</span>`;
+            }).join('/'); // 还原原版原生斜杠
           }
 
           let showHStem = renderStemWithCS(hStemList, p.heavenlyStemDetails);
           let showEStem = renderStemWithCS(eStemList, p.earthlyStemDetails);
-
           let origGate = p.gate || ''; let gateName = origGate.replace('门', '');
           let gateClass = (origGate === '生门' || origGate === '休门' || origGate === '开门') ? 'gate-g' : ((origGate === '杜门' || origGate === '景门') ? 'gate-n' : 'gate-r');
           if (origGate === '中门') gateClass = 'gate-g';
