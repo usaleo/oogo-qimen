@@ -657,30 +657,32 @@
           let dColor = getWuxingColor(dayStem);
           const hDetails = p.heavenlyStemDetails || (Array.isArray(p.heavenlyStem) ? p.heavenlyStem.map(s=>({stem:s, cs:''})) : [{ stem: p.heavenlyStem, cs: '' }]);
           const eDetails = p.earthlyStemDetails || (Array.isArray(p.earthlyStem) ? p.earthlyStem.map(s=>({stem:s, cs:''})) : [{ stem: p.earthlyStem, cs: '' }]);
-                    // 格式化长生词：将四隅宫两支长生用带样式的斜杠 / 隔开（例如：养/胎、衰/旺）
+                    // 格式化长生词：加深斜杠颜色，清晰隔开
           const formatCsText = (cs) => {
             if (!cs) return '';
-            return cs.trim().split(/\s+/).join('<span style="opacity:0.4; font-size:8px; margin:0 1px;">/</span>');
+            return cs.trim().split(/\s+/).join('<span style="color:var(--text-gray); font-size:9px; margin:0 1px; opacity:0.8;">/</span>');
           };
 
+          // 天盘干：恢复天干原有 / 大小，长生字体适度放大并下移 2.5px
           let showHStem = hDetails.map(item => {
             if (!item.stem) return '';
             let stemChar = (item.stem === dayStem) ? `<span style="color:${dColor};">${item.stem}</span>` : item.stem;
             let formattedCs = formatCsText(item.cs);
             let csHtml = (showChangSheng && item.cs && pos !== 5) 
-              ? `<span style="position:absolute; top:100%; left:50%; transform:translateX(-50%) scale(0.68); transform-origin:top center; font-size:10px; color:var(--text-gray); font-weight:normal; line-height:1; white-space:nowrap; margin-top:0.5px; pointer-events:none; z-index:5;">${formattedCs}</span>` 
+              ? `<span style="position:absolute; top:100%; left:50%; transform:translateX(-50%) scale(0.78); transform-origin:top center; font-size:10.5px; color:var(--text-gray); font-weight:normal; line-height:1; white-space:nowrap; margin-top:2.5px; pointer-events:none; z-index:5;">${formattedCs}</span>` 
               : '';
-            return `<span style="position:relative; display:inline-block; vertical-align:middle; margin:0 1px;">${stemChar}${csHtml}</span>`;
-          }).join('<span style="margin:0 2px; opacity:0.4; font-size:11px;">/</span>');
+            return `<span style="position:relative; display:inline-block; vertical-align:middle; margin:0 1.5px;">${stemChar}${csHtml}</span>`;
+          }).join('/');
 
+          // 地盘干：恢复天干原有 / 大小，长生字体适度放大并下移 2.5px
           let showEStem = eDetails.map(item => {
             if (!item.stem) return '';
             let formattedCs = formatCsText(item.cs);
             let csHtml = (showChangSheng && item.cs && pos !== 5) 
-              ? `<span style="position:absolute; top:100%; left:50%; transform:translateX(-50%) scale(0.68); transform-origin:top center; font-size:10px; color:var(--text-gray); font-weight:normal; line-height:1; white-space:nowrap; margin-top:0.5px; pointer-events:none; z-index:5;">${formattedCs}</span>` 
+              ? `<span style="position:absolute; top:100%; left:50%; transform:translateX(-50%) scale(0.78); transform-origin:top center; font-size:10.5px; color:var(--text-gray); font-weight:normal; line-height:1; white-space:nowrap; margin-top:2.5px; pointer-events:none; z-index:5;">${formattedCs}</span>` 
               : '';
-            return `<span style="position:relative; display:inline-block; vertical-align:middle; margin:0 1px;">${item.stem}${csHtml}</span>`;
-          }).join('<span style="margin:0 2px; opacity:0.4; font-size:10px;">/</span>');
+            return `<span style="position:relative; display:inline-block; vertical-align:middle; margin:0 1.5px;">${item.stem}${csHtml}</span>`;
+          }).join('/');
 
           let origGate = p.gate || ''; 
           let gateName = origGate.replace('门', '');
