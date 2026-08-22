@@ -63,7 +63,7 @@
       --c-gate-g: #16a34a;
       --c-gate-r: #dc2626;
       --c-gate-n: #632914;
-      --c-stem-h: #9d174d;
+      --c-stem-h: #f472b6;
       --c-stem-e: #111827;
       --palace-text: #9ca3af;
       --edeity-text: #8b5cf6;
@@ -93,7 +93,7 @@
     .top-ctrl { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; transition: all 0.3s; }
     .ctrl-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; width: 100%; box-sizing: border-box; }
     
-    .badge { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; }
+    .badge { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; transition: all 0.3s;}
     .badge-gong, .badge-nong, .badge-zhen { background: rgba(91, 146, 214, 0.15); color: var(--text-blue); }
     
     .date-group { display: flex; align-items: center; flex: 1; justify-content: space-between; gap: 2px; min-width: 0; }
@@ -137,14 +137,18 @@
     /* ========================================================= */
     /* 4. 九宫格核心样式区 */
     /* ========================================================= */
-    /* 恢复原版大小，取消外边距 */
     .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--gold-line); border: 1px solid var(--gold-line); border-radius: 4px; padding: 1px; margin: 0; }
     
-    /* 取消 overflow: hidden，让内部元素可以突破顶部边框限制 */
     .cell { background: var(--cell-bg); position: relative; height: 125px; box-sizing: border-box; transition: background 0.3s; }
     .center-cell { background: var(--cell-bg); display: flex; justify-content: center; align-items: center; position: relative; transition: background 0.3s; }
     
     .hidden-stem-text { color: var(--dark-stem-color); font-weight: bold; font-size: 13px; }
+    .center-hidden-stem {
+    position: absolute;
+    right: 12px;
+    bottom: 6px;
+    z-index: 20;
+}
     .palace-row { position: absolute; bottom: 6px; left: 12px; right: 20px; border-top: 1px dashed var(--border-color); padding-top: 4px; display: flex; justify-content: space-between; align-items: center; color: var(--palace-text); font-size: 13px; z-index: 10; }
     .inner-content { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: calc(100% - 40px); display: flex; flex-direction: column; gap: 9px; z-index: 10; }
     
@@ -153,30 +157,13 @@
     .gate-text  { font-size: 18px; }
     .taichi-svg { width: 115px; height: 115px; filter: drop-shadow(0 0 8px rgba(0,0,0,0.4)); }
     
-    /* --------------------------------------------------------- */
-    /* 新增：十二地支固定位置样式与出框样式 */
-    /* --------------------------------------------------------- */
-    .dz-top, .dz-bottom, .dz-left, .dz-right {
-      position: absolute;
-      color: var(--palace-text); 
-      font-size: 13px;
-      font-weight: bold;
-      opacity: 0.6;
-      z-index: 5;
-      pointer-events: none;
-      transition: all 0.3s;
-    }
-    
-    /* 正常状态的位置 */
+    .dz-top, .dz-bottom, .dz-left, .dz-right { position: absolute; color: var(--palace-text); font-size: 13px; font-weight: bold; opacity: 0.6; z-index: 5; pointer-events: none; transition: all 0.3s; }
     .dz-top { top: 1px; left: 50%; transform: translateX(-50%); }
     .dz-bottom { bottom: 6px; left: 50%; transform: translateX(-50%); } 
     .dz-left { left: 2px; top: 46%; transform: translateY(-50%); }
     .dz-right { right: 2px; top: 46%; transform: translateY(-50%); }
-    
-    /* 拥挤时，顶部巳、午、未出框的位置偏移 */
     .dz-out-top { top: -20px; }
     
-    /* 特殊神煞标签样式 */
     .tag-ma { color: #ffffff; background: #d34e55; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; }
     .tag-kong { color: #ffffff; background: #7a7a90; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; }
     .tag-jx { color: #ffffff; background: #8b5cf6; padding: 1px 4px; border-radius: 3px; font-size: 12px; font-weight: bold; border: none; }
@@ -198,6 +185,17 @@
     .stem-h { color: var(--c-stem-h); font-size: 17px; } 
     .stem-e { color: var(--c-stem-e); font-size: 14px; } 
 
+    /* 用神高亮红框样式 */
+    .highlight-ys {
+      outline: 2px solid #dc2626 !important;
+      outline-offset: 2px;
+      border-radius: 3px;
+     /* background-color: rgba(220, 38, 38, 0.15) !important; /* <--- 就是这行红底背景 */
+      display: inline-block;
+      z-index: 99;
+      transition: all 0.2s;
+    }
+
     @media (min-width: 600px) {
       body { max-width: 520px; padding: 16px; }
       .cell { height: 145px; }
@@ -215,9 +213,6 @@
   
 <body>
 
-  <!-- ========================================================= -->
-  <!-- 顶部控制面板区 -->
-  <!-- ========================================================= -->
   <div class="top-ctrl">
     <div class="ctrl-row">
       <div class="badge badge-gong">公</div>
@@ -232,7 +227,8 @@
     </div>
 
     <div class="ctrl-row">
-      <div class="badge badge-nong">节</div>
+  <!-- 替换下面这一行 -->
+  <div class="badge badge-nong" onclick="toggleChangSheng()" style="cursor:pointer; transition:all 0.3s;" title="点击切换十二长生">节</div>
       <div style="flex: 1; background: var(--bg-main); border: 1px solid var(--border-color); height: 26px; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 0 2px; box-sizing: border-box;">
         <div id="jieqiRange" style="white-space: nowrap; font-size: min(11.5px, 2.9vw); font-weight: bold; color: var(--text-main); letter-spacing: -0.2px;">
           加载节气中...
@@ -244,7 +240,8 @@
       <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; gap: 8px;">
         
         <div style="display: flex; gap: 8px; align-items: center; min-width: 0;">
-          <div class="badge badge-zhen">真</div>
+          <!-- ★ 修改点 1：把“真”字标签改造成吉凶开关，并加了 onclick 事件 -->
+          <div class="badge badge-zhen" onclick="toggleGeJu()" style="cursor:pointer;" title="点击开启隐藏吉凶扫描">真</div>
           <div class="zhen-group">
             <label class="zhen-item" style="flex: 0.8; cursor: pointer;">
               <input type="checkbox" id="useTrueSolar" checked onchange="updateDynamicInfo()">
@@ -253,57 +250,28 @@
             <div class="zhen-item" style="flex: 1;">
               <select id="citySelect" onchange="document.getElementById('longitude').value = this.value; updateDynamicInfo()">
                 <optgroup label="华北地区">
-                  <option value="116.40">北京</option>
-                  <option value="117.20" selected>天津</option>
-                  <option value="114.48">石家庄</option>
-                  <option value="112.53">太原</option>
-                  <option value="111.65">呼和浩特</option>
+                  <option value="116.40">北京</option><option value="117.20" selected>天津</option><option value="114.48">石家庄</option><option value="112.53">太原</option><option value="111.65">呼和浩特</option>
                 </optgroup>
                 <optgroup label="东北地区">
-                  <option value="123.38">沈阳</option>
-                  <option value="125.35">长春</option>
-                  <option value="126.63">哈尔滨</option>
-                  <option value="121.62">大连</option>
+                  <option value="123.38">沈阳</option><option value="125.35">长春</option><option value="126.63">哈尔滨</option><option value="121.62">大连</option>
                 </optgroup>
                 <optgroup label="华东地区">
-                  <option value="121.47">上海</option>
-                  <option value="118.78">南京</option>
-                  <option value="120.19">杭州</option>
-                  <option value="117.27">合肥</option>
-                  <option value="119.30">福州</option>
-                  <option value="115.89">南昌</option>
-                  <option value="117.00">济南</option>
-                  <option value="120.33">青岛</option>
-                  <option value="118.10">厦门</option>
+                  <option value="121.47">上海</option><option value="118.78">南京</option><option value="120.19">杭州</option><option value="117.27">合肥</option><option value="119.30">福州</option><option value="115.89">南昌</option><option value="117.00">济南</option><option value="120.33">青岛</option><option value="118.10">厦门</option>
                 </optgroup>
                 <optgroup label="华中地区">
-                  <option value="113.62">郑州</option>
-                  <option value="114.31">武汉</option>
-                  <option value="113.00">长沙</option>
+                  <option value="113.62">郑州</option><option value="114.31">武汉</option><option value="113.00">长沙</option>
                 </optgroup>
                 <optgroup label="华南地区">
-                  <option value="113.23">广州</option>
-                  <option value="114.05">深圳</option>
-                  <option value="108.33">南宁</option>
-                  <option value="110.35">海口</option>             
+                  <option value="113.23">广州</option><option value="114.05">深圳</option><option value="108.33">南宁</option><option value="110.35">海口</option>             
                 </optgroup>
                 <optgroup label="西南地区">
-                  <option value="106.50">重庆</option>
-                  <option value="104.06">成都</option>
-                  <option value="106.71">贵阳</option>
-                  <option value="102.73">昆明</option>
-                  <option value="91.11">拉萨</option>
+                  <option value="106.50">重庆</option><option value="104.06">成都</option><option value="106.71">贵阳</option><option value="102.73">昆明</option><option value="91.11">拉萨</option>
                 </optgroup>
                 <optgroup label="西北地区">
-                  <option value="108.95">西安</option>
-                  <option value="103.73">兰州</option>
-                  <option value="106.27">银川</option>
-                  <option value="87.68">乌鲁木齐</option>
+                  <option value="108.95">西安</option><option value="103.73">兰州</option><option value="106.27">银川</option><option value="87.68">乌鲁木齐</option>
                 </optgroup>
                 <optgroup label="港澳台">
-                  <option value="121.50">台北</option>
-                  <option value="114.17">香港</option>
-                  <option value="113.33">澳门</option>
+                  <option value="114.17">香港</option><option value="113.33">澳门</option><option value="121.50">台北</option>
                 </optgroup>
               </select>
             </div>
@@ -315,35 +283,19 @@
 
         <div class="sub-ctrl">
           <div class="sub-text" style="cursor: pointer; font-weight: 900; font-size: 16px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px;" onclick="isChartGenerated = false; renderDefaultBoard();" title="返回初始画面"> 
-  
-  <svg viewBox="0 0 200 200" style="width: 17px; height: 17px; flex-shrink: 0;">
-    <circle cx="100" cy="100" r="98" fill="#ffffff" stroke="#9ca3af" stroke-width="4"/>
-    <path d="M 100 2 A 98 98 0 0 1 100 198 C 49 198, 49 100, 100 100 C 151 100, 151 2, 100 2 Z" fill="#000000"/>
-    <circle cx="100" cy="51" r="15" fill="#000000"/>
-    <circle cx="100" cy="149" r="15" fill="#ffffff"/>
-  </svg>
-
-  <div>
-    <span style="color: #4dc2c6;">O</span><span style="color: #a5d054;">O</span><span style="color: #f5ae56;">G</span><span style="color: #ea7773;">O</span>
-  </div>
-</div>         
+            <svg viewBox="0 0 200 200" style="width: 17px; height: 17px; flex-shrink: 0;"><circle cx="100" cy="100" r="98" fill="#ffffff" stroke="#9ca3af" stroke-width="4"/><path d="M 100 2 A 98 98 0 0 1 100 198 C 49 198, 49 100, 100 100 C 151 100, 151 2, 100 2 Z" fill="#000000"/><circle cx="100" cy="51" r="15" fill="#000000"/><circle cx="100" cy="149" r="15" fill="#ffffff"/></svg>
+            <div><span style="color: #4dc2c6;">O</span><span style="color: #a5d054;">O</span><span style="color: #f5ae56;">G</span><span style="color: #ea7773;">O</span></div>
+          </div>         
           <div class="select-group">
             <select id="methodSelect" onchange="saveSettings()">
-              <option value="zhirun" selected>置闰法</option>
-              <option value="chaibu">拆补法</option>
-              <option value="maoshan">茅山法</option>
+              <option value="zhirun" selected>置闰法</option><option value="chaibu">拆补法</option><option value="maoshan">茅山法</option>
             </select>
-            
-            <select id="panSelect" onchange="saveSettings()">
-              <option value="zhuan" selected>转盘</option>
-              <option value="fei">飞盘</option>
+            <select id="panSelect" onchange="updatePanMenu(); saveSettings()">
+              <option value="zhuan" selected>转盘</option><option value="fei">飞盘</option>
             </select>
-            
             <select id="jigongSelect" onchange="saveSettings()">
-              <option value="ji2" selected>寄2宫</option>
-              <option value="y8y2">阳8阴2</option>
+              <option value="ji2" selected>寄2宫</option><option value="y8y2">阳8阴2</option>
             </select>
-            
             <button class="btn-theme" onclick="toggleTheme()">🎨 主题</button>
           </div>
         </div>
@@ -357,11 +309,65 @@
   <div class="grid" id="chartGrid"></div>
 
   <script>
-    window.onerror = function(msg, url, line) {
-       console.error("系统错误: " + msg + " (行: " + line + ")");
-    };
+    window.onerror = function(msg, url, line) { console.error("系统错误: " + msg + " (行: " + line + ")"); };
 
     let isChartGenerated = false;
+    let showGeJu = false; // ★ 修改点 2：增加全局变量记录是否开启格局显示
+    let currentYsVal = ''; // 记录当前选择的用神类别
+    let showChangSheng = false; // ★ 记录十二长生开关状态
+
+// ★ 十二长生切换控制函数
+  function toggleChangSheng() {
+  showChangSheng = !showChangSheng;
+  // ★ 新增：将当前开关状态存入本地存储 (转成字符串 'true' 或 'false')
+  localStorage.setItem('oogo_show_changsheng', showChangSheng);
+  if (isChartGenerated) {
+    generateChart(); 
+  } else {
+    // 依然保留底部的弹窗提示，让你自己知道开关状态
+    showToast(showChangSheng ? '🌱 十二长生：已开启' : '🌱 十二长生：已关闭');
+  }
+}
+  
+    // 切换用神选项触发
+    function changeYS(val) {
+      currentYsVal = val;
+      applyYongShenHighlight();
+    }
+
+    // 执行用神高亮的核心逻辑
+    function applyYongShenHighlight() {
+      // 1. 先清除盘面上所有已有的红框
+      document.querySelectorAll('.highlight-ys').forEach(el => {
+        el.classList.remove('highlight-ys');
+      });
+
+      // 如果选的是空白（无），直接结束
+      if (!currentYsVal) return;
+
+      // 2. 根据选项定义对应的用神关键字
+      let targets = [];
+      switch (currentYsVal) {
+        case '1': targets = ['戊', '生']; break;          // 求财
+        case '2': targets = ['戊', '生', '死', '符', '地', '辛']; break;          // 风水
+        case '3': targets = ['开', '符']; break;                // 事业
+        case '4': targets = ['丁', '辅', '景', '符']; break;          // 学业
+        case '5': targets = ['乙', '庚', '六', '丙', '丁']; break;    // 婚姻
+        case '6': targets = ['乙', '芮', '心']; break;          // 身体
+      }
+
+      // 3. 遍历所有的宫格，寻找匹配的字并高亮
+      const cells = document.querySelectorAll('.cell');
+      cells.forEach(cell => {
+        // 只检查星、门、神、天干、地支的元素
+        const elements = cell.querySelectorAll('.gate-text, .star-text, .deity-text, .stem-h, .stem-e');
+        elements.forEach(el => {
+          if (targets.some(t => el.innerText.includes(t))) {
+            el.classList.add('highlight-ys');
+          }
+        });
+      });
+    }
 
     function pad(n) { return n < 10 ? '0' + n : n; }
 
@@ -376,16 +382,33 @@
     }
     initDateSelects();
 
+    // ★ 修改点 3：增加控制格局切换和按钮变色的函数
+    function toggleGeJu() {
+      showGeJu = !showGeJu;
+      const zhenBadge = document.querySelector('.badge-zhen');
+      if (showGeJu) {
+        zhenBadge.style.background = 'var(--c-gate-r)';
+        zhenBadge.style.color = '#fff';
+      } else {
+        zhenBadge.style.background = 'rgba(91, 146, 214, 0.15)';
+        zhenBadge.style.color = 'var(--text-blue)';
+      }
+      
+      if (isChartGenerated) {
+        generateChart(); 
+      } else {
+        showToast(showGeJu ? '🔮 吉凶格局模式：已开启' : '🔮 吉凶格局模式：已关闭');
+      }
+    }
+
     function getEffectiveDate() {
       let yIn = parseInt(document.getElementById('selY').value);
       let mIn = parseInt(document.getElementById('selM').value);
       let dIn = parseInt(document.getElementById('selD').value);
       let hIn = parseInt(document.getElementById('selH').value);
       let minIn = parseInt(document.getElementById('selMin').value);
-
       let dDate = new Date(yIn, mIn - 1, dIn, hIn, minIn, 0);
       let lng = parseFloat(document.getElementById('longitude').value);
-      
       if (document.getElementById('useTrueSolar').checked && !isNaN(lng)) { 
         dDate.setMinutes(dDate.getMinutes() + (lng - 120) * 4); 
       }
@@ -408,113 +431,43 @@
       return `<span style="color: ${getWuxingColor(stem)}">${stem}</span><span style="color: ${getWuxingColor(branch)}">${branch}</span>`;
     }
 
-    let taijiAngle = 0;
-    let isTaijiDragging = false;
-    let taijiOffsetAngle = 0;
-    let taijiReqFrame = null;
-    let bigTaijiElem = null;
-    let taijiWrapper = null;
+    let taijiAngle = 0, isTaijiDragging = false, taijiOffsetAngle = 0, taijiReqFrame = null, bigTaijiElem = null, taijiWrapper = null;
 
     function initBigTaiji() {
-        bigTaijiElem = document.getElementById('bigTaiji');
-        taijiWrapper = document.getElementById('taijiWrapper');
+        bigTaijiElem = document.getElementById('bigTaiji'); taijiWrapper = document.getElementById('taijiWrapper');
         if (!bigTaijiElem || !taijiWrapper) return;
-
         if(taijiReqFrame) cancelAnimationFrame(taijiReqFrame);
         isTaijiDragging = false;
-        
         animateBigTaiji(); 
-
-        taijiWrapper.addEventListener('pointerdown', startDrag);
-        document.addEventListener('pointermove', doDrag, { passive: false });
-        document.addEventListener('pointerup', endDrag);
-        document.addEventListener('pointercancel', endDrag);
+        taijiWrapper.addEventListener('pointerdown', startDrag); document.addEventListener('pointermove', doDrag, { passive: false }); document.addEventListener('pointerup', endDrag); document.addEventListener('pointercancel', endDrag);
     }
-
     function stopBigTaiji() {
-        if(taijiReqFrame) {
-            cancelAnimationFrame(taijiReqFrame);
-            taijiReqFrame = null;
-        }
-        if(taijiWrapper) {
-            taijiWrapper.removeEventListener('pointerdown', startDrag);
-        }
-        document.removeEventListener('pointermove', doDrag);
-        document.removeEventListener('pointerup', endDrag);
-        document.removeEventListener('pointercancel', endDrag);
-        bigTaijiElem = null;
-        taijiWrapper = null;
+        if(taijiReqFrame) { cancelAnimationFrame(taijiReqFrame); taijiReqFrame = null; }
+        if(taijiWrapper) taijiWrapper.removeEventListener('pointerdown', startDrag);
+        document.removeEventListener('pointermove', doDrag); document.removeEventListener('pointerup', endDrag); document.removeEventListener('pointercancel', endDrag);
+        bigTaijiElem = null; taijiWrapper = null;
     }
-
     function animateBigTaiji() {
-        if (!isTaijiDragging && bigTaijiElem) {
-            taijiAngle += 0.8; 
-            if (taijiAngle >= 360) taijiAngle -= 360;
-            bigTaijiElem.style.transform = `rotate(${taijiAngle}deg)`;
-        }
-        if (bigTaijiElem) {
-            taijiReqFrame = requestAnimationFrame(animateBigTaiji);
-        }
+        if (!isTaijiDragging && bigTaijiElem) { taijiAngle += 0.8; if (taijiAngle >= 360) taijiAngle -= 360; bigTaijiElem.style.transform = `rotate(${taijiAngle}deg)`; }
+        if (bigTaijiElem) taijiReqFrame = requestAnimationFrame(animateBigTaiji);
     }
-
     function getAngle(x, y) {
         if(!bigTaijiElem) return 0;
         let rect = bigTaijiElem.getBoundingClientRect();
-        let cx = rect.left + rect.width / 2;
-        let cy = rect.top + rect.height / 2;
+        let cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
         return Math.atan2(y - cy, x - cx) * 180 / Math.PI;
     }
-
-    function startDrag(e) {
-        isTaijiDragging = true;
-        let angle = getAngle(e.clientX, e.clientY);
-        taijiOffsetAngle = taijiAngle - angle;
-        taijiWrapper.style.cursor = 'grabbing';
-    }
-
-    function doDrag(e) {
-        if (!isTaijiDragging || !bigTaijiElem) return;
-        if (e.cancelable) e.preventDefault(); 
-        let angle = getAngle(e.clientX, e.clientY);
-        taijiAngle = angle + taijiOffsetAngle;
-        bigTaijiElem.style.transform = `rotate(${taijiAngle}deg)`;
-    }
-
-    function endDrag(e) {
-        isTaijiDragging = false;
-        if(taijiWrapper) taijiWrapper.style.cursor = 'grab';
-    }
+    function startDrag(e) { isTaijiDragging = true; let angle = getAngle(e.clientX, e.clientY); taijiOffsetAngle = taijiAngle - angle; taijiWrapper.style.cursor = 'grabbing'; }
+    function doDrag(e) { if (!isTaijiDragging || !bigTaijiElem) return; if (e.cancelable) e.preventDefault(); let angle = getAngle(e.clientX, e.clientY); taijiAngle = angle + taijiOffsetAngle; bigTaijiElem.style.transform = `rotate(${taijiAngle}deg)`; }
+    function endDrag(e) { isTaijiDragging = false; if(taijiWrapper) taijiWrapper.style.cursor = 'grab'; }
 
     function renderDefaultBoard() {
       if (typeof stopBigTaiji === 'function') stopBigTaiji();
-
       const grid = document.getElementById('chartGrid');
-      grid.style.background = 'transparent';
-      grid.style.border = 'none';
-      grid.style.display = 'flex';
-      grid.style.justifyContent = 'center';
-      grid.style.alignItems = 'center';
-      grid.style.padding = '10px';
-
-      grid.innerHTML = `
-        <div id="taijiWrapper" style="width: 100%; max-width: 420px; aspect-ratio: 1/1; display: flex; justify-content: center; align-items: center; cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent;">
-          <svg id="bigTaiji" viewBox="0 0 200 200" style="width: 100%; height: 100%; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.35));">
-            <path d="M 100 0 A 100 100 0 0 1 100 200 C 33.33 200, 33.33 100, 100 100 C 166.67 100, 166.67 0, 100 0 Z" fill="#000000"/>
-            <path d="M 100 200 A 100 100 0 0 1 100 0 C 166.67 0, 166.67 100, 100 100 C 33.33 100, 33.33 200, 100 200 Z" fill="#ffffff"/>
-            <circle cx="100" cy="50" r="27.5" fill="#000000"/>
-            <circle cx="100" cy="150" r="24.5" fill="#ffffff"/>
-          </svg>
-        </div>
-      `;
-
-      document.getElementById('infoBoard').innerHTML = 
-        '<div class="info-row" style="justify-content: center; color: var(--text-gold); font-size: 15px; font-weight: bold; margin-bottom: 8px;"><span>👑 OOGO奇门遁甲 👑</span></div>' +
-        '<div class="info-row" style="justify-content: center; margin-bottom: 5px;"><span>太极生两仪，两仪生四象，四象生八卦</span></div>' +
-        '<div class="info-row" style="justify-content: center; margin-top: 15px;"><span style="color: var(--text-blue); font-weight: bold;">  请设定时间与参数后，点击右上角【起局】👆 </span></div>';
-
-      setTimeout(() => {
-          if (typeof initBigTaiji === 'function') initBigTaiji();
-      }, 50);
+      grid.style.background = 'transparent'; grid.style.border = 'none'; grid.style.display = 'flex'; grid.style.justifyContent = 'center'; grid.style.alignItems = 'center'; grid.style.padding = '10px';
+      grid.innerHTML = `<div id="taijiWrapper" style="width: 100%; max-width: 420px; aspect-ratio: 1/1; display: flex; justify-content: center; align-items: center; cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent;"><svg id="bigTaiji" viewBox="0 0 200 200" style="width: 100%; height: 100%; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.35));"><path d="M 100 0 A 100 100 0 0 1 100 200 C 33.33 200, 33.33 100, 100 100 C 166.67 100, 166.67 0, 100 0 Z" fill="#000000"/><path d="M 100 200 A 100 100 0 0 1 100 0 C 166.67 0, 166.67 100, 100 100 C 33.33 100, 33.33 200, 100 200 Z" fill="#ffffff"/><circle cx="100" cy="50" r="27.5" fill="#000000"/><circle cx="100" cy="150" r="24.5" fill="#ffffff"/></svg></div>`;
+      document.getElementById('infoBoard').innerHTML = '<div class="info-row" style="justify-content: center; color: var(--text-gold); font-size: 15px; font-weight: bold; margin-bottom: 8px;"><span>👑 OOGO奇门遁甲 👑</span></div><div class="info-row" style="justify-content: center; margin-bottom: 5px;"><span>太极生两仪，两仪生四象，四象生八卦</span></div><div class="info-row" style="justify-content: center; margin-top: 15px;"><span style="color: var(--text-blue); font-weight: bold;">  请设定时间与参数后，点击右上角【起局】👆 </span></div>';
+      setTimeout(() => { if (typeof initBigTaiji === 'function') initBigTaiji(); }, 50);
     }
     
     renderDefaultBoard(); 
@@ -531,11 +484,8 @@
 
     function initTheme() {
       const savedTheme = localStorage.getItem('oogo_theme');
-      if (savedTheme === 'light') {
-        document.body.classList.add('light-theme');
-      } else {
-        document.body.classList.remove('light-theme');
-      }
+      if (savedTheme === 'light') document.body.classList.add('light-theme');
+      else document.body.classList.remove('light-theme');
     }
     initTheme();
 
@@ -545,68 +495,66 @@
       localStorage.setItem('oogo_jigong', document.getElementById('jigongSelect').value);
     }
 
-    function initSettings() {
-      const savedMethod = localStorage.getItem('oogo_method');
-      const savedPan = localStorage.getItem('oogo_pan');
-      const savedJigong = localStorage.getItem('oogo_jigong');
+    function updatePanMenu() {
+      const panSelect = document.getElementById('panSelect');
+      const subSelect = document.getElementById('jigongSelect');
+      const currentVal = subSelect.value;
+      subSelect.innerHTML = '';
+      if (panSelect.value === 'zhuan') {
+        subSelect.add(new Option('寄2宫', 'ji2')); subSelect.add(new Option('阳8阴2', 'y8y2'));
+        if (currentVal === 'ji2' || currentVal === 'y8y2') subSelect.value = currentVal; else subSelect.value = 'ji2';
+      } else {
+        subSelect.add(new Option('传统', 'chuantong')); subSelect.add(new Option('鸣法', 'mingfa'));
+        if (currentVal === 'chuantong' || currentVal === 'mingfa') subSelect.value = currentVal; else subSelect.value = 'chuantong';
+      }
+    }
 
+    function initSettings() {
+      const savedMethod = localStorage.getItem('oogo_method'), savedPan = localStorage.getItem('oogo_pan'), savedJigong = localStorage.getItem('oogo_jigong');
       if (savedMethod) document.getElementById('methodSelect').value = savedMethod;
       if (savedPan) document.getElementById('panSelect').value = savedPan;
+      updatePanMenu(); 
       if (savedJigong) document.getElementById('jigongSelect').value = savedJigong;
     }
     
     initSettings();
+    // 初始化时读取本地存储的十二长生状态
+function initChangShengSetting() {
+  const savedState = localStorage.getItem('oogo_show_changsheng');
+  if (savedState !== null) {
+    // 字符串转成布尔值
+    showChangSheng = (savedState === 'true');
+  }
+}
+
+// 页面加载时执行它
+initChangShengSetting();
+
 
     function toggleTheme() { 
       document.body.classList.toggle('light-theme');
-      if (document.body.classList.contains('light-theme')) {
-        localStorage.setItem('oogo_theme', 'light');
-      } else {
-        localStorage.setItem('oogo_theme', 'dark');
-      }
+      if (document.body.classList.contains('light-theme')) localStorage.setItem('oogo_theme', 'light');
+      else localStorage.setItem('oogo_theme', 'dark');
     }
 
     let checkEngine = setInterval(function() {
-      if (typeof OogoCalendar !== 'undefined' && typeof OogoQimen !== 'undefined') {
-        clearInterval(checkEngine);
-        setNowTime(); 
-      }
+      if (typeof OogoCalendar !== 'undefined' && typeof OogoQimen !== 'undefined') { clearInterval(checkEngine); setNowTime(); }
     }, 200);
 
     function updateDynamicInfo() {
       if (typeof OogoCalendar === 'undefined') return;
       try {
         let dDate = getEffectiveDate();
-        let solar = OogoCalendar.Solar.fromYmdHms(
-          dDate.getFullYear(), dDate.getMonth() + 1, dDate.getDate(), 
-          dDate.getHours(), dDate.getMinutes(), 0
-        );
+        let solar = OogoCalendar.Solar.fromYmdHms(dDate.getFullYear(), dDate.getMonth() + 1, dDate.getDate(), dDate.getHours(), dDate.getMinutes(), 0);
         let lunar = OogoCalendar.Lunar.fromSolar(solar);
-        
-        let currentJQInfo = lunar.getPrevJieQi();
-        let currentJQName = currentJQInfo.getName();
-        let startSolar = currentJQInfo.getSolar();
-        
+        let currentJQInfo = lunar.getPrevJieQi(), currentJQName = currentJQInfo.getName(), startSolar = currentJQInfo.getSolar();
         let nextD = new Date(dDate.getTime() + 16 * 24 * 3600 * 1000);
-        let nextSolarObj = OogoCalendar.Solar.fromYmdHms(
-          nextD.getFullYear(), nextD.getMonth() + 1, nextD.getDate(),
-          nextD.getHours(), nextD.getMinutes(), 0
-        );
+        let nextSolarObj = OogoCalendar.Solar.fromYmdHms(nextD.getFullYear(), nextD.getMonth() + 1, nextD.getDate(), nextD.getHours(), nextD.getMinutes(), 0);
         let nextLunar = OogoCalendar.Lunar.fromSolar(nextSolarObj);
         let nextJQInfo = nextLunar.getPrevJieQi();
-
-        function formatS(s) { 
-          return s.getYear() + '.' + pad(s.getMonth()) + '.' + pad(s.getDay()) + ' ' + pad(s.getHour()) + ':' + pad(s.getMinute()); 
-        }
-        
-        document.getElementById('jieqiRange').innerHTML = 
-          currentJQName + ' ' + formatS(startSolar) + 
-          '<span style="color:var(--text-gray); margin:0 3px;">~</span>' + 
-          nextJQInfo.getName() + ' ' + formatS(nextJQInfo.getSolar());
-
-      } catch (e) { 
-        console.error("更新节气栏出错: ", e); 
-      }
+        function formatS(s) { return s.getYear() + '.' + pad(s.getMonth()) + '.' + pad(s.getDay()) + ' ' + pad(s.getHour()) + ':' + pad(s.getMinute()); }
+        document.getElementById('jieqiRange').innerHTML = currentJQName + ' ' + formatS(startSolar) + '<span style="color:var(--text-gray); margin:0 3px;">~</span>' + nextJQInfo.getName() + ' ' + formatS(nextJQInfo.getSolar());
+      } catch (e) { console.error("更新节气栏出错: ", e); }
     }
 
     const stems = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
@@ -623,82 +571,48 @@
         isChartGenerated = true; 
 
         const grid = document.getElementById('chartGrid');
-        grid.style.background = 'var(--gold-line)';
-        grid.style.border = '1px solid var(--gold-line)';
-        grid.style.display = 'grid'; 
-        grid.style.justifyContent = '';
-        grid.style.alignItems = '';
-        grid.style.padding = '1px';
+        grid.style.background = 'var(--gold-line)'; grid.style.border = '1px solid var(--gold-line)'; grid.style.display = 'grid'; grid.style.justifyContent = ''; grid.style.alignItems = ''; grid.style.padding = '1px';
         
         let dDate = getEffectiveDate();
         const y = dDate.getFullYear(), m = dDate.getMonth() + 1, d = dDate.getDate(), h = dDate.getHours(), min = dDate.getMinutes();
-
-        let method = document.getElementById('methodSelect').value;
-        let panType = document.getElementById('panSelect').value;
-        let jigong = document.getElementById('jigongSelect').value;
+        let method = document.getElementById('methodSelect').value, panType = document.getElementById('panSelect').value, jigong = document.getElementById('jigongSelect').value;
         
-        let chart;
-        let isRun = false;
-        let superShenDays = 0; 
+        let chart, isRun = false, superShenDays = 0, juInfo;
         
-        let juInfo;
-        if (method === 'zhirun') { 
-            juInfo = OogoZhiRun.calculate(y, m, d, h, min, 0);
-            isRun = juInfo.isTrueRun;
-            superShenDays = juInfo.superShenDays || 0;
-        } else if (method === 'maoshan') {
-            juInfo = OogoMaoShan.calculate(y, m, d, h, min, 0);
-        } else { 
-            juInfo = OogoChaiBu.calculate(y, m, d, h, min, 0);
-        }
+        if (method === 'zhirun') { juInfo = OogoZhiRun.calculate(y, m, d, h, min, 0); isRun = juInfo.isTrueRun; superShenDays = juInfo.superShenDays || 0; }
+        else if (method === 'maoshan') { juInfo = OogoMaoShan.calculate(y, m, d, h, min, 0); }
+        else { juInfo = OogoChaiBu.calculate(y, m, d, h, min, 0); }
 
         if (panType === 'fei') { 
             chart = juInfo.chart;
             chart.ju = { number: juInfo.juNumber, type: juInfo.isYangdun ? "阳遁" : "阴遁" };
-            chart.yuan = juInfo.yuanName || "中元";
-            chart.solarTerm = juInfo.termName;
-            chart = OogoFeiPan.fly(chart); 
+            chart.yuan = juInfo.yuanName || "中元"; chart.solarTerm = juInfo.termName;
+            let isMingFa = (jigong === 'mingfa'); 
+            chart = OogoFeiPan.fly(chart, isMingFa); 
         } else { 
             let zhuanResult = OogoZhuanPan.calculate(y, m, d, h, min, 0, method, jigong);
-            
-            chart = zhuanResult.chart;
-            chart.palaces = zhuanResult.palaces;
-            chart.fourPillars = zhuanResult.fourPillars;
-            chart.ju = zhuanResult.ju;
-            chart.yuan = zhuanResult.fuTou.yuan;
-            chart.solarTerm = zhuanResult.solarTerm.name;
-            chart.zhiFu = zhuanResult.zhiFu;
-            chart.zhiShi = zhuanResult.zhiShi;
-            chart.xun = zhuanResult.xun;
-            chart.timeInfo = { voidness: zhuanResult.kongWang ? zhuanResult.kongWang.branches : [] };
-            chart.postHorse = zhuanResult.yiMa;
-            chart.uiTagFuYin = zhuanResult.uiTagFuYinFanYin ? zhuanResult.uiTagFuYinFanYin.text : '';
-            
+            chart = zhuanResult.chart; chart.palaces = zhuanResult.palaces; chart.fourPillars = zhuanResult.fourPillars; chart.ju = zhuanResult.ju;
+            chart.yuan = zhuanResult.fuTou.yuan; chart.solarTerm = zhuanResult.solarTerm.name; chart.zhiFu = zhuanResult.zhiFu;
+            chart.zhiShi = zhuanResult.zhiShi; chart.xun = zhuanResult.xun; chart.timeInfo = { voidness: zhuanResult.kongWang ? zhuanResult.kongWang.branches : [] };
+            chart.postHorse = zhuanResult.yiMa; chart.uiTagFuYin = zhuanResult.uiTagFuYinFanYin ? zhuanResult.uiTagFuYinFanYin.text : '';
             let xunDun = {"甲子":"戊", "甲戌":"己", "甲申":"庚", "甲午":"辛", "甲辰":"壬", "甲寅":"癸"}[chart.xun.name || "甲子"];
             let isYang = chart.ju.type.indexOf('阳') !== -1;
             chart = OogoZhuanPanEnhancer.enhance(chart, xunDun, isYang);
         }
 
-        let bY = chart.fourPillars.year.stem + chart.fourPillars.year.branch;
-        let bM = chart.fourPillars.month.stem + chart.fourPillars.month.branch;
-        let bD = chart.fourPillars.day.stem + chart.fourPillars.day.branch;
-        let bH = chart.fourPillars.hour.stem + chart.fourPillars.hour.branch;
+        let bY = chart.fourPillars.year.stem + chart.fourPillars.year.branch, bM = chart.fourPillars.month.stem + chart.fourPillars.month.branch;
+        let bD = chart.fourPillars.day.stem + chart.fourPillars.day.branch, bH = chart.fourPillars.hour.stem + chart.fourPillars.hour.branch;
 
-        let dSIdx = stems.indexOf(chart.fourPillars.day.stem); 
-        let dBIdx = branches.indexOf(chart.fourPillars.day.branch);
+        let dSIdx = stems.indexOf(chart.fourPillars.day.stem), dBIdx = branches.indexOf(chart.fourPillars.day.branch);
         let fuOffset = dSIdx >= 0 ? dSIdx % 5 : 0;
         let fuTou = stems[dSIdx - fuOffset] + branches[(dBIdx - fuOffset + 12) % 12];
         let yuanDay = fuOffset + 1; 
 
-        let maXing = chart.postHorse ? chart.postHorse.branch : '';
-        let voidnessArr = (chart.timeInfo && chart.timeInfo.voidness) ? chart.timeInfo.voidness : [];
-        let kong1 = voidnessArr[0] || '';
-        let kong2 = voidnessArr[1] || '';
+        let maXing = chart.postHorse ? chart.postHorse.branch : '', voidnessArr = (chart.timeInfo && chart.timeInfo.voidness) ? chart.timeInfo.voidness : [];
+        let kong1 = voidnessArr[0] || '', kong2 = voidnessArr[1] || '';
 
-        let zfPalace = chart.zhiFu.position;
-        let zsPalace = chart.zhiShi.position;
-        let zfPalaceObj = chart.palaces.find(p => p.position === zfPalace) || {};
-        let zsPalaceObj = chart.palaces.find(p => p.position === zsPalace) || {};
+        let zfPalace = chart.zhiFu.position, zsPalace = chart.zhiShi.position;
+        let zfPalaceObj = chart.palaces.find(p => p.position === zfPalace) || {}, zsPalaceObj = chart.palaces.find(p => p.position === zsPalace) || {};
         let displayZfName = (Array.isArray(zfPalaceObj.star) ? zfPalaceObj.star[0] : (zfPalaceObj.star || '')).replace(/天|星/g, '');
         let zsName = (zsPalaceObj.gate || '').replace('门', '');
 
@@ -706,15 +620,11 @@
         let runTag = isRun ? '<span style="color:var(--c-gate-r); font-weight:bold; margin-left:2px;">(闰)</span>' : '';
         let superShenTip = (method === 'zhirun' && superShenDays > 0) ? `<span style="color:var(--text-gold); font-weight:bold; margin-left:2px;">(超神${superShenDays}天)</span>` : '';
         
-        let yuanStr = (chart.yuan || '中元') + '第' + yuanDay + '天';
-        let dunStr = (chart.ju.type || '') + (chart.ju.number || '') + '局';
-        let xunName = chart.xun ? chart.xun.name : "";
-        let xunDun = chart.xun ? chart.xun.stem : "";
+        let yuanStr = (chart.yuan || '中元') + '第' + yuanDay + '天', dunStr = (chart.ju.type || '') + (chart.ju.number || '') + '局';
+        let xunName = chart.xun ? chart.xun.name : "", xunDun = chart.xun ? chart.xun.stem : "";
 
         let fyText = chart.uiTagFuYin || '';
-        if (fyText) {
-          fyText = '<span style="color:#d34e55; font-weight:bold; margin-left:8px; border:1px solid #d34e55; padding:1px 4px; border-radius:4px; font-size:13px;">' + fyText + '</span>';
-        }
+        if (fyText) fyText = '<span style="color:#d34e55; font-weight:bold; margin-left:8px; border:1px solid #d34e55; padding:1px 4px; border-radius:4px; font-size:13px;">' + fyText + '</span>';
 
         let boardHtml =
           '<div class="bazi-row">' +
@@ -724,7 +634,20 @@
             '<div class="bazi-box"><div class="bazi-title">时柱</div><div class="bazi-value">' + formatPillar(bH) + '</div></div>' +
           '</div>' +
           '<div class="info-row"><span style="display:flex; align-items:center;">' + jqName + superShenTip + runTag + ' &nbsp;' + yuanStr + ' &nbsp;' + dunStr + '</span><span>符头: ' + fuTou + '</span></div>' +
-          '<div class="info-row zhifu-row"><span class="pill-green">值符: ' + displayZfName + '(' + zfPalace + '宫)</span><div class="circle-logo" onclick="exportImage()">历</div><span class="pill-green">值使: ' + zsName + '(' + zsPalace + '宫)</span></div>' +
+          '<div class="info-row zhifu-row"><span class="pill-green">值符: ' + displayZfName + '(' + zfPalace + '宫)</span><div class="circle-logo" onclick="exportImage()">历</div>' +
+          '<div style="position: relative; display: inline-block;">' +
+            '<span class="pill-green">值使: ' + zsName + '(' + zsPalace + '宫)</span>' +
+            '<select id="ysSelect" onchange="changeYS(this.value)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; -webkit-appearance:none;">' +
+              '<option value="">(点击选择求测事项)</option>' +
+              '<option value="1" ' + (currentYsVal==='1'?'selected':'') + '>1. 求财（财运、投资、生意）</option>' +
+              '<option value="2" ' + (currentYsVal==='2'?'selected':'') + '>2. 风水（环境、阳宅、阴宅）</option>' +
+              '<option value="3" ' + (currentYsVal==='3'?'selected':'') + '>3. 事业（工作、升职、求职）</option>' +
+              '<option value="4" ' + (currentYsVal==='4'?'selected':'') + '>4. 学业（考试、考研、成绩）</option>' +
+              '<option value="5" ' + (currentYsVal==='5'?'selected':'') + '>5. 婚姻（恋爱、相亲、感情）</option>' +
+              '<option value="6" ' + (currentYsVal==='6'?'selected':'') + '>6. 身体（健康、疾病、看病）</option>' +
+            '</select>' +
+          '</div>' +
+          '</div>' +
           '<div class="info-row"><span style="display:flex; align-items:center;">旬首: ' + xunName + '遁' + xunDun + fyText + '</span><span>马星: ' + maXing + ' &nbsp;空亡: ' + kong1 + ',' + kong2 + '</span></div>';
         
         document.getElementById('infoBoard').innerHTML = boardHtml;
@@ -738,75 +661,79 @@
 
         const displayOrder = [4, 9, 2, 3, 5, 7, 8, 1, 6];
         displayOrder.forEach(function(pos) {
-
           const p = chart.palaces.find(x => x.position === pos) || {};
-          
           let tDeity = simplifyDeity(Array.isArray(p.deity) ? p.deity[0] : (p.deity || ''));
           let eDeity = (panType === 'zhuan') ? simplifyDeity(p.earthDeity || '') : ''; 
-          
           let starName = (Array.isArray(p.star) ? p.star.join('/') : (p.star || '')).replace(/天/g, '').replace(/星/g, '');
           
           let hiddenStem = "";
-          if (panType === 'fei') {
-              hiddenStem = p.hiddenStem || "";
-          } else {
-              if (chart.hiddenStems && typeof chart.hiddenStems.get === 'function') {
-                  hiddenStem = chart.hiddenStems.get(pos) || "";
-              } else if (chart.hiddenStems) {
-                  hiddenStem = chart.hiddenStems[pos] || "";
-              }
-          }
+          if (panType === 'fei') hiddenStem = p.hiddenStem || "";
+          else if (chart.hiddenStems && typeof chart.hiddenStems.get === 'function') hiddenStem = chart.hiddenStems.get(pos) || "";
+          else if (chart.hiddenStems) hiddenStem = chart.hiddenStems[pos] || "";
           
           let hStem = Array.isArray(p.heavenlyStem) ? p.heavenlyStem.join('/') : (p.heavenlyStem || '');
           let eStem = Array.isArray(p.earthlyStem) ? p.earthlyStem.join('/') : (p.earthlyStem || '');
           
-          let dayStem = chart.fourPillars.day.stem; 
-          let dColor = getWuxingColor(dayStem);
+          let dayStem = chart.fourPillars.day.stem; let dColor = getWuxingColor(dayStem);
           let showHStem = hStem.replace(new RegExp(dayStem, 'g'), `<span style="color:${dColor};">${dayStem}</span>`);
           let showEStem = eStem; 
-
-          let origGate = p.gate || ''; 
-          let gateName = origGate.replace('门', '');
+// ====== ★ 新增：十二长生 UI 渲染注入点 ======
+if (showChangSheng && pos !== 5) {
+  // 直接从后端 OogoTagEnhancer 传过来的数据对象(p)里取值
+  let csH = p.heavenlyChangsheng; 
+  let csE = p.earthlyChangsheng;  
+  
+  if (csH) {
+    showHStem = `<span style="position:relative; display:inline-block;">${showHStem}<span style="position:absolute; bottom:-12px; right:0; font-size:10px; color:var(--text-gray); font-weight:normal; letter-spacing:-0.5px; transform:scale(0.85); transform-origin:right; white-space:nowrap; z-index:5;">${csH}</span></span>`;
+  }
+  if (csE) {
+    showEStem = `<span style="position:relative; display:inline-block;">${showEStem}<span style="position:absolute; bottom:-12px; right:0; font-size:10px; color:var(--text-gray); font-weight:normal; letter-spacing:-0.5px; transform:scale(0.85); transform-origin:right; white-space:nowrap; z-index:5;">${csE}</span></span>`;
+  }
+}
+          let origGate = p.gate || ''; let gateName = origGate.replace('门', '');
           let gateClass = (origGate === '生门' || origGate === '休门' || origGate === '开门') ? 'gate-g' : ((origGate === '杜门' || origGate === '景门') ? 'gate-n' : 'gate-r');
           if (origGate === '中门') gateClass = 'gate-g';
 
-          // ==========================================
-          // 标签判定与动态计算出框位置
-          // ==========================================
           let tagsArr = [];
-          if (p.uiTagJx) tagsArr.push('<span class="tag-jx">刑</span>');
-          if (p.uiTagPo) tagsArr.push('<span class="tag-po">迫</span>');
+        if (p.uiTagKong) tagsArr.push('<span class="tag-kong">空</span>');
+         if (p.uiTagMa) tagsArr.push('<span class="tag-ma">马</span>');         
           if (p.uiTagMu) tagsArr.push('<span class="tag-mu">墓</span>');
-          if (p.uiTagMa) tagsArr.push('<span class="tag-ma">马</span>');
-          if (p.uiTagKong) tagsArr.push('<span class="tag-kong">空</span>');
+           if (p.uiTagPo) tagsArr.push('<span class="tag-po">迫</span>');
+          if (p.uiTagJx) tagsArr.push('<span class="tag-jx">刑</span>');  
 
-          // 【核心逻辑】只要出现 >=3 个标签，标记为拥挤
           let isCrowded = tagsArr.length >= 3; 
-
           let tagsHtml = '';
-          if (tagsArr.length > 0) {
-              tagsHtml = `<div style="position:absolute; top:1px; right:1px; display:flex; gap:3px; flex-direction:row-reverse; z-index:10;">${tagsArr.join('')}</div>`;
-          }
+          if (tagsArr.length > 0) tagsHtml = `<div style="position:absolute; top:1px; right:1px; display:flex; gap:3px; flex-direction:row-reverse; z-index:10;">${tagsArr.join('')}</div>`;
 
           let hClass = hStem.indexOf('/') !== -1 ? 'right-item stem-h small-stem-h' : 'right-item stem-h';
           let eClass = eStem.indexOf('/') !== -1 ? 'right-item stem-e small-stem-e' : 'right-item stem-e';
           
           let innerHtml = '<div class="row"><div class="left-item deity deity-text">' + tDeity + '</div><div class="' + hClass + '">' + showHStem + '</div></div><div class="row"><div class="left-item star star-text">' + starName + '</div><div class="' + eClass + '">' + showEStem + '</div></div><div class="row"><div class="left-item ' + gateClass + ' gate-text">' + gateName + '</div><div class="right-item edeity-text">' + eDeity + '</div></div>';
 
-          // 初始化普通状态的基础类名
-          let tC = 'dz-top', bC = 'dz-bottom', lC = 'dz-left', rC = 'dz-right';
-          
-          // 【精准出框判定】如果拥挤，并且当前是 巽4、离9、坤2 这三个上排宫位，才给顶部加上出框效果
-          if (isCrowded && (pos === 4 || pos === 9 || pos === 2)) {
-            tC = 'dz-top dz-out-top'; // 只有这三个宫位的顶部元素（巳、午、未）出框
+          if (showGeJu && pos !== 5) {
+            if (p.patterns && p.patterns.length > 0) {
+                let patHtml = p.patterns.map(pat => {
+                    let isJi = pat.type.includes('吉');
+                    let isXiong = pat.type.includes('凶');
+                    let color = isJi ? 'var(--c-gate-g)' : (isXiong ? 'var(--c-gate-r)' : 'var(--text-gold)');
+let bg = isJi ? 'rgba(34, 197, 94, 0.15)' : (isXiong ? 'rgba(220, 38, 38, 0.15)' : 'rgba(251, 191, 36, 0.15)');
+
+                    return `<div style="font-size:12px; font-weight:bold; color:${color}; background:${bg}; padding:2px 4px; border-radius:4px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:1px;">${pat.name}</div>`;
+                }).join('');
+                innerHtml = `<div style="display:flex; flex-direction:column; gap:4px; justify-content:center; width:100%; height:100%; z-index:20;">${patHtml}</div>`;
+            } else {
+                innerHtml = `<div style="opacity:0.1; filter:grayscale(100%);">${innerHtml}</div>`;
+            }
           }
 
-          // 生成当前宫位的地支HTML
+          let tC = 'dz-top', bC = 'dz-bottom', lC = 'dz-left', rC = 'dz-right';
+          if (isCrowded && (pos === 4 || pos === 9 || pos === 2)) tC = 'dz-top dz-out-top';
+
           let dzHtml = '';
           if (pos === 1) dzHtml = `<div class="${bC}">子</div>`;
-          else if (pos === 2) dzHtml = `<div class="${tC}">未</div><div class="${rC}">申</div>`; // 申永远不跳，未符合条件跳
+          else if (pos === 2) dzHtml = `<div class="${tC}">未</div><div class="${rC}">申</div>`; 
           else if (pos === 3) dzHtml = `<div class="${lC}">卯</div>`;
-          else if (pos === 4) dzHtml = `<div class="${tC}">巳</div><div class="${lC}">辰</div>`; // 辰永远不跳，巳符合条件跳
+          else if (pos === 4) dzHtml = `<div class="${tC}">巳</div><div class="${lC}">辰</div>`; 
           else if (pos === 6) dzHtml = `<div class="${rC}">戌</div><div class="${bC}">亥</div>`;
           else if (pos === 7) dzHtml = `<div class="${rC}">酉</div>`;
           else if (pos === 8) dzHtml = `<div class="${bC}">丑</div><div class="${lC}">寅</div>`;
@@ -816,8 +743,42 @@
             if (panType === 'fei') { 
               gridHtml += '<div class="cell"><svg class="taichi-svg" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.06;z-index:0;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#fff" stroke="var(--border-color)" stroke-width="1"/><path d="M 50 2 A 48 48 0 0 1 50 98 C 18 98, 18 50, 50 50 C 82 50, 82 2, 50 2 Z" fill="#000"/></svg>' + tagsHtml + dzHtml + '<div class="inner-content" style="z-index:1;">' + innerHtml + '</div><div class="palace-row" style="z-index:1;"><span>中5宫</span><span class="hidden-stem-text">' + hiddenStem + '</span></div></div>';
             } else { 
-              gridHtml += '<div class="cell center-cell"><svg class="taichi-svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#fff" stroke="var(--border-color)" stroke-width="1"/><path d="M 50 2 A 48 48 0 0 1 50 98 C 18 98, 18 50, 50 50 C 82 50, 82 2, 50 2 Z" fill="#000"/><text x="50" y="26" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="25" font-weight="bold" fill="#000" text-anchor="middle">' + cH + '</text><text x="50" y="74" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="25" font-weight="bold" fill="#fff" text-anchor="middle">' + cE + '</text></svg></div>';
-            }
+  gridHtml += `
+    <div class="cell center-cell">
+
+      <svg class="taichi-svg" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="48"
+          fill="#fff"
+          stroke="var(--border-color)"
+          stroke-width="1"/>
+
+        <path d="M 50 2 A 48 48 0 0 1 50 98
+                 C 18 98, 18 50, 50 50
+                 C 82 50, 82 2, 50 2 Z"
+          fill="#000"/>
+
+        <text x="50" y="26"
+          dominant-baseline="central"
+          font-family="-apple-system, sans-serif"
+          font-size="25"
+          font-weight="bold"
+          fill="#000"
+          text-anchor="middle">${cH}</text>
+
+        <text x="50" y="74"
+          dominant-baseline="central"
+          font-family="-apple-system, sans-serif"
+          font-size="25"
+          font-weight="bold"
+          fill="#fff"
+          text-anchor="middle">${cE}</text>
+      </svg>
+
+      <!-- 中宫暗干：与其他八宫统一放右下角 -->
+      <span class="hidden-stem-text center-hidden-stem">${hiddenStem || ''}</span>
+
+    </div>`;
+}
           } else { 
             gridHtml += '<div class="cell">' + tagsHtml + dzHtml + '<div class="inner-content">' + innerHtml + '</div><div class="palace-row"><span>' + guaMap[pos] + pos + '宫</span><span class="hidden-stem-text">' + hiddenStem + '</span></div></div>';
           }
@@ -825,6 +786,16 @@
         });
         
         document.getElementById('chartGrid').innerHTML = gridHtml;
+
+        // 每次重新起局或切换参数后，重新渲染当前的用神高亮状态
+        applyYongShenHighlight();
+
+        if (showGeJu && chart.globalPatterns && chart.globalPatterns.length > 0) {
+            setTimeout(() => {
+                showToast('⚠️ 警报：' + chart.globalPatterns[0].name + '（' + chart.globalPatterns[0].desc + '）');
+            }, 600);
+        }
+
       } catch (err) { alert("排盘错误：" + err.message); }
     }
 
@@ -832,139 +803,69 @@
       const logo = document.querySelector('.circle-logo');
       if (logo) { logo.innerText = '生成..'; logo.style.fontSize = '12px'; }
       window.scrollTo(0, 0); 
-
-      const body = document.body;
-      const originalOverflow = body.style.overflow;
-      body.style.overflow = 'visible'; 
-      
-      const scale = 4; 
-      const bg = getComputedStyle(body).backgroundColor || '#131520';
+      const body = document.body; const originalOverflow = body.style.overflow; body.style.overflow = 'visible'; 
+      const scale = 4; const bg = getComputedStyle(body).backgroundColor || '#131520';
 
       setTimeout(function () {
         if (typeof html2canvas === 'undefined') {
-          body.style.overflow = originalOverflow;
-          if (logo) { logo.innerText = '历'; logo.style.fontSize = '20px'; }
-          alert('截图组件未加载，请检查网络后刷新重试');
-          return;
+          body.style.overflow = originalOverflow; if (logo) { logo.innerText = '历'; logo.style.fontSize = '20px'; }
+          alert('截图组件未加载，请检查网络后刷新重试'); return;
         }
 
-        html2canvas(body, {
-          backgroundColor: bg, 
-          scale: scale, 
-          useCORS: true, 
-          allowTaint: true, 
-          logging: false, 
-          scrollX: 0, 
-          scrollY: -window.scrollY, 
-          width: body.scrollWidth, 
-          height: body.scrollHeight, 
-          windowWidth: body.scrollWidth, 
-          windowHeight: body.scrollHeight, 
-          x: 0, 
-          y: 0,
+        html2canvas(body, { backgroundColor: bg, scale: scale, useCORS: true, allowTaint: true, logging: false, scrollX: 0, scrollY: -window.scrollY, width: body.scrollWidth, height: body.scrollHeight, windowWidth: body.scrollWidth, windowHeight: body.scrollHeight, x: 0, y: 0,
           onclone: function(clonedDoc) {
-            const clonedLogo = clonedDoc.querySelector('.circle-logo');
-            if (clonedLogo) {
-              clonedLogo.innerText = '历';
-              clonedLogo.style.fontSize = '20px';
-            }
-
-            const clonedInputs = clonedDoc.querySelectorAll('.zhen-item select, .zhen-item input');
-            clonedInputs.forEach(el => {
-              el.style.lineHeight = 'normal';
-              el.style.padding = '0';
-              el.style.margin = '0';
-            });
+            const clonedLogo = clonedDoc.querySelector('.circle-logo'); if (clonedLogo) { clonedLogo.innerText = '历'; clonedLogo.style.fontSize = '20px'; }
+            const clonedInputs = clonedDoc.querySelectorAll('.zhen-item select, .zhen-item input'); clonedInputs.forEach(el => { el.style.lineHeight = 'normal'; el.style.padding = '0'; el.style.margin = '0'; });
           }
         }).then(function (canvas) {
-          body.style.overflow = originalOverflow;
-          if (logo) { logo.innerText = '历'; logo.style.fontSize = '20px'; }
-          
+          body.style.overflow = originalOverflow; if (logo) { logo.innerText = '历'; logo.style.fontSize = '20px'; }
           canvas.toBlob(function (blob) {
-            if (!blob) {
-              alert('生成图片失败，请重试');
-              return;
-            }
-            
+            if (!blob) { alert('生成图片失败，请重试'); return; }
             const fileName = 'OOGO_' + new Date().toLocaleString().replace(/[\/:]/g, '-') + '.png';
             const url = URL.createObjectURL(blob);
-            
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             const isWechat = /MicroMessenger/i.test(navigator.userAgent);
 
             if (isMobile) {
               const file = new File([blob], fileName, { type: 'image/png' });
-              
               if (!isWechat && navigator.canShare && navigator.canShare({ files: [file] })) {
-                navigator.share({
-                  files: [file],
-                  title: 'OOGO奇门',
-                  text: 'OOGO奇门遁甲截图'
-                }).then(() => {
-                  showToast('✅ 保存成功');
-                }).catch((error) => {
-                  console.log('用户取消或分享失败', error);
-                });
-                return; 
+                navigator.share({ files: [file], title: 'OOGO奇门', text: 'OOGO奇门遁甲截图' }).then(() => { showToast('✅ 保存成功'); }).catch((error) => { console.log('用户取消或分享失败', error); }); return; 
               }
-
-              const overlay = document.createElement('div');
-              overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;';
-
-              const tip = document.createElement('div');
-              tip.innerText = '👉 请长按下方图片保存或分享 👈';
-              tip.style.cssText = 'color:#e2b45f;font-size:16px;margin-bottom:15px;font-weight:bold;letter-spacing:1px;';
-
-              const img = document.createElement('img');
-              img.src = url;
-              img.style.cssText = 'max-width:90%;max-height:80%;border-radius:8px;box-shadow:0 0 15px rgba(226,180,95,0.3);';
-
-              const closeBtn = document.createElement('div');
-              closeBtn.innerText = '✕ 关闭';
-              closeBtn.style.cssText = 'color:#fff;margin-top:20px;padding:8px 24px;border:1px solid #7a7a90;border-radius:20px;font-size:14px;cursor:pointer;';
-              closeBtn.onclick = function() {
-                document.body.removeChild(overlay);
-                setTimeout(function () { URL.revokeObjectURL(url); }, 100);
-              };
-
-              overlay.appendChild(tip);
-              overlay.appendChild(img);
-              overlay.appendChild(closeBtn);
-              document.body.appendChild(overlay);
-              
+              const overlay = document.createElement('div'); overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;';
+              const tip = document.createElement('div'); tip.innerText = '👉 请长按下方图片保存或分享 👈'; tip.style.cssText = 'color:#e2b45f;font-size:16px;margin-bottom:15px;font-weight:bold;letter-spacing:1px;';
+              const img = document.createElement('img'); img.src = url; img.style.cssText = 'max-width:90%;max-height:80%;border-radius:8px;box-shadow:0 0 15px rgba(226,180,95,0.3);';
+              const closeBtn = document.createElement('div'); closeBtn.innerText = '✕ 关闭'; closeBtn.style.cssText = 'color:#fff;margin-top:20px;padding:8px 24px;border:1px solid #7a7a90;border-radius:20px;font-size:14px;cursor:pointer;';
+              closeBtn.onclick = function() { document.body.removeChild(overlay); setTimeout(function () { URL.revokeObjectURL(url); }, 100); };
+              overlay.appendChild(tip); overlay.appendChild(img); overlay.appendChild(closeBtn); document.body.appendChild(overlay);
               showToast('✅ 图片生成成功，请长按保存');
             } else {
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = fileName;
-              a.style.display = 'none';
-              document.body.appendChild(a);
-              a.click(); 
-              document.body.removeChild(a);
-              
-              setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
-              showToast('✅ 图片已开始下载');
+              const a = document.createElement('a'); a.href = url; a.download = fileName; a.style.display = 'none'; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(function () { URL.revokeObjectURL(url); }, 2000); showToast('✅ 图片已开始下载');
             }
           }, 'image/png', 0.92);
-
         }).catch(function (err) {
-          body.style.overflow = originalOverflow;
-          if (logo) { logo.innerText = '历'; logo.style.fontSize = '20px'; }
+          body.style.overflow = originalOverflow; if (logo) { logo.innerText = '历'; logo.style.fontSize = '20px'; }
           alert('生成图片失败：' + (err && err.message ? err.message : '未知错误'));
         });
       }, 150);
     }
 
-    function showToast(msg) {
-      const old = document.getElementById('qimenToast');
-      if (old) old.remove();
-      const toast = document.createElement('div');
-      toast.id = 'qimenToast';
-      toast.innerText = msg;
+       function showToast(msg) {
+      const old = document.getElementById('qimenToast'); if (old) old.remove();
+      const toast = document.createElement('div'); toast.id = 'qimenToast'; toast.innerText = msg;
       toast.style.cssText = 'position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:10px 18px;border-radius:20px;font-size:14px;z-index:100000;pointer-events:none;white-space:nowrap;box-shadow:0 4px 6px rgba(0,0,0,0.3);';
-      document.body.appendChild(toast);
-      setTimeout(function () { toast.remove(); }, 2500);
+      document.body.appendChild(toast); setTimeout(function () { toast.remove(); }, 2500);
+    }
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('Service Worker 注册成功，已开启离线运行能力'))
+          .catch(err => console.error('SW 注册失败:', err));
+      });
     }
   </script>
 </body>
 </html>
+ 
