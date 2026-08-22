@@ -144,11 +144,11 @@
     
     .hidden-stem-text { color: var(--dark-stem-color); font-weight: bold; font-size: 13px; }
     .center-hidden-stem {
-      position: absolute;
-      right: 12px;
-      bottom: 6px;
-      z-index: 20;
-    }
+    position: absolute;
+    right: 12px;
+    bottom: 6px;
+    z-index: 20;
+}
     .palace-row { position: absolute; bottom: 6px; left: 12px; right: 20px; border-top: 1px dashed var(--border-color); padding-top: 4px; display: flex; justify-content: space-between; align-items: center; color: var(--palace-text); font-size: 13px; z-index: 10; }
     .inner-content { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: calc(100% - 40px); display: flex; flex-direction: column; gap: 9px; z-index: 10; }
     
@@ -190,6 +190,7 @@
       outline: 2px solid #dc2626 !important;
       outline-offset: 2px;
       border-radius: 3px;
+     /* background-color: rgba(220, 38, 38, 0.15) !important; /* <--- 就是这行红底背景 */
       display: inline-block;
       z-index: 99;
       transition: all 0.2s;
@@ -226,7 +227,8 @@
     </div>
 
     <div class="ctrl-row">
-      <div class="badge badge-nong" onclick="toggleChangSheng()" style="cursor:pointer; transition:all 0.3s;" title="点击切换十二长生">节</div>
+  <!-- 替换下面这一行 -->
+  <div class="badge badge-nong" onclick="toggleChangSheng()" style="cursor:pointer; transition:all 0.3s;" title="点击切换十二长生">节</div>
       <div style="flex: 1; background: var(--bg-main); border: 1px solid var(--border-color); height: 26px; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 0 2px; box-sizing: border-box;">
         <div id="jieqiRange" style="white-space: nowrap; font-size: min(11.5px, 2.9vw); font-weight: bold; color: var(--text-main); letter-spacing: -0.2px;">
           加载节气中...
@@ -238,6 +240,7 @@
       <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; gap: 8px;">
         
         <div style="display: flex; gap: 8px; align-items: center; min-width: 0;">
+          <!-- ★ 修改点 1：把“真”字标签改造成吉凶开关，并加了 onclick 事件 -->
           <div class="badge badge-zhen" onclick="toggleGeJu()" style="cursor:pointer;" title="点击开启隐藏吉凶扫描">真</div>
           <div class="zhen-group">
             <label class="zhen-item" style="flex: 0.8; cursor: pointer;">
@@ -297,7 +300,7 @@
           </div>
         </div>
 
-      </div>
+    </div>
       <button class="btn-big-start" onclick="generateChart()">起局</button>
     </div>
   </div>
@@ -309,44 +312,54 @@
     window.onerror = function(msg, url, line) { console.error("系统错误: " + msg + " (行: " + line + ")"); };
 
     let isChartGenerated = false;
-    let showGeJu = false; 
-    let currentYsVal = ''; 
-    let showChangSheng = false; 
+    let showGeJu = false; // ★ 修改点 2：增加全局变量记录是否开启格局显示
+    let currentYsVal = ''; // 记录当前选择的用神类别
+    let showChangSheng = false; // ★ 记录十二长生开关状态
 
-    function toggleChangSheng() {
-      showChangSheng = !showChangSheng;
-      localStorage.setItem('oogo_show_changsheng', showChangSheng);
-      if (isChartGenerated) {
-        generateChart(); 
-      } else {
-        showToast(showChangSheng ? '🌱 十二长生：已开启' : '🌱 十二长生：已关闭');
-      }
-    }
+// ★ 十二长生切换控制函数
+  function toggleChangSheng() {
+  showChangSheng = !showChangSheng;
+  // ★ 新增：将当前开关状态存入本地存储 (转成字符串 'true' 或 'false')
+  localStorage.setItem('oogo_show_changsheng', showChangSheng);
+  if (isChartGenerated) {
+    generateChart(); 
+  } else {
+    // 依然保留底部的弹窗提示，让你自己知道开关状态
+    showToast(showChangSheng ? '🌱 十二长生：已开启' : '🌱 十二长生：已关闭');
+  }
+}
   
+    // 切换用神选项触发
     function changeYS(val) {
       currentYsVal = val;
       applyYongShenHighlight();
     }
 
+    // 执行用神高亮的核心逻辑
     function applyYongShenHighlight() {
+      // 1. 先清除盘面上所有已有的红框
       document.querySelectorAll('.highlight-ys').forEach(el => {
         el.classList.remove('highlight-ys');
       });
 
+      // 如果选的是空白（无），直接结束
       if (!currentYsVal) return;
 
+      // 2. 根据选项定义对应的用神关键字
       let targets = [];
       switch (currentYsVal) {
-        case '1': targets = ['戊', '生']; break;          
-        case '2': targets = ['戊', '生', '死', '符', '地', '辛']; break;          
-        case '3': targets = ['开', '符']; break;                
-        case '4': targets = ['丁', '辅', '景', '符']; break;          
-        case '5': targets = ['乙', '庚', '六', '丙', '丁']; break;    
-        case '6': targets = ['乙', '芮', '心']; break;          
+        case '1': targets = ['戊', '生']; break;          // 求财
+        case '2': targets = ['戊', '生', '死', '符', '地', '辛']; break;          // 风水
+        case '3': targets = ['开', '符']; break;                // 事业
+        case '4': targets = ['丁', '辅', '景', '符']; break;          // 学业
+        case '5': targets = ['乙', '庚', '六', '丙', '丁']; break;    // 婚姻
+        case '6': targets = ['乙', '芮', '心']; break;          // 身体
       }
 
+      // 3. 遍历所有的宫格，寻找匹配的字并高亮
       const cells = document.querySelectorAll('.cell');
       cells.forEach(cell => {
+        // 只检查星、门、神、天干、地支的元素
         const elements = cell.querySelectorAll('.gate-text, .star-text, .deity-text, .stem-h, .stem-e');
         elements.forEach(el => {
           if (targets.some(t => el.innerText.includes(t))) {
@@ -369,6 +382,7 @@
     }
     initDateSelects();
 
+    // ★ 修改点 3：增加控制格局切换和按钮变色的函数
     function toggleGeJu() {
       showGeJu = !showGeJu;
       const zhenBadge = document.querySelector('.badge-zhen');
@@ -504,15 +518,18 @@
     }
     
     initSettings();
+    // 初始化时读取本地存储的十二长生状态
+function initChangShengSetting() {
+  const savedState = localStorage.getItem('oogo_show_changsheng');
+  if (savedState !== null) {
+    // 字符串转成布尔值
+    showChangSheng = (savedState === 'true');
+  }
+}
 
-    function initChangShengSetting() {
-      const savedState = localStorage.getItem('oogo_show_changsheng');
-      if (savedState !== null) {
-        showChangSheng = (savedState === 'true');
-      }
-    }
+// 页面加载时执行它
+initChangShengSetting();
 
-    initChangShengSetting();
 
     function toggleTheme() { 
       document.body.classList.toggle('light-theme');
@@ -652,57 +669,44 @@
           let hiddenStem = "";
           if (panType === 'fei') hiddenStem = p.hiddenStem || "";
           else if (chart.hiddenStems && typeof chart.hiddenStems.get === 'function') hiddenStem = chart.hiddenStems.get(pos) || "";
-          else if (chart.hiddenStems) hiddenStem = chart.hiddenStems[pos] || "";          
-          let dayStem = chart.fourPillars.day.stem; 
-          let dColor = getWuxingColor(dayStem);
-          const hDetails = p.heavenlyStemDetails || (Array.isArray(p.heavenlyStem) ? p.heavenlyStem.map(s=>({stem:s, cs:''})) : [{ stem: p.heavenlyStem, cs: '' }]);
-          const eDetails = p.earthlyStemDetails || (Array.isArray(p.earthlyStem) ? p.earthlyStem.map(s=>({stem:s, cs:''})) : [{ stem: p.earthlyStem, cs: '' }]);
-                   // 格式化长生词：加深斜杠颜色，清晰隔开
-          const formatCsText = (cs) => {
-            if (!cs) return '';
-            return cs.trim().split(/\s+/).join('<span style="color:var(--text-gray); font-size:9px; margin:0 1px; opacity:0.8;">/</span>');
-          };
-
-          // 天盘干：保持原代码完全不变
-          let showHStem = hDetails.map(item => {
-            if (!item.stem) return '';
-            let stemChar = (item.stem === dayStem) ? `<span style="color:${dColor};">${item.stem}</span>` : item.stem;
-            let formattedCs = formatCsText(item.cs);
-            let csHtml = (showChangSheng && item.cs && pos !== 5) 
-              ? `<span style="position:absolute; top:100%; left:50%; transform:translateX(-50%) scale(0.78); transform-origin:top center; font-size:10.5px; color:var(--text-gray); font-weight:normal; line-height:1; white-space:nowrap; margin-top:2.5px; pointer-events:none; z-index:5;">${formattedCs}</span>` 
-              : '';
-            return `<span style="position:relative; display:inline-block; vertical-align:middle; margin:0 1.5px;">${stemChar}${csHtml}</span>`;
-          }).join('/');
-
-          // 地盘干：字号、缩放、各自居中定位完全还原；通过给斜杠左右增加间距撑开双干，消除长生重叠
-          let isMultiE = eDetails.filter(d => d.stem).length > 1;
-          let showEStem = eDetails.map(item => {
-            if (!item.stem) return '';
-            let formattedCs = formatCsText(item.cs);
-            let csHtml = (showChangSheng && item.cs && pos !== 5) 
-              ? `<span style="position:absolute; top:100%; left:50%; transform:translateX(-50%) scale(0.78); transform-origin:top center; font-size:9px; color:var(--text-gray); font-weight:normal; line-height:1; white-space:nowrap; margin-top:2.5px; pointer-events:none; z-index:5;">${formattedCs}</span>` 
-              : '';
-            return `<span style="position:relative; display:inline-block; vertical-align:middle; margin:0 1.5px;">${item.stem}${csHtml}</span>`;
-          }).join(isMultiE && showChangSheng ? '<span style="margin: 0 1px;">/</span>' : '/');
- 
-          let origGate = p.gate || ''; 
-          let gateName = origGate.replace('门', '');
+          else if (chart.hiddenStems) hiddenStem = chart.hiddenStems[pos] || "";
+          
+          let hStem = Array.isArray(p.heavenlyStem) ? p.heavenlyStem.join('/') : (p.heavenlyStem || '');
+          let eStem = Array.isArray(p.earthlyStem) ? p.earthlyStem.join('/') : (p.earthlyStem || '');
+          
+          let dayStem = chart.fourPillars.day.stem; let dColor = getWuxingColor(dayStem);
+          let showHStem = hStem.replace(new RegExp(dayStem, 'g'), `<span style="color:${dColor};">${dayStem}</span>`);
+          let showEStem = eStem; 
+// ====== ★ 新增：十二长生 UI 渲染注入点 ======
+if (showChangSheng && pos !== 5) {
+  // 直接从后端 OogoTagEnhancer 传过来的数据对象(p)里取值
+  let csH = p.heavenlyChangsheng; 
+  let csE = p.earthlyChangsheng;  
+  
+  if (csH) {
+    showHStem = `<span style="position:relative; display:inline-block;">${showHStem}<span style="position:absolute; bottom:-12px; right:0; font-size:10px; color:var(--text-gray); font-weight:normal; letter-spacing:-0.5px; transform:scale(0.85); transform-origin:right; white-space:nowrap; z-index:5;">${csH}</span></span>`;
+  }
+  if (csE) {
+    showEStem = `<span style="position:relative; display:inline-block;">${showEStem}<span style="position:absolute; bottom:-12px; right:0; font-size:10px; color:var(--text-gray); font-weight:normal; letter-spacing:-0.5px; transform:scale(0.85); transform-origin:right; white-space:nowrap; z-index:5;">${csE}</span></span>`;
+  }
+}
+          let origGate = p.gate || ''; let gateName = origGate.replace('门', '');
           let gateClass = (origGate === '生门' || origGate === '休门' || origGate === '开门') ? 'gate-g' : ((origGate === '杜门' || origGate === '景门') ? 'gate-n' : 'gate-r');
           if (origGate === '中门') gateClass = 'gate-g';
 
           let tagsArr = [];
-          if (p.uiTagKong) tagsArr.push('<span class="tag-kong">空</span>');
-          if (p.uiTagMa) tagsArr.push('<span class="tag-ma">马</span>');         
+        if (p.uiTagKong) tagsArr.push('<span class="tag-kong">空</span>');
+         if (p.uiTagMa) tagsArr.push('<span class="tag-ma">马</span>');         
           if (p.uiTagMu) tagsArr.push('<span class="tag-mu">墓</span>');
-          if (p.uiTagPo) tagsArr.push('<span class="tag-po">迫</span>');
+           if (p.uiTagPo) tagsArr.push('<span class="tag-po">迫</span>');
           if (p.uiTagJx) tagsArr.push('<span class="tag-jx">刑</span>');  
 
           let isCrowded = tagsArr.length >= 3; 
           let tagsHtml = '';
           if (tagsArr.length > 0) tagsHtml = `<div style="position:absolute; top:1px; right:1px; display:flex; gap:3px; flex-direction:row-reverse; z-index:10;">${tagsArr.join('')}</div>`;
 
-          let hClass = hDetails.length > 1 ? 'right-item stem-h small-stem-h' : 'right-item stem-h';
-          let eClass = eDetails.length > 1 ? 'right-item stem-e small-stem-e' : 'right-item stem-e';
+          let hClass = hStem.indexOf('/') !== -1 ? 'right-item stem-h small-stem-h' : 'right-item stem-h';
+          let eClass = eStem.indexOf('/') !== -1 ? 'right-item stem-e small-stem-e' : 'right-item stem-e';
           
           let innerHtml = '<div class="row"><div class="left-item deity deity-text">' + tDeity + '</div><div class="' + hClass + '">' + showHStem + '</div></div><div class="row"><div class="left-item star star-text">' + starName + '</div><div class="' + eClass + '">' + showEStem + '</div></div><div class="row"><div class="left-item ' + gateClass + ' gate-text">' + gateName + '</div><div class="right-item edeity-text">' + eDeity + '</div></div>';
 
@@ -712,7 +716,7 @@
                     let isJi = pat.type.includes('吉');
                     let isXiong = pat.type.includes('凶');
                     let color = isJi ? 'var(--c-gate-g)' : (isXiong ? 'var(--c-gate-r)' : 'var(--text-gold)');
-                    let bg = isJi ? 'rgba(34, 197, 94, 0.15)' : (isXiong ? 'rgba(220, 38, 38, 0.15)' : 'rgba(251, 191, 36, 0.15)');
+let bg = isJi ? 'rgba(34, 197, 94, 0.15)' : (isXiong ? 'rgba(220, 38, 38, 0.15)' : 'rgba(251, 191, 36, 0.15)');
 
                     return `<div style="font-size:12px; font-weight:bold; color:${color}; background:${bg}; padding:2px 4px; border-radius:4px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:1px;">${pat.name}</div>`;
                 }).join('');
@@ -739,17 +743,42 @@
             if (panType === 'fei') { 
               gridHtml += '<div class="cell"><svg class="taichi-svg" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.06;z-index:0;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#fff" stroke="var(--border-color)" stroke-width="1"/><path d="M 50 2 A 48 48 0 0 1 50 98 C 18 98, 18 50, 50 50 C 82 50, 82 2, 50 2 Z" fill="#000"/></svg>' + tagsHtml + dzHtml + '<div class="inner-content" style="z-index:1;">' + innerHtml + '</div><div class="palace-row" style="z-index:1;"><span>中5宫</span><span class="hidden-stem-text">' + hiddenStem + '</span></div></div>';
             } else { 
-              gridHtml += `
-                <div class="cell center-cell">
-                  <svg class="taichi-svg" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="48" fill="#fff" stroke="var(--border-color)" stroke-width="1"/>
-                    <path d="M 50 2 A 48 48 0 0 1 50 98 C 18 98, 18 50, 50 50 C 82 50, 82 2, 50 2 Z" fill="#000"/>
-                    <text x="50" y="26" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="25" font-weight="bold" fill="#000" text-anchor="middle">${cH}</text>
-                    <text x="50" y="74" dominant-baseline="central" font-family="-apple-system, sans-serif" font-size="25" font-weight="bold" fill="#fff" text-anchor="middle">${cE}</text>
-                  </svg>
-                  <span class="hidden-stem-text center-hidden-stem">${hiddenStem || ''}</span>
-                </div>`;
-            }
+  gridHtml += `
+    <div class="cell center-cell">
+
+      <svg class="taichi-svg" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="48"
+          fill="#fff"
+          stroke="var(--border-color)"
+          stroke-width="1"/>
+
+        <path d="M 50 2 A 48 48 0 0 1 50 98
+                 C 18 98, 18 50, 50 50
+                 C 82 50, 82 2, 50 2 Z"
+          fill="#000"/>
+
+        <text x="50" y="26"
+          dominant-baseline="central"
+          font-family="-apple-system, sans-serif"
+          font-size="25"
+          font-weight="bold"
+          fill="#000"
+          text-anchor="middle">${cH}</text>
+
+        <text x="50" y="74"
+          dominant-baseline="central"
+          font-family="-apple-system, sans-serif"
+          font-size="25"
+          font-weight="bold"
+          fill="#fff"
+          text-anchor="middle">${cE}</text>
+      </svg>
+
+      <!-- 中宫暗干：与其他八宫统一放右下角 -->
+      <span class="hidden-stem-text center-hidden-stem">${hiddenStem || ''}</span>
+
+    </div>`;
+}
           } else { 
             gridHtml += '<div class="cell">' + tagsHtml + dzHtml + '<div class="inner-content">' + innerHtml + '</div><div class="palace-row"><span>' + guaMap[pos] + pos + '宫</span><span class="hidden-stem-text">' + hiddenStem + '</span></div></div>';
           }
@@ -757,6 +786,8 @@
         });
         
         document.getElementById('chartGrid').innerHTML = gridHtml;
+
+        // 每次重新起局或切换参数后，重新渲染当前的用神高亮状态
         applyYongShenHighlight();
 
         if (showGeJu && chart.globalPatterns && chart.globalPatterns.length > 0) {
@@ -818,7 +849,7 @@
       }, 150);
     }
 
-    function showToast(msg) {
+       function showToast(msg) {
       const old = document.getElementById('qimenToast'); if (old) old.remove();
       const toast = document.createElement('div'); toast.id = 'qimenToast'; toast.innerText = msg;
       toast.style.cssText = 'position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:10px 18px;border-radius:20px;font-size:14px;z-index:100000;pointer-events:none;white-space:nowrap;box-shadow:0 4px 6px rgba(0,0,0,0.3);';
@@ -837,3 +868,4 @@
   </script>
 </body>
 </html>
+ 
