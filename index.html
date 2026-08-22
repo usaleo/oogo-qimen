@@ -657,7 +657,7 @@
           let dColor = getWuxingColor(dayStem);
           const hDetails = p.heavenlyStemDetails || (Array.isArray(p.heavenlyStem) ? p.heavenlyStem.map(s=>({stem:s, cs:''})) : [{ stem: p.heavenlyStem, cs: '' }]);
           const eDetails = p.earthlyStemDetails || (Array.isArray(p.earthlyStem) ? p.earthlyStem.map(s=>({stem:s, cs:''})) : [{ stem: p.earthlyStem, cs: '' }]);
-                    // 格式化长生词：加深斜杠颜色，清晰隔开
+                   // 格式化长生词：加深斜杠颜色，清晰隔开
           const formatCsText = (cs) => {
             if (!cs) return '';
             return cs.trim().split(/\s+/).join('<span style="color:var(--text-gray); font-size:9px; margin:0 1px; opacity:0.8;">/</span>');
@@ -674,19 +674,17 @@
             return `<span style="position:relative; display:inline-block; vertical-align:middle; margin:0 1.5px;">${stemChar}${csHtml}</span>`;
           }).join('/');
 
-          // 地盘干：单干/双干均合并排版，双干长生间加入 4px 隐形竖杠间距隔开
-          let stemsEHtml = eDetails.map(item => item.stem).filter(Boolean).join('/');
-          let csEGroupHtml = '';
-          if (showChangSheng && pos !== 5) {
-            let csList = eDetails.map(d => formatCsText(d.cs)).filter(Boolean);
-            if (csList.length > 0) {
-              // 4.5px 刚好等于一个细竖杠占位宽度
-              let joinedCs = csList.join('<span style="display:inline-block; width:4px;"></span>');
-              csEGroupHtml = `<div style="position:absolute; top:100%; right:0; transform:scale(0.72); transform-origin:right top; font-size:9.5px; color:var(--text-gray); font-weight:normal; line-height:1; white-space:nowrap; margin-top:2px; pointer-events:none; z-index:5;">${joinedCs}</div>`;
-            }
-          }
-          let showEStem = `<span style="position:relative; display:inline-block; vertical-align:middle;">${stemsEHtml}${csEGroupHtml}</span>`;
-
+          // 地盘干：字号、缩放、各自居中定位完全还原；通过给斜杠左右增加间距撑开双干，消除长生重叠
+          let isMultiE = eDetails.filter(d => d.stem).length > 1;
+          let showEStem = eDetails.map(item => {
+            if (!item.stem) return '';
+            let formattedCs = formatCsText(item.cs);
+            let csHtml = (showChangSheng && item.cs && pos !== 5) 
+              ? `<span style="position:absolute; top:100%; left:50%; transform:translateX(-50%) scale(0.78); transform-origin:top center; font-size:9px; color:var(--text-gray); font-weight:normal; line-height:1; white-space:nowrap; margin-top:2.5px; pointer-events:none; z-index:5;">${formattedCs}</span>` 
+              : '';
+            return `<span style="position:relative; display:inline-block; vertical-align:middle; margin:0 1.5px;">${item.stem}${csHtml}</span>`;
+          }).join(isMultiE && showChangSheng ? '<span style="margin: 0 4px;">/</span>' : '/');
+ 
           let origGate = p.gate || ''; 
           let gateName = origGate.replace('门', '');
           let gateClass = (origGate === '生门' || origGate === '休门' || origGate === '开门') ? 'gate-g' : ((origGate === '杜门' || origGate === '景门') ? 'gate-n' : 'gate-r');
