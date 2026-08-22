@@ -174,7 +174,7 @@ const QimenUtil = {
       let offset = isYin ? (startIdx - b + 12) % 12 : (b - startIdx + 12) % 12;
       return states[offset];
     }).join(' ');
-  }
+  },
 // ============================================================
 // 三、CalendarAdapter
 // ============================================================
