@@ -665,8 +665,9 @@
             if (!item.stem) return '';
             let stemChar = (item.stem === dayStem) ? `<span style="color:${dColor};">${item.stem}</span>` : item.stem;
             let csHtml = (showChangSheng && item.cs && pos !== 5) 
-              ? `<span style="position:absolute; top:100%; left:50%; transform:translateX(-50%) scale(0.72); transform-origin:top center; font-size:10px; color:var(--text-gray); font-weight:normal; line-height:1; white-space:nowrap; margin-top:1px; pointer-events:none; z-index:5;">${item.cs}</span>` 
-              : '';
+  ? `<span style="position:absolute; top:100%; left:50%; transform:translateX(-50%) scale(0.72); transform-origin:top center; font-size:10px; color:var(--text-gray); font-weight:normal; line-height:1; white-space:nowrap; margin-top:1px; pointer-events:none; z-index:5;">${item.cs.replace(/\s+/g, '&emsp;')}</span>` 
+  : '';
+
             return `<span style="position:relative; display:inline-block; vertical-align:middle;">${stemChar}${csHtml}</span>`;
           }).join('<span style="margin:0 1px; opacity:0.6;">/</span>');
 
