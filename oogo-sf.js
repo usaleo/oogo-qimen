@@ -153,35 +153,28 @@ const QimenUtil = {
   // ==========================================
   // ★ 新增：十天干十二长生法理推算算法
   // ==========================================
-  getChangSheng(stem, palace) {
-    if (!stem || palace === 5) return ""; // 中5宫或无天干时不计算
+    getChangSheng(stem, palace) {
+    if (!stem || palace === 5) return "";
     
-    // 提取可能的数组或字符串的第一个字 (如遇到寄宫情况 "丙/戊"，只取 "丙")
-    const mainStem = Array.isArray(stem) ? stem[0] : (typeof stem === 'string' ? stem.split('/')[0] : stem);
-    
-    const states = ["生", "沐", "冠", "临", "旺", "衰", "病", "死", "墓", "绝", "胎", "养"];
+    // 采用标准十二长生全称
+    const states = ["长生", "沐浴", "冠带", "临官", "帝旺", "衰", "病", "死", "墓", "绝", "胎", "养"];
     // 九宫对应的地支索引 (子=0, 丑=1... 亥=11)
     const branchesMap = { 1:[0], 8:[1,2], 3:[3], 4:[4,5], 9:[6], 2:[7,8], 7:[9], 6:[10,11] };
-    // 十天干长生起点地支索引 (阳顺阴逆)
+    // 起点地支索引 (阳顺阴逆)
     const startMap = { '甲':11, '乙':6, '丙':2, '丁':9, '戊':2, '己':9, '庚':5, '辛':0, '壬':8, '癸':3 };
-    const isYin = ['乙', '丁', '己', '辛', '癸'].includes(mainStem);
 
-    if (!startMap.hasOwnProperty(mainStem)) return "";
-    const startIdx = startMap[mainStem];
     const palaceBranches = branchesMap[palace];
+    if (!palaceBranches || !startMap.hasOwnProperty(stem)) return "";
 
-    let res = [];
-    // 遍历宫内包含的地支，四正宫1个，四维宫2个
-    for (let i = 0; i < palaceBranches.length; i++) {
-      let b = palaceBranches[i];
-      // 阳干顺行，阴干逆行计算偏移量
+    const startIdx = startMap[stem];
+    const isYin = ['乙', '丁', '己', '辛', '癸'].includes(stem);
+
+    // 四维宫两个地支计算出的长生用空格隔开，如 "衰 病"
+    return palaceBranches.map(b => {
       let offset = isYin ? (startIdx - b + 12) % 12 : (b - startIdx + 12) % 12;
-      res.push(states[offset]);
-    }
-    return res.join(''); // 返回组合字符串，如 "沐" 或 "衰病"
+      return states[offset];
+    }).join(' ');
   }
-};  
-
 // ============================================================
 // 三、CalendarAdapter
 // ============================================================
@@ -475,13 +468,13 @@ const OogoTagEnhancer = {
     const kong = OogoKongWang.get(timeStem, timeBranch);
     const kongPalaces = kong.map(b => OogoKongWang.branchToPalace(b)).filter(Boolean);
     const ma = OogoYiMa.calculate(timeBranch);
+        chart.palaces.forEach(p => {
+      // 提取主天干和主地干（用于神煞判断）
+      const hStemList = Array.isArray(p.heavenlyStem) ? p.heavenlyStem : [p.heavenlyStem].filter(Boolean);
+      const eStemList = Array.isArray(p.earthlyStem) ? p.earthlyStem : [p.earthlyStem].filter(Boolean);
+      const hStem = hStemList[0] || "";
+      const eStem = eStemList[0] || "";
 
-    chart.palaces.forEach(p => {
-      // 提取主天干和主地干
-      const hStem = Array.isArray(p.heavenlyStem) ? p.heavenlyStem[0] : p.heavenlyStem;
-      const eStem = Array.isArray(p.earthlyStem) ? p.earthlyStem[0] : p.earthlyStem;
-
-      // 原有的标签逻辑
       p.uiTagKong = kongPalaces.includes(p.position);
       p.uiTagMa = (p.position === ma.palace);
       p.uiTagJx = QimenUtil.isJiXing(hStem, p.position);
@@ -491,13 +484,17 @@ const OogoTagEnhancer = {
       p.gatePressure = { hasPressure: p.uiTagPo, text: p.uiTagPo ? "门迫" : "" };
       p.tombInfo = { heavenlyStemInTomb: p.uiTagMu ? [hStem] : [], earthlyStemInTomb: [] };
       
-      // ==========================================
-      // ★ 新增：将十二长生状态作为属性写入返回的数据中
-      // ==========================================
-      p.heavenlyChangsheng = QimenUtil.getChangSheng(hStem, p.position);
-      p.earthlyChangsheng = QimenUtil.getChangSheng(eStem, p.position);
-    });
+      // ★ 针对每个干（本宫干 + 天禽寄干）分别计算长生，支持两套寄宫模式
+      p.heavenlyStemDetails = hStemList.map(s => ({
+        stem: s,
+        cs: QimenUtil.getChangSheng(s, p.position)
+      }));
 
+      p.earthlyStemDetails = eStemList.map(s => ({
+        stem: s,
+        cs: QimenUtil.getChangSheng(s, p.position)
+      }));
+    });
     chart.kongWang = { branches: kong, palaces: kongPalaces };
     chart.yiMa = ma;
     chart.uiTagFuYinFanYin = OogoFuFan.analyze(chart.palaces);
