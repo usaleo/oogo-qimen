@@ -683,7 +683,7 @@
               ? `<span style="position:absolute; top:100%; left:50%; transform:translateX(-50%) scale(0.78); transform-origin:top center; font-size:9px; color:var(--text-gray); font-weight:normal; line-height:1; white-space:nowrap; margin-top:2.5px; pointer-events:none; z-index:5;">${formattedCs}</span>` 
               : '';
             return `<span style="position:relative; display:inline-block; vertical-align:middle; margin:0 1.5px;">${item.stem}${csHtml}</span>`;
-          }).join(isMultiE && showChangSheng ? '<span style="margin: 0 4px;">/</span>' : '/');
+          }).join(isMultiE && showChangSheng ? '<span style="margin: 0 1px;">/</span>' : '/');
  
           let origGate = p.gate || ''; 
           let gateName = origGate.replace('门', '');
