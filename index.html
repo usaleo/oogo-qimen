@@ -147,6 +147,12 @@
       z-index: 99;
       transition: all 0.2s;
     }
+    .highlight-daygan {
+      outline: 1.5px solid #dc2626;
+      outline-offset: 1px;
+      border-radius: 2px;
+      display: inline-block;
+    }
     @media (min-width: 600px) {
       body { max-width: 520px; padding: 16px; }
       .cell { height: 145px; }
@@ -548,13 +554,20 @@
           let hStem = Array.isArray(p.heavenlyStem) ? p.heavenlyStem.join('/') : (p.heavenlyStem || '');
           let eStem = Array.isArray(p.earthlyStem) ? p.earthlyStem.join('/') : (p.earthlyStem || '');
           let dayStem = chart.fourPillars.day.stem;
-          let dColor = getWuxingColor(dayStem);
+          let matchDayStem = dayStem;
+          if (dayStem === '甲') {
+            const jiaDunMap = { '子': '戊', '戌': '己', '申': '庚', '午': '辛', '辰': '壬', '寅': '癸' };
+            matchDayStem = jiaDunMap[chart.fourPillars.day.branch] || '戊';
+          }
+          let dColor = getWuxingColor(matchDayStem);
           let hStemList = Array.isArray(p.heavenlyStem) ? p.heavenlyStem : [p.heavenlyStem].filter(Boolean);
           let eStemList = Array.isArray(p.earthlyStem) ? p.earthlyStem : [p.earthlyStem].filter(Boolean);
           function renderStemWithCS(stemList, detailsList, isTianPan) {
             let stemsHtml = stemList.map(stem => {
-              let color = (isTianPan && stem === dayStem) ? dColor : 'inherit';
-              return `<span style="color:${color};">${stem}</span>`;
+              let isDayMatch = (isTianPan && stem === matchDayStem);
+              let color = isDayMatch ? dColor : 'inherit';
+              let boxClass = isDayMatch ? 'highlight-daygan' : '';
+              return `<span class="${boxClass}" style="color:${color};">${stem}</span>`;
             }).join('/');
             let csList = stemList.map((stem, idx) => {
               let detail = (detailsList && detailsList[idx]) ? detailsList[idx] : null;
