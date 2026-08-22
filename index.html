@@ -677,19 +677,19 @@ initChangShengSetting();
           let dayStem = chart.fourPillars.day.stem; let dColor = getWuxingColor(dayStem);
           let showHStem = hStem.replace(new RegExp(dayStem, 'g'), `<span style="color:${dColor};">${dayStem}</span>`);
           let showEStem = eStem; 
-// ====== ★ 新增：十二长生 UI 渲染注入点 ======
+          // ====== ★ 十二长生 UI 渲染注入点（居中对齐版） ======
 if (showChangSheng && pos !== 5) {
-  // 直接从后端 OogoTagEnhancer 传过来的数据对象(p)里取值
   let csH = p.heavenlyChangsheng; 
   let csE = p.earthlyChangsheng;  
   
   if (csH) {
-    showHStem = `<span style="position:relative; display:inline-block;">${showHStem}<span style="position:absolute; bottom:-12px; right:0; font-size:10px; color:var(--text-gray); font-weight:normal; letter-spacing:-0.5px; transform:scale(0.85); transform-origin:right; white-space:nowrap; z-index:5;">${csH}</span></span>`;
+    showHStem = `<span style="position:relative; display:inline-flex; flex-direction:column; align-items:center; vertical-align:bottom;">${showHStem}<span style="position:absolute; bottom:-11px; left:50%; transform:translateX(-50%) scale(0.8); font-size:10px; color:var(--text-gray); font-weight:normal; letter-spacing:0; white-space:nowrap; z-index:5;">${csH}</span></span>`;
   }
   if (csE) {
-    showEStem = `<span style="position:relative; display:inline-block;">${showEStem}<span style="position:absolute; bottom:-12px; right:0; font-size:10px; color:var(--text-gray); font-weight:normal; letter-spacing:-0.5px; transform:scale(0.85); transform-origin:right; white-space:nowrap; z-index:5;">${csE}</span></span>`;
+    showEStem = `<span style="position:relative; display:inline-flex; flex-direction:column; align-items:center; vertical-align:bottom;">${showEStem}<span style="position:absolute; bottom:-11px; left:50%; transform:translateX(-50%) scale(0.8); font-size:10px; color:var(--text-gray); font-weight:normal; letter-spacing:0; white-space:nowrap; z-index:5;">${csE}</span></span>`;
   }
 }
+
           let origGate = p.gate || ''; let gateName = origGate.replace('门', '');
           let gateClass = (origGate === '生门' || origGate === '休门' || origGate === '开门') ? 'gate-g' : ((origGate === '杜门' || origGate === '景门') ? 'gate-n' : 'gate-r');
           if (origGate === '中门') gateClass = 'gate-g';
