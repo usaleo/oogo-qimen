@@ -660,28 +660,23 @@
           const hDetails = p.heavenlyStemDetails || (Array.isArray(p.heavenlyStem) ? p.heavenlyStem.map(s=>({stem:s, cs:''})) : [{ stem: p.heavenlyStem, cs: '' }]);
           const eDetails = p.earthlyStemDetails || (Array.isArray(p.earthlyStem) ? p.earthlyStem.map(s=>({stem:s, cs:''})) : [{ stem: p.earthlyStem, cs: '' }]);
 
-          // 渲染天盘干（带天禽寄干时横向排开，各自下方垂直对齐长生）
-          let showHStem = '<div style="display:inline-flex; align-items:flex-start; gap:6px;">' + 
-            hDetails.map(item => {
-              if (!item.stem) return '';
-              let stemChar = (item.stem === dayStem) ? `<span style="color:${dColor};">${item.stem}</span>` : item.stem;
-              let csHtml = (showChangSheng && item.cs && pos !== 5) 
-                ? `<div style="font-size:9.5px; color:var(--text-gray); font-weight:normal; line-height:1; margin-top:2px; transform:scale(0.85); transform-origin:center; white-space:nowrap;">${item.cs}</div>` 
-                : '';
-              return `<div style="display:inline-flex; flex-direction:column; align-items:center;"><span>${stemChar}</span>${csHtml}</div>`;
-            }).join('<span style="opacity:0.4; font-size:12px; margin-top:2px;">/</span>') + 
-          '</div>';
+          // 保持图2经典原版排版：绝对定位浮层，不撑大DOM，精准居中挂在每个干正下方
+          let showHStem = hDetails.map(item => {
+            if (!item.stem) return '';
+            let stemChar = (item.stem === dayStem) ? `<span style="color:${dColor};">${item.stem}</span>` : item.stem;
+            let csHtml = (showChangSheng && item.cs && pos !== 5) 
+              ? `<span style="position:absolute; top:100%; left:50%; transform:translateX(-50%) scale(0.72); transform-origin:top center; font-size:10px; color:var(--text-gray); font-weight:normal; line-height:1; white-space:nowrap; margin-top:1px; pointer-events:none; z-index:5;">${item.cs}</span>` 
+              : '';
+            return `<span style="position:relative; display:inline-block; vertical-align:middle;">${stemChar}${csHtml}</span>`;
+          }).join('<span style="margin:0 1px; opacity:0.6;">/</span>');
 
-          // 渲染地盘干（寄宫地盘双干同理对齐）
-          let showEStem = '<div style="display:inline-flex; align-items:flex-start; gap:6px;">' + 
-            eDetails.map(item => {
-              if (!item.stem) return '';
-              let csHtml = (showChangSheng && item.cs && pos !== 5) 
-                ? `<div style="font-size:9.5px; color:var(--text-gray); font-weight:normal; line-height:1; margin-top:2px; transform:scale(0.85); transform-origin:center; white-space:nowrap;">${item.cs}</div>` 
-                : '';
-              return `<div style="display:inline-flex; flex-direction:column; align-items:center;"><span>${item.stem}</span>${csHtml}</div>`;
-            }).join('<span style="opacity:0.4; font-size:11px; margin-top:1px;">/</span>') + 
-          '</div>';
+          let showEStem = eDetails.map(item => {
+            if (!item.stem) return '';
+            let csHtml = (showChangSheng && item.cs && pos !== 5) 
+              ? `<span style="position:absolute; top:100%; left:50%; transform:translateX(-50%) scale(0.72); transform-origin:top center; font-size:10px; color:var(--text-gray); font-weight:normal; line-height:1; white-space:nowrap; margin-top:1px; pointer-events:none; z-index:5;">${item.cs}</span>` 
+              : '';
+            return `<span style="position:relative; display:inline-block; vertical-align:middle;">${item.stem}${csHtml}</span>`;
+          }).join('<span style="margin:0 1px; opacity:0.6;">/</span>');
 
           let origGate = p.gate || ''; 
           let gateName = origGate.replace('门', '');
